@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>spc700</h1>
+<h1>SPC700</h1>
 
 <strong>An interpreter for the Sony SPC700, the processor inside the SNES audio unit.</strong>
 
