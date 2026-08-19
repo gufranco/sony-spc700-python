@@ -5,9 +5,7 @@
       "name": "spc700",
       "repository": "https://github.com/SingleStepTests/ProcessorTests.git",
       "commit": "bb11756436da8fd16cce86aef63dc6725f48836f",
-      "sparse": [
-        "spc700"
-      ],
+      "sparse": ["spc700"],
       "path": "spc700/v1",
       "tests_per_opcode": 1000,
       "files": 256
