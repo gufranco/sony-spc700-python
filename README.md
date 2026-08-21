@@ -37,6 +37,7 @@ cpu.pc = 0x0200
 cpu.step()
 
 cpu.a
+
 # 0x42
 ```
 
@@ -124,7 +125,9 @@ cd sony-spc700-python
 
 ```bash
 python3 spc700/core.test.py
+
 # Ran 105 tests in 0.03s
+
 # OK
 ```
 
@@ -137,6 +140,7 @@ These are the four places an implementation written from a summary of the instru
 ```python
 cpu.y, cpu.a, cpu.x = 0x00, 0x0A, 0x03
 cpu.step()
+
 # a = 3, y = 1, an ordinary quotient and remainder
 ```
 
@@ -147,6 +151,7 @@ Once the quotient no longer fits, the hardware does not fail and does not satura
 ```python
 cpu.a, cpu.c = 0x9A, False
 cpu.step()
+
 # a = 0x00, c = True
 ```
 
@@ -166,16 +171,20 @@ The `P` flag decides whether the direct page sits at `$0000` or `$0100`, so the 
 from spc700 import Cpu, Memory, SparseMemory
 
 SparseMemory().read8(0x1234)
+
 # some byte derived from the address; the same byte every time; not zero
 
 Memory(size=0x1000).data == bytearray(0x1000)
+
 # False
 
 Memory(size=0x1000, fill=0).data == bytearray(0x1000)
+
 # True, because a caller asked for it in writing
 
 cpu = Cpu(Memory(fill=0))
 cpu.a, cpu.x, cpu.y, cpu.sp
+
 # whatever a reset leaves behind, reproducible from the seed, not zero
 ```
 
@@ -210,11 +219,15 @@ That read is invisible in a comparison of the final state, because the byte goes
 python3 conformance/fetch.py ~/.cache/conformance-suites
 
 python3 conformance/singlestep.py ~/.cache/conformance-suites/spc700/spc700/v1
+
 #   256 files from ~/.cache/conformance-suites/spc700/spc700/v1
+
 #   256000 agreed, 0 did not
 
 python3 conformance/cycles.py ~/.cache/conformance-suites/spc700/spc700/v1
+
 #   256 files from ~/.cache/conformance-suites/spc700/spc700/v1
+
 #   256000 agreed, 0 did not, over 1182940 cycles
 ```
 
@@ -244,6 +257,7 @@ The model is chosen at construction, the same way it is across the sibling repos
 from spc700 import Cpu, SparseMemory, describe
 
 describe("s-smp").name
+
 # 'spc700'
 
 cpu = Cpu(SparseMemory(), model="spc700")
