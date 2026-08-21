@@ -23,7 +23,7 @@
   <a href="https://github.com/gufranco/sony-spc700-python/issues">Issues</a>
 </p>
 
-**256** opcodes · **66** mnemonics · **66** addressing forms · **256,000** conformance cases, **0** failures · **219** tests · **100%** statement and branch coverage
+**256** opcodes · **256,000** conformance cases and **1,182,940** cycles compared, **0** failures · every cycle count checked against **Nintendo's own tables** · **271** tests · **100%** statement and branch coverage
 
 ```python
 from spc700 import Cpu, SparseMemory
@@ -50,7 +50,7 @@ The division does not compute a quotient once the answer stops fitting. The deci
 
 ## The solution
 
-Every one of the 256 opcodes is implemented, and correctness is measured rather than asserted. The core is checked against [SingleStepTests](https://github.com/SingleStepTests/ProcessorTests), which carries 1,000 cases for each opcode with a full before and after state. All 256,000 pass.
+Every one of the 256 opcodes is implemented, and correctness is measured rather than asserted. Two different questions are asked and both are gates. What do the registers and memory hold one instruction later, against [SingleStepTests](https://github.com/SingleStepTests/ProcessorTests) and its 1,000 cases per opcode. And what happened on the bus while that instruction ran, cycle by cycle, against the same recording. All 256,000 cases and all 1,182,940 cycles agree.
 
 And nothing starts clean. Memory is filled with a reproducible scrambled pattern unless a caller asks for something else in writing, and a reset sets only what the hardware itself defines.
 
@@ -181,18 +181,48 @@ cpu.a, cpu.x, cpu.y, cpu.sp
 
 Audio RAM is not cleared at power on. It holds whatever pattern the parts settle into, and a driver that reads a byte before writing it is reading that pattern. Memory that begins at zero makes such a read look deliberate and stable, which is exactly how that class of bug survives a test suite and fails on hardware.
 
+## Where the facts come from
+
+Two sources, in order, and they answer different questions.
+
+**Nintendo's SNES Development Manual, Appendix C** gives every opcode with its length and the cycles it takes. [`conformance/hardware.json`](conformance/hardware.json) pins all 256 rows with the page each was read from, and [`conformance/hardware.test.py`](conformance/hardware.test.py) assembles each instruction, steps it, and checks it against that figure. A citation here is a check that can fail, not a claim in prose.
+
+**The recording** decides everything the manual does not, which is most of what matters. A count per instruction says nothing about which address a cycle drives, where the internal cycles fall, or which reads the part performs and throws away. Two cores agreeing with the manual on all 256 totals can still disagree with each other on most cycles.
+
+Nothing else is evidence. No emulator, no wiki, no other implementation of this part.
+
+> [!WARNING]
+> The manual's OCR text layer interleaves the table columns and will hand you a plausible wrong number without complaint. Every row was read off a rendered page image, and the three that disagree with the recording were read again at 450 dots per inch before being called a disagreement.
+
+[`conformance/divergences.json`](conformance/divergences.json) records every place the two part company, including the one instruction Nintendo gives the wrong figure.
+
+### The manual is wrong about one instruction
+
+`MOVW dp, YA` is printed as four cycles. The part takes five.
+
+The fifth is a read of the destination that every store on this part performs and discards. The manual is also uneven here: it gives the reading form `MOVW YA, dp` five cycles for two reads, and the writing form four for two writes plus the same addressing work.
+
+That read is invisible in a comparison of the final state, because the byte goes nowhere. It went unnoticed here through 256,000 passing cases until the bus was compared.
+
 ## Conformance
 
 ```bash
 python3 conformance/fetch.py ~/.cache/conformance-suites
+
 python3 conformance/singlestep.py ~/.cache/conformance-suites/spc700/spc700/v1
 #   256 files from ~/.cache/conformance-suites/spc700/spc700/v1
 #   256000 agreed, 0 did not
+
+python3 conformance/cycles.py ~/.cache/conformance-suites/spc700/spc700/v1
+#   256 files from ~/.cache/conformance-suites/spc700/spc700/v1
+#   256000 agreed, 0 did not, over 1182940 cycles
 ```
 
 The suite is several gigabytes, so [`conformance/fetch.py`](conformance/fetch.py) takes a partial clone that skips blob history and a sparse checkout of only the directories [`conformance/suites.json`](conformance/suites.json) names.
 
 Each case gives a full initial state, the bytes in memory, and the state one instruction later. [`conformance/singlestep.py`](conformance/singlestep.py) builds exactly that machine, steps once, and compares every register, the status register and every named byte. Memory outside the named bytes is scrambled rather than cleared, because the suite says nothing about those addresses.
+
+[`conformance/cycles.py`](conformance/cycles.py) asks the other question. Every cycle carries an address and a kind, and both are compared. A value is compared only where the case asserts one: the suite writes the value as null at every address the case does not name, and there the byte is whatever the machine held. That rule was checked across the suite rather than assumed.
 
 The suite comes from JSMoo by way of SingleStepTests, and its generator is published alongside it, so more cases can be produced than the 1,000 per opcode that ship.
 
@@ -200,8 +230,8 @@ The suite comes from JSMoo by way of SingleStepTests, and its generator is publi
 
 | When | What runs | On disagreement |
 |:-----|:----------|:----------------|
-| Pull request | 1,000 cases per opcode against the pinned commit | Fails the check |
-| Push to `main` | Every case against the pinned commit | Fails the check |
+| Pull request | 100 cases per opcode, both runners, against the pinned commit | Fails the check |
+| Push to `main` | Every case, both runners, against the pinned commit | Fails the check |
 | Weekly | Every case against whatever upstream holds now | Opens a pull request if it passes, an issue naming the opcodes if it does not |
 
 A pinned oracle keeps a build reproducible and stops an upstream edit from turning this repository red with no commit of its own to explain it. It is also how a repository stops noticing that the thing judging it has moved. [`.github/workflows/suite-watch.yml`](.github/workflows/suite-watch.yml) closes that gap without ever moving the pin on its own.
@@ -232,14 +262,19 @@ cpu = Cpu(SparseMemory(), model="spc700")
 spc700/
   __init__.py     the package, and the model chosen at construction
   core.py         the interpreter
+  bus.py          the cycle: what happened, and where
   opcodes.py      one table driving both execution and disassembly
   memory.py       memory that holds what it held
   models.py       what each part is
   version.py      rewritten by the release job and by nothing else
 conformance/
-  fetch.py        partial, sparse, pinned checkout of the suites
-  singlestep.py   runs the suite and reports what disagreed
-  suites.json     which suite, which commit
+  fetch.py          partial, sparse, pinned checkout of the suites
+  singlestep.py     what the registers and memory hold afterwards
+  cycles.py         what happened on the bus, cycle by cycle
+  hardware.json     Nintendo's tables, pinned row by row
+  hardware.test.py  this core's timing against those rows
+  divergences.json  every place the manual and the part part company
+  suites.json       which suite, which commit
 ```
 
 Each module has its tests beside it as `<module>.test.py`, so a module and the cases that pin its behaviour are read together.
@@ -256,7 +291,10 @@ for f in spc700/*.test.py conformance/*.test.py; do python3 "$f"; done
 | Opcode table | [`spc700/opcodes.test.py`](spc700/opcodes.test.py) | Decoding, bit and call index extraction, disassembly |
 | Memory | [`spc700/memory.test.py`](spc700/memory.test.py) | Scrambled fills, sparse derivation, address wrapping, seeding |
 | Models | [`spc700/models.test.py`](spc700/models.test.py) | The catalogue, alias matching, construction |
-| Conformance harness | [`conformance/singlestep.test.py`](conformance/singlestep.test.py) | State construction, comparison, reporting, the command line |
+| Bus | [`spc700/bus.test.py`](spc700/bus.test.py) | Recording, counting, masking, and what an internal cycle looks like |
+| State harness | [`conformance/singlestep.test.py`](conformance/singlestep.test.py) | State construction, comparison, reporting, the command line |
+| Cycle harness | [`conformance/cycles.test.py`](conformance/cycles.test.py) | Which cycles are compared, which values are not, and how a disagreement is named |
+| Timing | [`conformance/hardware.test.py`](conformance/hardware.test.py) | Every documented length and cycle count, and both figures of every branch |
 | Suite fetch | [`conformance/fetch.test.py`](conformance/fetch.test.py) | Checkout shape, timeouts, failure reporting, against a real git repository |
 
 Nothing is stubbed. The fetch tests run git against a repository built in a temporary directory, because a stand-in for git would only prove the stand-in works.
@@ -312,7 +350,9 @@ Because audio RAM is not zeroed at power on. Code that reads a byte it never wro
 <summary><strong>Is it cycle accurate?</strong></summary>
 <br>
 
-No, and it does not claim to be. It is instruction accurate, verified per instruction against a suite that specifies the full before and after state. The suite also publishes a cycle-by-cycle bus trace per case; that trace is not currently checked, and any future claim of cycle accuracy would be measured against it rather than asserted.
+Yes, against the recording, and the claim is worth stating precisely. Every cycle of all 256,000 cases is compared: 1,182,940 of them, each by kind and by the address it drives, plus the value wherever the case asserts one. Separately, and with no suite on the machine, every documented cycle count is checked against the figure Nintendo printed for it.
+
+What that does not cover is written down in [`conformance/divergences.json`](conformance/divergences.json). The shape of a cycle rests on the recording alone, because no document describes it. Interrupts are not modelled, because there is no pin to raise one on and the suite never raises one. The reset state of the registers is scrambled rather than claimed, because no source states it. `SLEEP` and `STOP` reproduce a recorded slice of a halt that does not end, which is not a cycle count at all.
 
 </details>
 

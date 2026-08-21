@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: What "cycle accurate" claims here, and what it does not
+    url: https://github.com/gufranco/sony-spc700-python#readme
+    about: Three behaviours are deliberately not modelled, and the README says which and why.
+  - name: Where the manual and the part disagree
+    url: https://github.com/gufranco/sony-spc700-python/blob/main/conformance/divergences.json
+    about: Including the one instruction Nintendo gives the wrong cycle count.
+  - name: The audio unit around this processor
+    url: https://github.com/gufranco/sony-s-dsp-python
+    about: Timers, ports and the sound generator are not this package.

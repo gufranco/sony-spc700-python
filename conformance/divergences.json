@@ -1,0 +1,86 @@
+{
+  "comment": "Every place the document and the recording disagree, and every place this core is deliberately not claiming something. Each entry says what the document says, what the recording does, which one this package follows, and what evidence would settle it. Nothing here is averaged away or quietly resolved.",
+  "sources": {
+    "document": "Nintendo SNES Development Manual, Book 1, Appendix C. Pinned in hardware.json.",
+    "recording": "SingleStepTests/ProcessorTests, spc700/v1, pinned by commit in suites.json. 256 files, 1000 cases each, every cycle carrying an address, a value where the case names one, and a kind."
+  },
+  "divergences": [
+    {
+      "id": "movw-dp-ya-costs-five",
+      "parts": ["spc700"],
+      "severity": "high",
+      "status": "open",
+      "documentSays": "Table C-11 gives MOVW dp, YA, code DA, as 2 bytes and 4 cycles. Read off the rendered page at 450 dots per inch to rule out a misread digit.",
+      "referenceDoes": "All 1000 cases take 5 cycles, in the shape read opcode, read the operand byte, read the low destination byte and discard it, write the low half, write the high half.",
+      "packageFollows": "recording",
+      "reasoning": "The discarded read is a store's read cycle, which every other store on this part also pays: MOV dp, A reads dp before writing it, and the recording shows the same shape there. A count with no breakdown cannot describe that cycle, so the document is not in a position to deny it. The document is also internally uneven here, giving the reading form MOVW YA, dp 5 cycles for two reads and the writing form 4 for two writes plus the same addressing work.",
+      "wouldSettleIt": "A logic analyser on a real S-SMP running MOVW dp, YA, counting cycles between two known instructions. Failing that, a second manufacturer document giving the same instruction a figure."
+    },
+    {
+      "id": "sleep-and-stop-have-no-cycle-count",
+      "parts": ["spc700"],
+      "severity": "low",
+      "status": "notADisagreement",
+      "documentSays": "Table C-20 gives SLEEP, code EF, and STOP, code FF, as 3 cycles each. Page C-1 says of this part: \"An SPC700 series is used for the SNES sound source CPU. However, standby and sleep modes cannot be used.\"",
+      "referenceDoes": "Both record 7 cycles, in the shape read opcode, read the next byte, then idle and read that same byte again, twice more.",
+      "packageFollows": "recording",
+      "reasoning": "Neither figure is a cycle count for the instruction, because the instruction does not finish. The part halts and repeats a read and an idle until something outside it intervenes, so a recording has to stop somewhere and 7 is where this one stops. The document's 3 counts the instruction up to the halt. This package reproduces the recorded shape so the comparison can run, and claims nothing about how long a halted part stays halted.",
+      "wouldSettleIt": "Nothing would, and that is the point. The number is a property of where the recording was cut, not of the processor."
+    },
+    {
+      "id": "the-cycle-shape-rests-on-the-recording-alone",
+      "parts": ["spc700"],
+      "severity": "high",
+      "status": "acknowledged",
+      "documentSays": "Nothing. Appendix C gives a cycle count per instruction and no breakdown of what happens inside one.",
+      "referenceDoes": "Names an address and a kind for every cycle of every case.",
+      "packageFollows": "recording",
+      "reasoning": "Every placement in this core, which cycle drives which address, where the internal cycles fall, which reads are discarded, comes from the recording and from nothing else. The document can confirm a total and can never confirm a shape. Two cores agreeing with the document on all 256 totals can still disagree with each other on most cycles, which is why the total is the weaker claim of the two.",
+      "wouldSettleIt": "A Sony datasheet for the SPC700, or the S-SMP schematic. Neither is known to have been published."
+    },
+    {
+      "id": "no-second-source-for-the-part-itself",
+      "parts": ["spc700"],
+      "severity": "medium",
+      "status": "open",
+      "documentSays": "Nintendo documents the instruction set as a licensee-facing appendix. It is not a Sony datasheet and does not describe the silicon.",
+      "referenceDoes": "n/a",
+      "packageFollows": "document",
+      "reasoning": "Nintendo shipped the part and wrote the manual its licensees programmed against, which makes the appendix manufacturer documentation for this purpose. It is still one source, written to be programmed against rather than to describe a device, and where it and a recording of the part disagree the part wins.",
+      "wouldSettleIt": "A Sony SPC700 datasheet or user manual. Searched on 2026-08-21 across Sony's semiconductor archives and the usual datasheet indexes; nothing was found."
+    },
+    {
+      "id": "interrupts-are-not-modelled",
+      "parts": ["spc700"],
+      "severity": "medium",
+      "status": "notModelled",
+      "documentSays": "Table C-16 gives BRK and RETI. Table C-19 gives EI and DI. No figure is given for accepting an interrupt.",
+      "referenceDoes": "Never raises one. Every case runs one instruction from a state it declares.",
+      "packageFollows": "neither",
+      "reasoning": "This core has no pin to raise an interrupt on, so there is nothing to model and nothing to check a model against. BRK, RETI, EI and DI are implemented because they are instructions; accepting an interrupt is not.",
+      "wouldSettleIt": "A recording of the part with the interrupt line asserted, or a manufacturer figure for the acknowledge sequence."
+    },
+    {
+      "id": "reset-state-is-invented-rather-than-documented",
+      "parts": ["spc700"],
+      "severity": "medium",
+      "status": "open",
+      "documentSays": "Nothing about what the registers hold at power on.",
+      "referenceDoes": "Nothing. Every case declares a full initial state, so the suite never exercises a reset.",
+      "packageFollows": "neither",
+      "reasoning": "A processor coming out of reset holds whatever it held, so this core scrambles the registers from a seed rather than clearing them, and reads the program counter from the reset vector. The scramble is deliberately not a claim about the hardware: it is a way to make a program that depends on an undefined register fail visibly instead of quietly working because everything happened to be zero.",
+      "wouldSettleIt": "A measurement of a real S-SMP immediately after reset, repeated across parts, or a manufacturer statement."
+    },
+    {
+      "id": "the-audio-unit-around-the-processor-is-out-of-scope",
+      "parts": ["spc700"],
+      "severity": "low",
+      "status": "notModelled",
+      "documentSays": "Chapter 22 and the sound chapters describe the timers, the four communication ports and the boot ROM that sit around this processor in the S-SMP.",
+      "referenceDoes": "Treats the address space as flat memory. No case touches a port or a timer as anything other than a byte.",
+      "packageFollows": "recording",
+      "reasoning": "This package is the processor. The registers at 00F0 to 00FF, the timers, and the IPL ROM belong to the S-SMP around it, and modelling them here would put two parts in one package and make the conformance comparison meaningless, because the suite reads and writes those addresses as ordinary memory.",
+      "wouldSettleIt": "n/a. This is a scope boundary rather than an unknown."
+    }
+  ]
+}

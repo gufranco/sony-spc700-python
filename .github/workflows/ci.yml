@@ -49,6 +49,25 @@ jobs:
       - name: Check that every JSON file is formatted
         run: pnpm run format:check
 
+  types:
+    name: Types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install mypy
+        run: pipx install mypy==1.14.1
+
+      # Strict, with every optional error class the checker offers. The
+      # configuration lives in pyproject.toml so this run and a local one are
+      # the same run.
+      - name: Check types
+        run: mypy
+
   test:
     name: Tests on Python ${{ matrix.python }}
     runs-on: ubuntu-latest
@@ -108,16 +127,23 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: python conformance/fetch.py ~/.cache/conformance-suites
 
-      # A pull request runs a tenth of the suite for a quick answer. A push to
-      # main runs all twenty thousand cases per opcode, because that is the
-      # number the claim of conformance rests on.
+      # A pull request runs a tenth of each file for a quick answer. A push to
+      # main runs all 256,000 cases, because that is the number both claims rest
+      # on.
+      #
+      # Both runners, always. The state comparison asks what the registers and
+      # memory hold afterwards; the cycle comparison asks what happened on the
+      # bus. A core can pass either one while failing the other, and a store
+      # that reads its destination is invisible to the first.
       - name: Run the suite
         run: |
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-            limit=1000
+            limit=100
           else
             limit=0
           fi
           python conformance/singlestep.py \
+            ~/.cache/conformance-suites/spc700/spc700/v1 "${limit}"
+          python conformance/cycles.py \
             ~/.cache/conformance-suites/spc700/spc700/v1 "${limit}"
         shell: bash

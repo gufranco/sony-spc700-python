@@ -540,21 +540,21 @@ TEXT = (
 )
 
 
-def bit_index(opcode):
+def bit_index(opcode: int) -> int:
     """Which bit a SET1, CLR1, BBS or BBC opcode acts on."""
     return opcode >> 5
 
 
-def call_index(opcode):
+def call_index(opcode: int) -> int:
     """Which entry of the call table a TCALL opcode jumps through."""
     return opcode >> 4
 
 
-def _signed(value):
+def _signed(value: int) -> int:
     return value - 0x100 if value >= 0x80 else value
 
 
-def _fields(data, offset, address, p):
+def _fields(data: bytes | bytearray, offset: int, address: int, p: int) -> dict[str, str]:
     first = data[offset + 1] if offset + 1 < len(data) else 0
     second = data[offset + 2] if offset + 2 < len(data) else 0
     absolute = first | (second << 8)
@@ -571,7 +571,7 @@ def _fields(data, offset, address, p):
     }
 
 
-def decode(data, offset, address, p=0):
+def decode(data: bytes | bytearray, offset: int, address: int, p: int = 0) -> Instruction:
     """One instruction, or `Truncated` when the bytes run out mid instruction."""
     if offset >= len(data):
         raise Truncated(f"offset {offset} is past the end of {len(data)} bytes")
@@ -591,9 +591,16 @@ def decode(data, offset, address, p=0):
     )
 
 
-def disassemble(data, offset, address, count=None, p=0, stop_at_return=False):
+def disassemble(
+    data: bytes | bytearray,
+    offset: int,
+    address: int,
+    count: int | None = None,
+    p: int = 0,
+    stop_at_return: bool = False,
+) -> list[Instruction]:
     """A listing, stopping at the count, at a return, or where the bytes end."""
-    listing = []
+    listing: list[Instruction] = []
     while count is None or len(listing) < count:
         try:
             instruction = decode(data, offset, address, p)

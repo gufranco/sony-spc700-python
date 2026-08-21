@@ -12,6 +12,12 @@ A model with no suite behind it does not belong in this table, because then its
 fidelity would be a claim rather than a measurement.
 """
 
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Any, override
+
+if TYPE_CHECKING:
+    Builder = Callable[..., Any]
+
 
 class UnknownModelError(Exception):
     pass
@@ -20,7 +26,15 @@ class UnknownModelError(Exception):
 class Model:
     """One part: what it is, what it reaches, and how to build it."""
 
-    def __init__(self, name, summary, address_bits, data_bits, core, aliases=()):
+    def __init__(
+        self,
+        name: str,
+        summary: str,
+        address_bits: int,
+        data_bits: int,
+        core: "Builder",
+        aliases: Sequence[str] = (),
+    ) -> None:
         self.name = name
         self.summary = summary
         self.address_bits = address_bits
@@ -29,17 +43,18 @@ class Model:
         self.aliases = tuple(aliases)
 
     @property
-    def address_mask(self):
+    def address_mask(self) -> int:
         return (1 << self.address_bits) - 1
 
-    def build(self, memory, **options):
+    def build(self, memory: Any, **options: Any) -> Any:
         return self.core(self, memory, **options)
 
-    def __repr__(self):
+    @override
+    def __repr__(self) -> str:
         return f"<Model {self.name}, {self.address_bits} address bits>"
 
 
-def _build_spc700(model, memory, **options):
+def _build_spc700(model: Model, memory: Any, **options: Any) -> Any:
     from .core import Cpu as Spc700
 
     cpu = Spc700(memory, **options)
@@ -65,18 +80,18 @@ _CATALOGUE = (
 
 MODELS = {model.name: model for model in _CATALOGUE}
 
-_BY_ALIAS = {}
+_BY_ALIAS: dict[str, Model] = {}
 for _model in _CATALOGUE:
     _BY_ALIAS[_model.name] = _model
     for _alias in _model.aliases:
         _BY_ALIAS[_alias] = _model
 
 
-def _normalise(name):
+def _normalise(name: str) -> str:
     return str(name).strip().lower().replace("-", "").replace("_", "")
 
 
-def describe(name):
+def describe(name: str) -> Model:
     """The model of that name, however it happens to be written."""
     found = _BY_ALIAS.get(_normalise(name))
     if found is None:

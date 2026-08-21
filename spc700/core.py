@@ -13,12 +13,33 @@ whatever its registers held, memory holds whatever it held, and an interpreter
 that quietly begins at zero models a machine that has never existed.
 """
 
+from collections.abc import Callable
+from typing import Protocol
+
 from . import opcodes as table
+from .bus import Bus
 from .memory import UNSET_SEED, scramble
+
+
+class MemoryLike(Protocol):
+    """The whole of what this core needs from the thing it is plugged into.
+
+    Naming the two methods rather than the class keeps a caller free to supply
+    audio RAM, a test double, or a bus that decodes to several devices, and keeps
+    this module from importing any of them.
+    """
+
+    def read8(self, address: int) -> int: ...
+
+    def write8(self, address: int, value: int) -> None: ...
+
 
 OPCODES = table.OPCODES
 
 STEP_LIMIT = 2_000_000
+
+HALT_CYCLES = 2
+"""Read and idle pairs a recording of a halted part is cut off after."""
 
 FLAG_C = 0x01
 FLAG_Z = 0x02
@@ -65,8 +86,16 @@ class Cpu:
     before writing them from looking correct here and failing on a console.
     """
 
-    def __init__(self, memory, step_limit=STEP_LIMIT, seed=UNSET_SEED, reset=True):
+    def __init__(
+        self,
+        memory: MemoryLike,
+        step_limit: int = STEP_LIMIT,
+        seed: int = UNSET_SEED,
+        reset: bool = True,
+        bus: Bus | None = None,
+    ) -> None:
         self.memory = memory
+        self.bus = Bus() if bus is None else bus
         self.step_limit = step_limit
         self.model = "spc700"
         self.steps = 0
@@ -79,7 +108,7 @@ class Cpu:
         if reset:
             self.reset(seed)
 
-    def reset(self, seed=UNSET_SEED):
+    def reset(self, seed: int = UNSET_SEED) -> None:
         """Put the processor where a reset puts it, undefined parts included."""
         undefined = scramble(6, seed)
         self.a = undefined[0]
@@ -93,7 +122,7 @@ class Cpu:
         self.stopped = False
 
     @property
-    def psw(self):
+    def psw(self) -> int:
         value = 0
         value |= FLAG_N if self.n else 0
         value |= FLAG_V if self.v else 0
@@ -106,7 +135,7 @@ class Cpu:
         return value
 
     @psw.setter
-    def psw(self, value):
+    def psw(self, value: int) -> None:
         self.n = bool(value & FLAG_N)
         self.v = bool(value & FLAG_V)
         self.p = bool(value & FLAG_P)
@@ -117,85 +146,119 @@ class Cpu:
         self.c = bool(value & FLAG_C)
 
     @property
-    def direct_page(self):
+    def direct_page(self) -> int:
         """Where the direct page currently sits, which the P flag decides."""
         return 0x0100 if self.p else 0x0000
 
     @property
-    def ya(self):
+    def ya(self) -> int:
         return (self.y << 8) | self.a
 
     @ya.setter
-    def ya(self, value):
+    def ya(self, value: int) -> None:
         self.a = value & 0xFF
         self.y = (value >> 8) & 0xFF
 
-    def read8(self, address):
-        return self.memory.read8(address & 0xFFFF) & 0xFF
+    def read8(self, address: int) -> int:
+        value = self.memory.read8(address & 0xFFFF) & 0xFF
+        self.bus.read(address, value)
+        return value
 
-    def write8(self, address, value):
+    def peek8(self, address: int) -> None:
+        """A read the processor performs and then throws away.
+
+        The part still drives the address for a whole cycle, so it is a read on
+        the bus like any other. Only what happens to the value differs, and that
+        is the caller's business rather than the bus's.
+        """
+        self.bus.read(address, self.memory.read8(address & 0xFFFF) & 0xFF)
+
+    def idle(self, count: int = 1) -> None:
+        """Cycles spent inside the processor, with nothing on the bus."""
+        self.bus.idle(count)
+
+    def write8(self, address: int, value: int) -> None:
         self.memory.write8(address & 0xFFFF, value & 0xFF)
+        self.bus.write(address, value)
 
-    def read16(self, address):
+    def store8(self, address: int, value: int) -> None:
+        """A store, which reads the destination first and throws the byte away.
+
+        Every store to memory on this part costs that read. It is invisible in a
+        state comparison, because the value goes nowhere, and it is visible on
+        the bus, which is the only place the difference can be seen.
+        """
+        self.peek8(address)
+        self.write8(address, value)
+
+    def read16(self, address: int) -> int:
         return self.read8(address) | (self.read8(address + 1) << 8)
 
-    def read_direct16(self, address):
+    def read_direct16(self, address: int) -> int:
         """A word in the direct page, whose high byte wraps inside that page."""
         page = address & 0xFF00
         return self.read8(address) | (self.read8(page | ((address + 1) & 0xFF)) << 8)
 
-    def write_direct16(self, address, value):
+    def write_direct16(self, address: int, value: int) -> None:
         page = address & 0xFF00
         self.write8(address, value)
         self.write8(page | ((address + 1) & 0xFF), value >> 8)
 
-    def fetch8(self):
+    def fetch8(self) -> int:
         value = self.read8(self.pc)
         self.pc = (self.pc + 1) & 0xFFFF
         return value
 
-    def fetch16(self):
+    def fetch16(self) -> int:
         return self.fetch8() | (self.fetch8() << 8)
 
-    def push8(self, value):
+    def push8(self, value: int) -> None:
         self.write8(STACK_PAGE | self.sp, value)
         self.sp = (self.sp - 1) & 0xFF
 
-    def pull8(self):
+    def pull8(self) -> int:
         self.sp = (self.sp + 1) & 0xFF
         return self.read8(STACK_PAGE | self.sp)
 
-    def push16(self, value):
+    def pull_after_idle8(self) -> int:
+        """A pull that begins with the cycle the part spends moving the pointer."""
+        self.idle()
+        return self.pull8()
+
+    def push16(self, value: int) -> None:
         self.push8(value >> 8)
         self.push8(value)
 
-    def pull16(self):
+    def pull16(self) -> int:
         return self.pull8() | (self.pull8() << 8)
 
-    def set_nz(self, value):
+    def set_nz(self, value: int) -> int:
         self.n = bool(value & 0x80)
         self.z = (value & 0xFF) == 0
         return value & 0xFF
 
-    def set_nz16(self, value):
+    def set_nz16(self, value: int) -> int:
         self.n = bool(value & 0x8000)
         self.z = (value & 0xFFFF) == 0
         return value & 0xFFFF
 
-    def direct(self, offset):
+    def direct(self, offset: int) -> int:
         return self.direct_page | (offset & 0xFF)
 
-    def step(self):
+    def step(self) -> "Cpu":
         """Execute one instruction, or nothing at all once the processor stops."""
         if self.stopped:
             return self
+        self.bus.restart()
         opcode = self.fetch8()
-        mnemonic, mode, _ = OPCODES[opcode]
+        mnemonic, mode, size = OPCODES[opcode]
+        if size == 1:
+            self.peek8(self.pc)
         getattr(self, f"op_{mnemonic}")(mode, opcode)
         self.steps += 1
         return self
 
-    def run_until(self, done):
+    def run_until(self, done: Callable[["Cpu"], bool]) -> "Cpu":
         """Step until the caller says stop, or refuse to run forever."""
         while not done(self):
             if self.steps >= self.step_limit:
@@ -203,29 +266,51 @@ class Cpu:
             self.step()
         return self
 
-    def operand_address(self, mode, opcode):
-        """Where an addressing mode points, for the modes that name a location."""
+    def operand_address(self, mode: str, opcode: int) -> int:
+        """Where an addressing mode points, for the modes that name a location.
+
+        Adding an index costs a cycle the part spends on itself, and the pointer
+        modes pay it once before either half of the pointer is read rather than
+        after. Both placements come from the recording; a count alone could not
+        distinguish them.
+        """
         if mode in ("dp", "dp_bit", "dp_a", "dp_x", "dp_y", "dp_ya", "a_dp", "x_dp", "y_dp"):
             return self.direct(self.fetch8())
         if mode in ("dpx", "dpx_a", "dpx_y", "a_dpx", "y_dpx"):
-            return self.direct(self.fetch8() + self.x)
+            offset = self.fetch8()
+            self.idle()
+            return self.direct(offset + self.x)
         if mode in ("dpy_x", "x_dpy"):
-            return self.direct(self.fetch8() + self.y)
+            offset = self.fetch8()
+            self.idle()
+            return self.direct(offset + self.y)
         if mode in ("abs", "abs_a", "abs_x", "abs_y", "a_abs", "x_abs", "y_abs"):
             return self.fetch16()
         if mode in ("absx_a", "a_absx"):
-            return (self.fetch16() + self.x) & 0xFFFF
+            address = self.fetch16()
+            self.idle()
+            return (address + self.x) & 0xFFFF
         if mode in ("absy_a", "a_absy"):
-            return (self.fetch16() + self.y) & 0xFFFF
+            address = self.fetch16()
+            self.idle()
+            return (address + self.y) & 0xFFFF
         if mode in ("idx_a", "a_idx"):
-            return self.read_direct16(self.direct(self.fetch8() + self.x))
-        if mode in ("idy_a", "a_idy"):
-            return (self.read_direct16(self.direct(self.fetch8())) + self.y) & 0xFFFF
+            offset = self.fetch8()
+            self.idle()
+            return self.read_direct16(self.direct(offset + self.x))
+        if mode == "a_idy":
+            offset = self.fetch8()
+            self.idle()
+            return (self.read_direct16(self.direct(offset)) + self.y) & 0xFFFF
+        if mode == "idy_a":
+            pointer = self.read_direct16(self.direct(self.fetch8()))
+            self.idle()
+            return (pointer + self.y) & 0xFFFF
         if mode in ("ix_a", "a_ix", "ixinc_a", "a_ixinc"):
             return self.direct(self.x)
         raise KeyError(f"{mode} does not name an address")
 
-    def source_value(self, mode, opcode):
+    def source_value(self, mode: str, opcode: int) -> int:
         """The value an arithmetic or logic instruction reads."""
         if mode in ("a_imm", "x_imm", "y_imm"):
             return self.fetch8()
@@ -237,13 +322,15 @@ class Cpu:
             return self.read8(self.direct(self.fetch8()))
         return self.read8(self.operand_address(mode, opcode))
 
-    def target_address(self, mode, opcode):
+    def target_address(self, mode: str, opcode: int) -> int:
         """Where a two operand instruction writes, once its source is read."""
         if mode == "ix_iy":
             return self.direct(self.x)
         return self.direct(self.fetch8())
 
-    def _accumulate(self, mode, opcode, operation):
+    def _accumulate(
+        self, mode: str, opcode: int, operation: Callable[[int, int], int | None]
+    ) -> None:
         """Run one of the forms every accumulator arithmetic instruction comes in.
 
         Only the accumulator is handled here. The index registers appear in these
@@ -255,39 +342,41 @@ class Cpu:
             value = self.source_value(mode, opcode)
             address = self.target_address(mode, opcode)
             result = operation(self.read8(address), value)
-            if result is not None:
+            if result is None:
+                self.idle()
+            else:
                 self.write8(address, result)
             return
         result = operation(self.a, self.source_value(mode, opcode))
         if result is not None:
             self.a = result
 
-    def add_with_carry(self, first, second):
+    def add_with_carry(self, first: int, second: int) -> int:
         result = first + second + int(self.c)
         self.c = result > 0xFF
         self.h = bool((first ^ second ^ result) & 0x10)
         self.v = bool(~(first ^ second) & (first ^ result) & 0x80)
         return self.set_nz(result)
 
-    def subtract_with_carry(self, first, second):
+    def subtract_with_carry(self, first: int, second: int) -> int:
         result = first - second - int(not self.c)
         self.c = result >= 0
         self.h = not ((first ^ second ^ result) & 0x10)
         self.v = bool((first ^ second) & (first ^ result) & 0x80)
         return self.set_nz(result)
 
-    def compare(self, first, second):
+    def compare(self, first: int, second: int) -> None:
         result = first - second
         self.c = result >= 0
         self.set_nz(result)
 
-    def op_adc(self, mode, opcode):
+    def op_adc(self, mode: str, opcode: int) -> None:
         self._accumulate(mode, opcode, self.add_with_carry)
 
-    def op_sbc(self, mode, opcode):
+    def op_sbc(self, mode: str, opcode: int) -> None:
         self._accumulate(mode, opcode, self.subtract_with_carry)
 
-    def op_cmp(self, mode, opcode):
+    def op_cmp(self, mode: str, opcode: int) -> None:
         if mode.startswith("x"):
             self.compare(self.x, self.source_value(mode, opcode))
             return
@@ -296,16 +385,16 @@ class Cpu:
             return
         self._accumulate(mode, opcode, self.compare)
 
-    def op_and(self, mode, opcode):
+    def op_and(self, mode: str, opcode: int) -> None:
         self._accumulate(mode, opcode, lambda first, second: self.set_nz(first & second))
 
-    def op_or(self, mode, opcode):
+    def op_or(self, mode: str, opcode: int) -> None:
         self._accumulate(mode, opcode, lambda first, second: self.set_nz(first | second))
 
-    def op_eor(self, mode, opcode):
+    def op_eor(self, mode: str, opcode: int) -> None:
         self._accumulate(mode, opcode, lambda first, second: self.set_nz(first ^ second))
 
-    def _read_modify_write(self, mode, opcode, operation):
+    def _read_modify_write(self, mode: str, opcode: int, operation: Callable[[int], int]) -> None:
         if mode == "a":
             self.a = operation(self.a)
             return
@@ -318,46 +407,47 @@ class Cpu:
         address = self.operand_address(mode, opcode)
         self.write8(address, operation(self.read8(address)))
 
-    def op_inc(self, mode, opcode):
+    def op_inc(self, mode: str, opcode: int) -> None:
         self._read_modify_write(mode, opcode, lambda value: self.set_nz(value + 1))
 
-    def op_dec(self, mode, opcode):
+    def op_dec(self, mode: str, opcode: int) -> None:
         self._read_modify_write(mode, opcode, lambda value: self.set_nz(value - 1))
 
-    def shift_left(self, value):
+    def shift_left(self, value: int) -> int:
         self.c = bool(value & 0x80)
         return self.set_nz(value << 1)
 
-    def shift_right(self, value):
+    def shift_right(self, value: int) -> int:
         self.c = bool(value & 0x01)
         return self.set_nz(value >> 1)
 
-    def rotate_left(self, value):
+    def rotate_left(self, value: int) -> int:
         carried = int(self.c)
         self.c = bool(value & 0x80)
         return self.set_nz((value << 1) | carried)
 
-    def rotate_right(self, value):
+    def rotate_right(self, value: int) -> int:
         carried = int(self.c) << 7
         self.c = bool(value & 0x01)
         return self.set_nz((value >> 1) | carried)
 
-    def op_asl(self, mode, opcode):
+    def op_asl(self, mode: str, opcode: int) -> None:
         self._read_modify_write(mode, opcode, self.shift_left)
 
-    def op_lsr(self, mode, opcode):
+    def op_lsr(self, mode: str, opcode: int) -> None:
         self._read_modify_write(mode, opcode, self.shift_right)
 
-    def op_rol(self, mode, opcode):
+    def op_rol(self, mode: str, opcode: int) -> None:
         self._read_modify_write(mode, opcode, self.rotate_left)
 
-    def op_ror(self, mode, opcode):
+    def op_ror(self, mode: str, opcode: int) -> None:
         self._read_modify_write(mode, opcode, self.rotate_right)
 
-    def op_xcn(self, mode, opcode):
+    def op_xcn(self, mode: str, opcode: int) -> None:
+        self.idle(3)
         self.a = self.set_nz((self.a >> 4) | (self.a << 4))
 
-    def op_mov(self, mode, opcode):
+    def op_mov(self, mode: str, opcode: int) -> None:
         if mode == "a_imm":
             self.a = self.set_nz(self.fetch8())
         elif mode == "x_imm":
@@ -368,6 +458,7 @@ class Cpu:
             self.a = self.set_nz(self.read8(self.operand_address(mode, opcode)))
         elif mode == "a_ixinc":
             self.a = self.set_nz(self.read8(self.direct(self.x)))
+            self.idle()
             self.x = (self.x + 1) & 0xFF
         elif mode in ("x_dp", "x_dpy", "x_abs"):
             self.x = self.set_nz(self.read8(self.operand_address(mode, opcode)))
@@ -386,6 +477,7 @@ class Cpu:
         elif mode == "sp_x":
             self.sp = self.x
         elif mode == "ixinc_a":
+            self.idle()
             self.write8(self.direct(self.x), self.a)
             self.x = (self.x + 1) & 0xFF
         elif mode == "dp_dp":
@@ -393,26 +485,36 @@ class Cpu:
             self.write8(self.direct(self.fetch8()), value)
         elif mode == "dp_imm":
             value = self.fetch8()
-            self.write8(self.direct(self.fetch8()), value)
+            self.store8(self.direct(self.fetch8()), value)
         elif mode in ("dp_x", "dpy_x", "abs_x"):
-            self.write8(self.operand_address(mode, opcode), self.x)
+            self.store8(self.operand_address(mode, opcode), self.x)
         elif mode in ("dp_y", "dpx_y", "abs_y"):
-            self.write8(self.operand_address(mode, opcode), self.y)
+            self.store8(self.operand_address(mode, opcode), self.y)
         else:
-            self.write8(self.operand_address(mode, opcode), self.a)
+            self.store8(self.operand_address(mode, opcode), self.a)
 
-    def op_movw(self, mode, opcode):
+    def op_movw(self, mode: str, opcode: int) -> None:
         if mode == "ya_dp":
-            self.ya = self.set_nz16(self.read_direct16(self.direct(self.fetch8())))
+            self.ya = self.set_nz16(self._word_at_direct())
             return
         address = self.direct(self.fetch8())
         self.read8(address)
         self.write_direct16(address, self.ya)
 
-    def _word_at_direct(self):
-        return self.read_direct16(self.direct(self.fetch8()))
+    def _word_at_direct(self, pause: bool = True) -> int:
+        """A word in the direct page, with the cycle the part spends between halves.
 
-    def op_addw(self, mode, opcode):
+        `CMPW` is the one word instruction that does not pause, so the pause is
+        asked for rather than assumed.
+        """
+        address = self.direct(self.fetch8())
+        page = address & 0xFF00
+        low = self.read8(address)
+        if pause:
+            self.idle()
+        return low | (self.read8(page | ((address + 1) & 0xFF)) << 8)
+
+    def op_addw(self, mode: str, opcode: int) -> None:
         value = self._word_at_direct()
         self.c = False
         low = self.add_with_carry(self.a, value & 0xFF)
@@ -421,7 +523,7 @@ class Cpu:
         self.z = result == 0
         self.ya = result
 
-    def op_subw(self, mode, opcode):
+    def op_subw(self, mode: str, opcode: int) -> None:
         value = self._word_at_direct()
         self.c = True
         low = self.subtract_with_carry(self.a, value & 0xFF)
@@ -430,29 +532,44 @@ class Cpu:
         self.z = result == 0
         self.ya = result
 
-    def op_cmpw(self, mode, opcode):
-        value = self._word_at_direct()
+    def op_cmpw(self, mode: str, opcode: int) -> None:
+        value = self._word_at_direct(pause=False)
         result = self.ya - value
         self.c = result >= 0
         self.set_nz16(result)
 
-    def _word_read_modify_write(self, step):
-        address = self.direct(self.fetch8())
-        result = self.set_nz16(self.read_direct16(address) + step)
-        self.write_direct16(address, result)
+    def _word_read_modify_write(self, step: int) -> None:
+        """Increment or decrement a word, one half at a time.
 
-    def op_incw(self, mode, opcode):
+        The low half is written before the high half is read. Treating the word
+        as a unit would read both halves and then write both, which leaves the
+        same two bytes behind and touches them in an order the part never uses.
+        """
+        address = self.direct(self.fetch8())
+        page = address & 0xFF00
+        high_address = page | ((address + 1) & 0xFF)
+
+        low = self.read8(address) + step
+        self.write8(address, low)
+        carry = -1 if low < 0 else (1 if low > 0xFF else 0)
+        high = (self.read8(high_address) + carry) & 0xFF
+        self.write8(high_address, high)
+
+        self.set_nz16((high << 8) | (low & 0xFF))
+
+    def op_incw(self, mode: str, opcode: int) -> None:
         self._word_read_modify_write(1)
 
-    def op_decw(self, mode, opcode):
+    def op_decw(self, mode: str, opcode: int) -> None:
         self._word_read_modify_write(-1)
 
-    def op_mul(self, mode, opcode):
+    def op_mul(self, mode: str, opcode: int) -> None:
+        self.idle(7)
         result = self.y * self.a
         self.ya = result
         self.set_nz(self.y)
 
-    def op_div(self, mode, opcode):
+    def op_div(self, mode: str, opcode: int) -> None:
         """The divide, including what it does once the quotient stops fitting.
 
         Below the point where the result fits, this is an ordinary division. Above
@@ -462,6 +579,7 @@ class Cpu:
         a quotient, and the half carry reports a nibble comparison that has nothing
         to do with the division at all.
         """
+        self.idle(10)
         dividend = self.ya
         divisor = self.x
         self.h = (divisor & 0x0F) <= (self.y & 0x0F)
@@ -476,7 +594,7 @@ class Cpu:
         self.y &= 0xFF
         self.set_nz(self.a)
 
-    def op_daa(self, mode, opcode):
+    def op_daa(self, mode: str, opcode: int) -> None:
         """Decimal adjust after an addition, reading the accumulator it just wrote.
 
         The second test looks at the value the first branch may already have
@@ -484,6 +602,7 @@ class Cpu:
         below it. Testing the original value instead is the obvious reading and
         the wrong one.
         """
+        self.idle()
         if self.c or self.a > 0x99:
             self.a = (self.a + 0x60) & 0xFF
             self.c = True
@@ -491,7 +610,8 @@ class Cpu:
             self.a = (self.a + 0x06) & 0xFF
         self.set_nz(self.a)
 
-    def op_das(self, mode, opcode):
+    def op_das(self, mode: str, opcode: int) -> None:
+        self.idle()
         if not self.c or self.a > 0x99:
             self.a = (self.a - 0x60) & 0xFF
             self.c = False
@@ -499,56 +619,69 @@ class Cpu:
             self.a = (self.a - 0x06) & 0xFF
         self.set_nz(self.a)
 
-    def _branch(self, taken):
+    def _branch(self, taken: bool) -> None:
+        """Take a branch, or do not, and pay for it only when it is taken.
+
+        Every conditional branch on this part costs two more cycles when the
+        condition holds, which is what the two figures in the manual's cycle
+        column mean.
+        """
         offset = self.fetch8()
         if taken:
+            self.idle(2)
             self.pc = (self.pc + (offset - 0x100 if offset >= 0x80 else offset)) & 0xFFFF
 
-    def _conditional_branch(self, mnemonic):
+    def _conditional_branch(self, mnemonic: str) -> None:
         condition = BRANCHES[mnemonic]
         self._branch(True if condition is None else getattr(self, condition[0]) == condition[1])
 
-    def op_bra(self, mode, opcode):
+    def op_bra(self, mode: str, opcode: int) -> None:
         self._conditional_branch("bra")
 
-    def op_beq(self, mode, opcode):
+    def op_beq(self, mode: str, opcode: int) -> None:
         self._conditional_branch("beq")
 
-    def op_bne(self, mode, opcode):
+    def op_bne(self, mode: str, opcode: int) -> None:
         self._conditional_branch("bne")
 
-    def op_bcs(self, mode, opcode):
+    def op_bcs(self, mode: str, opcode: int) -> None:
         self._conditional_branch("bcs")
 
-    def op_bcc(self, mode, opcode):
+    def op_bcc(self, mode: str, opcode: int) -> None:
         self._conditional_branch("bcc")
 
-    def op_bvs(self, mode, opcode):
+    def op_bvs(self, mode: str, opcode: int) -> None:
         self._conditional_branch("bvs")
 
-    def op_bvc(self, mode, opcode):
+    def op_bvc(self, mode: str, opcode: int) -> None:
         self._conditional_branch("bvc")
 
-    def op_bmi(self, mode, opcode):
+    def op_bmi(self, mode: str, opcode: int) -> None:
         self._conditional_branch("bmi")
 
-    def op_bpl(self, mode, opcode):
+    def op_bpl(self, mode: str, opcode: int) -> None:
         self._conditional_branch("bpl")
 
-    def op_bbs(self, mode, opcode):
+    def op_bbs(self, mode: str, opcode: int) -> None:
         value = self.read8(self.direct(self.fetch8()))
+        self.idle()
         self._branch(bool(value & (1 << table.bit_index(opcode))))
 
-    def op_bbc(self, mode, opcode):
+    def op_bbc(self, mode: str, opcode: int) -> None:
         value = self.read8(self.direct(self.fetch8()))
+        self.idle()
         self._branch(not value & (1 << table.bit_index(opcode)))
 
-    def op_cbne(self, mode, opcode):
+    def op_cbne(self, mode: str, opcode: int) -> None:
         address = self.operand_address("dpx" if mode == "dpx_rel" else "dp", opcode)
-        self._branch(self.read8(address) != self.a)
+        value = self.read8(address)
+        self.idle()
+        self._branch(value != self.a)
 
-    def op_dbnz(self, mode, opcode):
+    def op_dbnz(self, mode: str, opcode: int) -> None:
         if mode == "y_rel":
+            self.peek8(self.pc)
+            self.idle()
             self.y = (self.y - 1) & 0xFF
             self._branch(self.y != 0)
             return
@@ -557,46 +690,57 @@ class Cpu:
         self.write8(address, result)
         self._branch(result != 0)
 
-    def op_jmp(self, mode, opcode):
+    def op_jmp(self, mode: str, opcode: int) -> None:
         if mode == "abs_indirect_x":
-            self.pc = self.read16((self.fetch16() + self.x) & 0xFFFF)
+            table_address = self.fetch16()
+            self.idle()
+            self.pc = self.read16((table_address + self.x) & 0xFFFF)
             return
         self.pc = self.fetch16()
 
-    def op_call(self, mode, opcode):
+    def op_call(self, mode: str, opcode: int) -> None:
         target = self.fetch16()
+        self.idle()
         self.push16(self.pc)
+        self.idle(2)
         self.pc = target
 
-    def op_pcall(self, mode, opcode):
+    def op_pcall(self, mode: str, opcode: int) -> None:
         target = self.fetch8()
+        self.idle()
         self.push16(self.pc)
+        self.idle()
         self.pc = UPPER_PAGE | target
 
-    def op_tcall(self, mode, opcode):
+    def op_tcall(self, mode: str, opcode: int) -> None:
         vector = CALL_TABLE_TOP - (table.call_index(opcode) << 1)
+        self.idle()
         self.push16(self.pc)
+        self.idle()
         self.pc = self.read16(vector)
 
-    def op_brk(self, mode, opcode):
+    def op_brk(self, mode: str, opcode: int) -> None:
         self.push16(self.pc)
         self.push8(self.psw)
+        self.idle()
         self.b = True
         self.i = False
         self.pc = self.read16(BREAK_VECTOR)
 
-    def op_ret(self, mode, opcode):
+    def op_ret(self, mode: str, opcode: int) -> None:
+        self.idle()
         self.pc = self.pull16()
 
-    def op_reti(self, mode, opcode):
-        self.psw = self.pull8()
+    def op_reti(self, mode: str, opcode: int) -> None:
+        self.psw = self.pull_after_idle8()
         self.pc = self.pull16()
 
-    def op_push(self, mode, opcode):
+    def op_push(self, mode: str, opcode: int) -> None:
         self.push8({"a": self.a, "x": self.x, "y": self.y, "p": self.psw}[mode])
+        self.idle()
 
-    def op_pop(self, mode, opcode):
-        value = self.pull8()
+    def op_pop(self, mode: str, opcode: int) -> None:
+        value = self.pull_after_idle8()
         if mode == "a":
             self.a = value
         elif mode == "x":
@@ -606,87 +750,110 @@ class Cpu:
         else:
             self.psw = value
 
-    def op_set1(self, mode, opcode):
+    def op_set1(self, mode: str, opcode: int) -> None:
         address = self.direct(self.fetch8())
         self.write8(address, self.read8(address) | (1 << table.bit_index(opcode)))
 
-    def op_clr1(self, mode, opcode):
+    def op_clr1(self, mode: str, opcode: int) -> None:
         address = self.direct(self.fetch8())
         self.write8(address, self.read8(address) & ~(1 << table.bit_index(opcode)))
 
-    def op_tset(self, mode, opcode):
+    def op_tset(self, mode: str, opcode: int) -> None:
         address = self.fetch16()
         held = self.read8(address)
+        self.peek8(address)
         self.write8(address, held | self.a)
         self.set_nz(self.a - held)
 
-    def op_tclr(self, mode, opcode):
+    def op_tclr(self, mode: str, opcode: int) -> None:
         address = self.fetch16()
         held = self.read8(address)
+        self.peek8(address)
         self.write8(address, held & ~self.a)
         self.set_nz(self.a - held)
 
-    def _addressed_bit(self):
+    def _addressed_bit(self) -> tuple[int, int]:
         """The address and bit a memory bit instruction names, packed in one word."""
         packed = self.fetch16()
         return packed & 0x1FFF, packed >> 13
 
-    def op_and1(self, mode, opcode):
+    def op_and1(self, mode: str, opcode: int) -> None:
         address, bit = self._addressed_bit()
         held = bool(self.read8(address) & (1 << bit))
         self.c = self.c and (not held if mode == "c_notmembit" else held)
 
-    def op_or1(self, mode, opcode):
+    def op_or1(self, mode: str, opcode: int) -> None:
         address, bit = self._addressed_bit()
         held = bool(self.read8(address) & (1 << bit))
+        self.idle()
         self.c = self.c or (not held if mode == "c_notmembit" else held)
 
-    def op_eor1(self, mode, opcode):
+    def op_eor1(self, mode: str, opcode: int) -> None:
         address, bit = self._addressed_bit()
-        self.c = self.c != bool(self.read8(address) & (1 << bit))
+        held = bool(self.read8(address) & (1 << bit))
+        self.idle()
+        self.c = self.c != held
 
-    def op_not1(self, mode, opcode):
+    def op_not1(self, mode: str, opcode: int) -> None:
         address, bit = self._addressed_bit()
         self.write8(address, self.read8(address) ^ (1 << bit))
 
-    def op_mov1(self, mode, opcode):
+    def op_mov1(self, mode: str, opcode: int) -> None:
         address, bit = self._addressed_bit()
         if mode == "membit_c":
             held = self.read8(address)
+            self.idle()
             self.write8(address, (held | (1 << bit)) if self.c else (held & ~(1 << bit)))
             return
         self.c = bool(self.read8(address) & (1 << bit))
 
-    def op_clrc(self, mode, opcode):
+    def op_clrc(self, mode: str, opcode: int) -> None:
         self.c = False
 
-    def op_setc(self, mode, opcode):
+    def op_setc(self, mode: str, opcode: int) -> None:
         self.c = True
 
-    def op_notc(self, mode, opcode):
+    def op_notc(self, mode: str, opcode: int) -> None:
+        self.idle()
         self.c = not self.c
 
-    def op_clrv(self, mode, opcode):
+    def op_clrv(self, mode: str, opcode: int) -> None:
         self.v = False
         self.h = False
 
-    def op_clrp(self, mode, opcode):
+    def op_clrp(self, mode: str, opcode: int) -> None:
         self.p = False
 
-    def op_setp(self, mode, opcode):
+    def op_setp(self, mode: str, opcode: int) -> None:
         self.p = True
 
-    def op_ei(self, mode, opcode):
+    def op_ei(self, mode: str, opcode: int) -> None:
+        self.idle()
         self.i = True
 
-    def op_di(self, mode, opcode):
+    def op_di(self, mode: str, opcode: int) -> None:
+        self.idle()
         self.i = False
 
-    def op_nop(self, mode, opcode):
+    def op_nop(self, mode: str, opcode: int) -> None:
         return
 
-    def op_sleep(self, mode, opcode):
-        self.stopped = True
+    def op_sleep(self, mode: str, opcode: int) -> None:
+        self._halt()
 
-    def op_stop(self, mode, opcode):
+    def op_stop(self, mode: str, opcode: int) -> None:
+        self._halt()
+
+    def _halt(self) -> None:
+        """Stop, in the only shape a recording of a stopped part can have.
+
+        The part reads the byte after the instruction and idles, over and over,
+        until something outside it intervenes. That loop does not end, so the
+        cycles counted here are where the recording stops rather than anything
+        the processor decides.
+        """
+        for _ in range(HALT_CYCLES):
+            self.idle()
+            self.peek8(self.pc)
+        self.idle()
         self.stopped = True

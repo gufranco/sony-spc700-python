@@ -12,7 +12,9 @@ deliberate.
 
 import json
 import sys
+from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -29,7 +31,7 @@ REGISTERS = (
 )
 
 
-def suite_files(directory):
+def suite_files(directory: Path | str) -> list[Path]:
     """Every test file in the suite, in a fixed order, or none if it is absent."""
     directory = Path(directory)
     if not directory.is_dir():
@@ -37,7 +39,7 @@ def suite_files(directory):
     return sorted(directory.glob("*.json"))
 
 
-def machine_for(initial):
+def machine_for(initial: Mapping[str, Any]) -> tuple[Any, Any]:
     """A processor and memory in exactly the state the case declares."""
     memory = SparseMemory(seed=initial["pc"])
     for address, value in initial["ram"]:
@@ -53,7 +55,7 @@ def machine_for(initial):
     return cpu, memory
 
 
-def check(test):
+def check(test: Mapping[str, Any]) -> list[tuple[str, object, object]]:
     """Where the interpreter and the suite disagree after one instruction."""
     cpu, memory = machine_for(test["initial"])
     cpu.step()
@@ -78,10 +80,12 @@ def check(test):
     return wrong
 
 
-def run_tests(tests):
+def run_tests(
+    tests: list[dict[str, Any]],
+) -> tuple[int, int, list[tuple[str, list[tuple[str, object, object]]]]]:
     """How many agreed, how many did not, and a few that did not."""
     passed = failed = 0
-    examples = []
+    examples: list[tuple[str, list[tuple[str, object, object]]]] = []
     for test in tests:
         try:
             wrong = check(test)
@@ -96,7 +100,9 @@ def run_tests(tests):
     return passed, failed, examples
 
 
-def run_file(path, limit=None):
+def run_file(
+    path: Path | str, limit: int | None = None
+) -> tuple[int, int, list[tuple[str, list[tuple[str, object, object]]]]]:
     """One test file, optionally only its first few cases."""
     with Path(path).open() as handle:
         tests = json.load(handle)
@@ -105,7 +111,7 @@ def run_file(path, limit=None):
     return run_tests(tests)
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     if not argv:
         print("usage: singlestep.py <suite directory> [tests per file] [name filter]")
         return 2

@@ -9,6 +9,8 @@ reset sets only what the hardware itself defines, leaving the rest holding what
 it held.
 """
 
+from typing import Any
+
 from .core import (
     FLAG_B,
     FLAG_C,
@@ -32,7 +34,7 @@ __version__ = VERSION
 DEFAULT_MODEL = "spc700"
 
 
-def Cpu(memory, model=DEFAULT_MODEL, **options):  # noqa: N802
+def Cpu(memory: Any, model: str = DEFAULT_MODEL, **options: Any) -> Any:  # noqa: N802
     """A processor of the named model, sharing one interface across the family."""
     return describe(model).build(memory, **options)
 

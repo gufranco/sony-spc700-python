@@ -1,0 +1,1948 @@
+{
+  "document": {
+    "publisher": "Nintendo of America Inc.",
+    "title": "SNES Development Manual, Book 1",
+    "section": "Appendix C, SPC700 Commands, tables C-4 to C-20",
+    "readOn": "2026-08-21",
+    "retrievedFrom": "archive.org/details/SNESDevManual, book1_text.pdf",
+    "sha256": "f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791",
+    "pages": 240,
+    "note": "A scan with an OCR text layer. The text layer interleaves the table columns and cannot be trusted for a number, so every row below was read off the rendered page image at 200 dots per inch, and the three that disagree with the recording were read again at 450."
+  },
+  "part": {
+    "family": "Sony SPC700",
+    "role": "the processor inside the SNES audio unit",
+    "quotedFrom": "page C-1",
+    "quote": "An SPC700 series is used for the SNES sound source CPU. However, standby and sleep modes cannot be used."
+  },
+  "conditionalBranches": {
+    "quotedFrom": "page C-2",
+    "quote": "Note: The number of cycles of conditional branching commands are appropriate to cases when there is no branching to the left side and there is branching to the right side.",
+    "meaning": "A cycle figure written as two numbers separated by a slash gives the count when the branch is not taken first and when it is taken second."
+  },
+  "notStated": [
+    "What happens inside a cycle. The tables give a count per instruction and no breakdown, so nothing here can settle which address the part drives on which cycle.",
+    "Reset state. Appendix C describes the instruction set and says nothing about what the registers hold at power on.",
+    "Interrupt timing. The manual gives BRK and RETI as instructions and no figure for an interrupt the part accepts.",
+    "The eight bits of the program status word are named in table C-2 and their power-on values are not given."
+  ],
+  "tables": [
+    {
+      "table": "C-4",
+      "title": "8-bit Data Transmission Commands, Group 1",
+      "manualPage": "C-3",
+      "pdfPage": 229,
+      "rows": [
+        {
+          "code": "E8",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "A, #imm"
+        },
+        {
+          "code": "E6",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "3",
+          "operand": "A, (X)"
+        },
+        {
+          "code": "BF",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "A, (X)+"
+        },
+        {
+          "code": "E4",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "A, dp"
+        },
+        {
+          "code": "F4",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "A, dp+X"
+        },
+        {
+          "code": "E5",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "A, !abs"
+        },
+        {
+          "code": "F5",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+X"
+        },
+        {
+          "code": "F6",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+Y"
+        },
+        {
+          "code": "E7",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp+X]"
+        },
+        {
+          "code": "F7",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp]+Y"
+        },
+        {
+          "code": "CD",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "X, #imm"
+        },
+        {
+          "code": "F8",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "X, dp"
+        },
+        {
+          "code": "F9",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "X, dp+Y"
+        },
+        {
+          "code": "E9",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "X, !abs"
+        },
+        {
+          "code": "8D",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "Y, #imm"
+        },
+        {
+          "code": "EB",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "Y, dp"
+        },
+        {
+          "code": "FB",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "Y, dp+X"
+        },
+        {
+          "code": "EC",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "Y, !abs"
+        }
+      ]
+    },
+    {
+      "table": "C-5",
+      "title": "8-bit Data Transmission Commands, Group 2",
+      "manualPage": "C-3",
+      "pdfPage": 229,
+      "rows": [
+        {
+          "code": "C6",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "(X), A"
+        },
+        {
+          "code": "AF",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "(X)+, A"
+        },
+        {
+          "code": "C4",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, A"
+        },
+        {
+          "code": "D4",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "dp+X, A"
+        },
+        {
+          "code": "C5",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "!abs, A"
+        },
+        {
+          "code": "D5",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "!abs+X, A"
+        },
+        {
+          "code": "D6",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "!abs+Y, A"
+        },
+        {
+          "code": "C7",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "7",
+          "operand": "[dp+X], A"
+        },
+        {
+          "code": "D7",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "7",
+          "operand": "[dp]+Y, A"
+        },
+        {
+          "code": "D8",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, X"
+        },
+        {
+          "code": "D9",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "dp+Y, X"
+        },
+        {
+          "code": "C9",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "!abs, X"
+        },
+        {
+          "code": "CB",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, Y"
+        },
+        {
+          "code": "DB",
+          "mnemonic": "MOV",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "dp+X, Y"
+        },
+        {
+          "code": "CC",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "!abs, Y"
+        }
+      ]
+    },
+    {
+      "table": "C-6",
+      "title": "8-bit Data Transmission Commands, Group 3",
+      "manualPage": "C-4",
+      "pdfPage": 230,
+      "rows": [
+        {
+          "code": "7D",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "A, X"
+        },
+        {
+          "code": "DD",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "A, Y"
+        },
+        {
+          "code": "5D",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "X, A"
+        },
+        {
+          "code": "FD",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "Y, A"
+        },
+        {
+          "code": "9D",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "X, SP"
+        },
+        {
+          "code": "BD",
+          "mnemonic": "MOV",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "SP, X"
+        },
+        {
+          "code": "FA",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "dp<d>, dp<s>"
+        },
+        {
+          "code": "8F",
+          "mnemonic": "MOV",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "dp, #imm"
+        }
+      ]
+    },
+    {
+      "table": "C-7",
+      "title": "8-bit Arithmetic Operation Commands",
+      "manualPage": "C-5",
+      "pdfPage": 231,
+      "rows": [
+        {
+          "code": "88",
+          "mnemonic": "ADC",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "A, #imm"
+        },
+        {
+          "code": "86",
+          "mnemonic": "ADC",
+          "bytes": 1,
+          "cycles": "3",
+          "operand": "A, (X)"
+        },
+        {
+          "code": "84",
+          "mnemonic": "ADC",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "A, dp"
+        },
+        {
+          "code": "94",
+          "mnemonic": "ADC",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "A, dp+X"
+        },
+        {
+          "code": "85",
+          "mnemonic": "ADC",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "A, !abs"
+        },
+        {
+          "code": "95",
+          "mnemonic": "ADC",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+X"
+        },
+        {
+          "code": "96",
+          "mnemonic": "ADC",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+Y"
+        },
+        {
+          "code": "87",
+          "mnemonic": "ADC",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp+X]"
+        },
+        {
+          "code": "97",
+          "mnemonic": "ADC",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp]+Y"
+        },
+        {
+          "code": "99",
+          "mnemonic": "ADC",
+          "bytes": 1,
+          "cycles": "5",
+          "operand": "(X), (Y)"
+        },
+        {
+          "code": "89",
+          "mnemonic": "ADC",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "dp<d>, dp<s>"
+        },
+        {
+          "code": "98",
+          "mnemonic": "ADC",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "dp, #imm"
+        },
+        {
+          "code": "A8",
+          "mnemonic": "SBC",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "A, #imm"
+        },
+        {
+          "code": "A6",
+          "mnemonic": "SBC",
+          "bytes": 1,
+          "cycles": "3",
+          "operand": "A, (X)"
+        },
+        {
+          "code": "A4",
+          "mnemonic": "SBC",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "A, dp"
+        },
+        {
+          "code": "B4",
+          "mnemonic": "SBC",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "A, dp+X"
+        },
+        {
+          "code": "A5",
+          "mnemonic": "SBC",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "A, !abs"
+        },
+        {
+          "code": "B5",
+          "mnemonic": "SBC",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+X"
+        },
+        {
+          "code": "B6",
+          "mnemonic": "SBC",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+Y"
+        },
+        {
+          "code": "A7",
+          "mnemonic": "SBC",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp+X]"
+        },
+        {
+          "code": "B7",
+          "mnemonic": "SBC",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp]+Y"
+        },
+        {
+          "code": "B9",
+          "mnemonic": "SBC",
+          "bytes": 1,
+          "cycles": "5",
+          "operand": "(X), (Y)"
+        },
+        {
+          "code": "A9",
+          "mnemonic": "SBC",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "dp<d>, dp<s>"
+        },
+        {
+          "code": "B8",
+          "mnemonic": "SBC",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "dp, #imm"
+        },
+        {
+          "code": "68",
+          "mnemonic": "CMP",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "A, #imm"
+        },
+        {
+          "code": "66",
+          "mnemonic": "CMP",
+          "bytes": 1,
+          "cycles": "3",
+          "operand": "A, (X)"
+        },
+        {
+          "code": "64",
+          "mnemonic": "CMP",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "A, dp"
+        },
+        {
+          "code": "74",
+          "mnemonic": "CMP",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "A, dp+X"
+        },
+        {
+          "code": "65",
+          "mnemonic": "CMP",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "A, !abs"
+        },
+        {
+          "code": "75",
+          "mnemonic": "CMP",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+X"
+        },
+        {
+          "code": "76",
+          "mnemonic": "CMP",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+Y"
+        },
+        {
+          "code": "67",
+          "mnemonic": "CMP",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp+X]"
+        },
+        {
+          "code": "77",
+          "mnemonic": "CMP",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp]+Y"
+        },
+        {
+          "code": "79",
+          "mnemonic": "CMP",
+          "bytes": 1,
+          "cycles": "5",
+          "operand": "(X), (Y)"
+        },
+        {
+          "code": "69",
+          "mnemonic": "CMP",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "dp<d>, dp<s>"
+        },
+        {
+          "code": "78",
+          "mnemonic": "CMP",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "dp, #imm"
+        },
+        {
+          "code": "C8",
+          "mnemonic": "CMP",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "X, #imm"
+        },
+        {
+          "code": "3E",
+          "mnemonic": "CMP",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "X, dp"
+        },
+        {
+          "code": "1E",
+          "mnemonic": "CMP",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "X, !abs"
+        },
+        {
+          "code": "AD",
+          "mnemonic": "CMP",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "Y, #imm"
+        },
+        {
+          "code": "7E",
+          "mnemonic": "CMP",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "Y, dp"
+        },
+        {
+          "code": "5E",
+          "mnemonic": "CMP",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "Y, !abs"
+        }
+      ]
+    },
+    {
+      "table": "C-8",
+      "title": "8-bit Logic Operation Commands",
+      "manualPage": "C-6",
+      "pdfPage": 232,
+      "rows": [
+        {
+          "code": "28",
+          "mnemonic": "AND",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "A, #imm"
+        },
+        {
+          "code": "26",
+          "mnemonic": "AND",
+          "bytes": 1,
+          "cycles": "3",
+          "operand": "A, (X)"
+        },
+        {
+          "code": "24",
+          "mnemonic": "AND",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "A, dp"
+        },
+        {
+          "code": "34",
+          "mnemonic": "AND",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "A, dp+X"
+        },
+        {
+          "code": "25",
+          "mnemonic": "AND",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "A, !abs"
+        },
+        {
+          "code": "35",
+          "mnemonic": "AND",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+X"
+        },
+        {
+          "code": "36",
+          "mnemonic": "AND",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+Y"
+        },
+        {
+          "code": "27",
+          "mnemonic": "AND",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp+X]"
+        },
+        {
+          "code": "37",
+          "mnemonic": "AND",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp]+Y"
+        },
+        {
+          "code": "39",
+          "mnemonic": "AND",
+          "bytes": 1,
+          "cycles": "5",
+          "operand": "(X), (Y)"
+        },
+        {
+          "code": "29",
+          "mnemonic": "AND",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "dp<d>, dp<s>"
+        },
+        {
+          "code": "38",
+          "mnemonic": "AND",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "dp, #imm"
+        },
+        {
+          "code": "08",
+          "mnemonic": "OR",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "A, #imm"
+        },
+        {
+          "code": "06",
+          "mnemonic": "OR",
+          "bytes": 1,
+          "cycles": "3",
+          "operand": "A, (X)"
+        },
+        {
+          "code": "04",
+          "mnemonic": "OR",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "A, dp"
+        },
+        {
+          "code": "14",
+          "mnemonic": "OR",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "A, dp+X"
+        },
+        {
+          "code": "05",
+          "mnemonic": "OR",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "A, !abs"
+        },
+        {
+          "code": "15",
+          "mnemonic": "OR",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+X"
+        },
+        {
+          "code": "16",
+          "mnemonic": "OR",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+Y"
+        },
+        {
+          "code": "07",
+          "mnemonic": "OR",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp+X]"
+        },
+        {
+          "code": "17",
+          "mnemonic": "OR",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp]+Y"
+        },
+        {
+          "code": "19",
+          "mnemonic": "OR",
+          "bytes": 1,
+          "cycles": "5",
+          "operand": "(X), (Y)"
+        },
+        {
+          "code": "09",
+          "mnemonic": "OR",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "dp<d>, dp<s>"
+        },
+        {
+          "code": "18",
+          "mnemonic": "OR",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "dp, #imm"
+        },
+        {
+          "code": "48",
+          "mnemonic": "EOR",
+          "bytes": 2,
+          "cycles": "2",
+          "operand": "A, #imm"
+        },
+        {
+          "code": "46",
+          "mnemonic": "EOR",
+          "bytes": 1,
+          "cycles": "3",
+          "operand": "A, (X)"
+        },
+        {
+          "code": "44",
+          "mnemonic": "EOR",
+          "bytes": 2,
+          "cycles": "3",
+          "operand": "A, dp"
+        },
+        {
+          "code": "54",
+          "mnemonic": "EOR",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "A, dp+X"
+        },
+        {
+          "code": "45",
+          "mnemonic": "EOR",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "A, !abs"
+        },
+        {
+          "code": "55",
+          "mnemonic": "EOR",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+X"
+        },
+        {
+          "code": "56",
+          "mnemonic": "EOR",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "A, !abs+Y"
+        },
+        {
+          "code": "47",
+          "mnemonic": "EOR",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp+X]"
+        },
+        {
+          "code": "57",
+          "mnemonic": "EOR",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "A, [dp]+Y"
+        },
+        {
+          "code": "59",
+          "mnemonic": "EOR",
+          "bytes": 1,
+          "cycles": "5",
+          "operand": "(X), (Y)"
+        },
+        {
+          "code": "49",
+          "mnemonic": "EOR",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "dp<d>, dp<s>"
+        },
+        {
+          "code": "58",
+          "mnemonic": "EOR",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "dp, #imm"
+        }
+      ]
+    },
+    {
+      "table": "C-9",
+      "title": "Addition and Subtraction Commands",
+      "manualPage": "C-7",
+      "pdfPage": 233,
+      "rows": [
+        {
+          "code": "BC",
+          "mnemonic": "INC",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "A"
+        },
+        {
+          "code": "AB",
+          "mnemonic": "INC",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp"
+        },
+        {
+          "code": "BB",
+          "mnemonic": "INC",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "dp+X"
+        },
+        {
+          "code": "AC",
+          "mnemonic": "INC",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "!abs"
+        },
+        {
+          "code": "3D",
+          "mnemonic": "INC",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "X"
+        },
+        {
+          "code": "FC",
+          "mnemonic": "INC",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "Y"
+        },
+        {
+          "code": "9C",
+          "mnemonic": "DEC",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "A"
+        },
+        {
+          "code": "8B",
+          "mnemonic": "DEC",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp"
+        },
+        {
+          "code": "9B",
+          "mnemonic": "DEC",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "dp+X"
+        },
+        {
+          "code": "8C",
+          "mnemonic": "DEC",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "!abs"
+        },
+        {
+          "code": "1D",
+          "mnemonic": "DEC",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "X"
+        },
+        {
+          "code": "DC",
+          "mnemonic": "DEC",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "Y"
+        }
+      ]
+    },
+    {
+      "table": "C-10",
+      "title": "Shift Rotation Commands",
+      "manualPage": "C-7",
+      "pdfPage": 233,
+      "rows": [
+        {
+          "code": "1C",
+          "mnemonic": "ASL",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "A"
+        },
+        {
+          "code": "0B",
+          "mnemonic": "ASL",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp"
+        },
+        {
+          "code": "1B",
+          "mnemonic": "ASL",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "dp+X"
+        },
+        {
+          "code": "0C",
+          "mnemonic": "ASL",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "!abs"
+        },
+        {
+          "code": "5C",
+          "mnemonic": "LSR",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "A"
+        },
+        {
+          "code": "4B",
+          "mnemonic": "LSR",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp"
+        },
+        {
+          "code": "5B",
+          "mnemonic": "LSR",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "dp+X"
+        },
+        {
+          "code": "4C",
+          "mnemonic": "LSR",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "!abs"
+        },
+        {
+          "code": "3C",
+          "mnemonic": "ROL",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "A"
+        },
+        {
+          "code": "2B",
+          "mnemonic": "ROL",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp"
+        },
+        {
+          "code": "3B",
+          "mnemonic": "ROL",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "dp+X"
+        },
+        {
+          "code": "2C",
+          "mnemonic": "ROL",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "!abs"
+        },
+        {
+          "code": "7C",
+          "mnemonic": "ROR",
+          "bytes": 1,
+          "cycles": "2",
+          "operand": "A"
+        },
+        {
+          "code": "6B",
+          "mnemonic": "ROR",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp"
+        },
+        {
+          "code": "7B",
+          "mnemonic": "ROR",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "dp+X"
+        },
+        {
+          "code": "6C",
+          "mnemonic": "ROR",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "!abs"
+        },
+        {
+          "code": "9F",
+          "mnemonic": "XCN",
+          "bytes": 1,
+          "cycles": "5",
+          "operand": "A"
+        }
+      ]
+    },
+    {
+      "table": "C-11",
+      "title": "16-bit Data Transmission Commands",
+      "manualPage": "C-8",
+      "pdfPage": 234,
+      "rows": [
+        {
+          "code": "BA",
+          "mnemonic": "MOVW",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "YA, dp"
+        },
+        {
+          "code": "DA",
+          "mnemonic": "MOVW",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, YA"
+        }
+      ]
+    },
+    {
+      "table": "C-12",
+      "title": "16-bit Operation Commands",
+      "manualPage": "C-8",
+      "pdfPage": 234,
+      "rows": [
+        {
+          "code": "3A",
+          "mnemonic": "INCW",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "dp"
+        },
+        {
+          "code": "1A",
+          "mnemonic": "DECW",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "dp"
+        },
+        {
+          "code": "7A",
+          "mnemonic": "ADDW",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "YA, dp"
+        },
+        {
+          "code": "9A",
+          "mnemonic": "SUBW",
+          "bytes": 2,
+          "cycles": "5",
+          "operand": "YA, dp"
+        },
+        {
+          "code": "5A",
+          "mnemonic": "CMPW",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "YA, dp"
+        }
+      ]
+    },
+    {
+      "table": "C-13",
+      "title": "Multiplication and Division Commands",
+      "manualPage": "C-8",
+      "pdfPage": 234,
+      "rows": [
+        {
+          "code": "CF",
+          "mnemonic": "MUL",
+          "bytes": 1,
+          "cycles": "9",
+          "operand": "YA"
+        },
+        {
+          "code": "9E",
+          "mnemonic": "DIV",
+          "bytes": 1,
+          "cycles": "12",
+          "operand": "YA, X"
+        }
+      ]
+    },
+    {
+      "table": "C-14",
+      "title": "Decimal Compensation Commands",
+      "manualPage": "C-8",
+      "pdfPage": 234,
+      "rows": [
+        {
+          "code": "DF",
+          "mnemonic": "DAA",
+          "bytes": 1,
+          "cycles": "3",
+          "operand": "A"
+        },
+        {
+          "code": "BE",
+          "mnemonic": "DAS",
+          "bytes": 1,
+          "cycles": "3",
+          "operand": "A"
+        }
+      ]
+    },
+    {
+      "table": "C-15",
+      "title": "Branching Commands",
+      "manualPage": "C-8",
+      "pdfPage": 234,
+      "rows": [
+        {
+          "code": "2F",
+          "mnemonic": "BRA",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "rel"
+        },
+        {
+          "code": "F0",
+          "mnemonic": "BEQ",
+          "bytes": 2,
+          "cycles": "2/4",
+          "operand": "rel"
+        },
+        {
+          "code": "D0",
+          "mnemonic": "BNE",
+          "bytes": 2,
+          "cycles": "2/4",
+          "operand": "rel"
+        },
+        {
+          "code": "B0",
+          "mnemonic": "BCS",
+          "bytes": 2,
+          "cycles": "2/4",
+          "operand": "rel"
+        },
+        {
+          "code": "90",
+          "mnemonic": "BCC",
+          "bytes": 2,
+          "cycles": "2/4",
+          "operand": "rel"
+        },
+        {
+          "code": "70",
+          "mnemonic": "BVS",
+          "bytes": 2,
+          "cycles": "2/4",
+          "operand": "rel"
+        },
+        {
+          "code": "50",
+          "mnemonic": "BVC",
+          "bytes": 2,
+          "cycles": "2/4",
+          "operand": "rel"
+        },
+        {
+          "code": "30",
+          "mnemonic": "BMI",
+          "bytes": 2,
+          "cycles": "2/4",
+          "operand": "rel"
+        },
+        {
+          "code": "10",
+          "mnemonic": "BPL",
+          "bytes": 2,
+          "cycles": "2/4",
+          "operand": "rel"
+        },
+        {
+          "code": "03",
+          "mnemonic": "BBS",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 0, rel"
+        },
+        {
+          "code": "13",
+          "mnemonic": "BBC",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 0, rel"
+        },
+        {
+          "code": "23",
+          "mnemonic": "BBS",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 1, rel"
+        },
+        {
+          "code": "33",
+          "mnemonic": "BBC",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 1, rel"
+        },
+        {
+          "code": "43",
+          "mnemonic": "BBS",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 2, rel"
+        },
+        {
+          "code": "53",
+          "mnemonic": "BBC",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 2, rel"
+        },
+        {
+          "code": "63",
+          "mnemonic": "BBS",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 3, rel"
+        },
+        {
+          "code": "73",
+          "mnemonic": "BBC",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 3, rel"
+        },
+        {
+          "code": "83",
+          "mnemonic": "BBS",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 4, rel"
+        },
+        {
+          "code": "93",
+          "mnemonic": "BBC",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 4, rel"
+        },
+        {
+          "code": "A3",
+          "mnemonic": "BBS",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 5, rel"
+        },
+        {
+          "code": "B3",
+          "mnemonic": "BBC",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 5, rel"
+        },
+        {
+          "code": "C3",
+          "mnemonic": "BBS",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 6, rel"
+        },
+        {
+          "code": "D3",
+          "mnemonic": "BBC",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 6, rel"
+        },
+        {
+          "code": "E3",
+          "mnemonic": "BBS",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 7, rel"
+        },
+        {
+          "code": "F3",
+          "mnemonic": "BBC",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, 7, rel"
+        },
+        {
+          "code": "2E",
+          "mnemonic": "CBNE",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, rel"
+        },
+        {
+          "code": "DE",
+          "mnemonic": "CBNE",
+          "bytes": 3,
+          "cycles": "6/8",
+          "operand": "dp+X, rel"
+        },
+        {
+          "code": "6E",
+          "mnemonic": "DBNZ",
+          "bytes": 3,
+          "cycles": "5/7",
+          "operand": "dp, rel"
+        },
+        {
+          "code": "FE",
+          "mnemonic": "DBNZ",
+          "bytes": 2,
+          "cycles": "4/6",
+          "operand": "Y, rel"
+        },
+        {
+          "code": "5F",
+          "mnemonic": "JMP",
+          "bytes": 3,
+          "cycles": "3",
+          "operand": "!abs"
+        },
+        {
+          "code": "1F",
+          "mnemonic": "JMP",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "[!abs+X]"
+        }
+      ],
+      "note": "BBS and BBC are printed as x3 and y3, one row each covering eight opcodes that differ only in the bit the top three bits of the code select."
+    },
+    {
+      "table": "C-16",
+      "title": "Subroutine Call, Return Commands",
+      "manualPage": "C-9",
+      "pdfPage": 235,
+      "rows": [
+        {
+          "code": "3F",
+          "mnemonic": "CALL",
+          "bytes": 3,
+          "cycles": "8",
+          "operand": "!abs"
+        },
+        {
+          "code": "4F",
+          "mnemonic": "PCALL",
+          "bytes": 2,
+          "cycles": "6",
+          "operand": "upage"
+        },
+        {
+          "code": "01",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "0"
+        },
+        {
+          "code": "11",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "1"
+        },
+        {
+          "code": "21",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "2"
+        },
+        {
+          "code": "31",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "3"
+        },
+        {
+          "code": "41",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "4"
+        },
+        {
+          "code": "51",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "5"
+        },
+        {
+          "code": "61",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "6"
+        },
+        {
+          "code": "71",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "7"
+        },
+        {
+          "code": "81",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "8"
+        },
+        {
+          "code": "91",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "9"
+        },
+        {
+          "code": "A1",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "10"
+        },
+        {
+          "code": "B1",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "11"
+        },
+        {
+          "code": "C1",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "12"
+        },
+        {
+          "code": "D1",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "13"
+        },
+        {
+          "code": "E1",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "14"
+        },
+        {
+          "code": "F1",
+          "mnemonic": "TCALL",
+          "bytes": 1,
+          "cycles": "8",
+          "operand": "15"
+        },
+        {
+          "code": "0F",
+          "mnemonic": "BRK",
+          "bytes": 1,
+          "cycles": "8"
+        },
+        {
+          "code": "6F",
+          "mnemonic": "RET",
+          "bytes": 1,
+          "cycles": "5"
+        },
+        {
+          "code": "7F",
+          "mnemonic": "RETI",
+          "bytes": 1,
+          "cycles": "6"
+        }
+      ],
+      "note": "TCALL is printed as one row with the code n1, covering the sixteen opcodes whose low nibble is 1."
+    },
+    {
+      "table": "C-17",
+      "title": "Stack Operation Commands",
+      "manualPage": "C-9",
+      "pdfPage": 235,
+      "rows": [
+        {
+          "code": "2D",
+          "mnemonic": "PUSH",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "A"
+        },
+        {
+          "code": "4D",
+          "mnemonic": "PUSH",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "X"
+        },
+        {
+          "code": "6D",
+          "mnemonic": "PUSH",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "Y"
+        },
+        {
+          "code": "0D",
+          "mnemonic": "PUSH",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "PSW"
+        },
+        {
+          "code": "AE",
+          "mnemonic": "POP",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "A"
+        },
+        {
+          "code": "CE",
+          "mnemonic": "POP",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "X"
+        },
+        {
+          "code": "EE",
+          "mnemonic": "POP",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "Y"
+        },
+        {
+          "code": "8E",
+          "mnemonic": "POP",
+          "bytes": 1,
+          "cycles": "4",
+          "operand": "PSW"
+        }
+      ]
+    },
+    {
+      "table": "C-18",
+      "title": "Bit Operation Commands",
+      "manualPage": "C-9",
+      "pdfPage": 235,
+      "rows": [
+        {
+          "code": "02",
+          "mnemonic": "SET1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 0"
+        },
+        {
+          "code": "12",
+          "mnemonic": "CLR1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 0"
+        },
+        {
+          "code": "22",
+          "mnemonic": "SET1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 1"
+        },
+        {
+          "code": "32",
+          "mnemonic": "CLR1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 1"
+        },
+        {
+          "code": "42",
+          "mnemonic": "SET1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 2"
+        },
+        {
+          "code": "52",
+          "mnemonic": "CLR1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 2"
+        },
+        {
+          "code": "62",
+          "mnemonic": "SET1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 3"
+        },
+        {
+          "code": "72",
+          "mnemonic": "CLR1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 3"
+        },
+        {
+          "code": "82",
+          "mnemonic": "SET1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 4"
+        },
+        {
+          "code": "92",
+          "mnemonic": "CLR1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 4"
+        },
+        {
+          "code": "A2",
+          "mnemonic": "SET1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 5"
+        },
+        {
+          "code": "B2",
+          "mnemonic": "CLR1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 5"
+        },
+        {
+          "code": "C2",
+          "mnemonic": "SET1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 6"
+        },
+        {
+          "code": "D2",
+          "mnemonic": "CLR1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 6"
+        },
+        {
+          "code": "E2",
+          "mnemonic": "SET1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 7"
+        },
+        {
+          "code": "F2",
+          "mnemonic": "CLR1",
+          "bytes": 2,
+          "cycles": "4",
+          "operand": "dp, 7"
+        },
+        {
+          "code": "0E",
+          "mnemonic": "TSET1",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "!abs"
+        },
+        {
+          "code": "4E",
+          "mnemonic": "TCLR1",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "!abs"
+        },
+        {
+          "code": "4A",
+          "mnemonic": "AND1",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "C, mem.bit"
+        },
+        {
+          "code": "6A",
+          "mnemonic": "AND1",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "C, /mem.bit"
+        },
+        {
+          "code": "0A",
+          "mnemonic": "OR1",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "C, mem.bit"
+        },
+        {
+          "code": "2A",
+          "mnemonic": "OR1",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "C, /mem.bit"
+        },
+        {
+          "code": "8A",
+          "mnemonic": "EOR1",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "C, mem.bit"
+        },
+        {
+          "code": "EA",
+          "mnemonic": "NOT1",
+          "bytes": 3,
+          "cycles": "5",
+          "operand": "mem.bit"
+        },
+        {
+          "code": "AA",
+          "mnemonic": "MOV1",
+          "bytes": 3,
+          "cycles": "4",
+          "operand": "C, mem.bit"
+        },
+        {
+          "code": "CA",
+          "mnemonic": "MOV1",
+          "bytes": 3,
+          "cycles": "6",
+          "operand": "mem.bit, C"
+        }
+      ],
+      "note": "SET1 and CLR1 are printed as x2 and y2, one row each covering eight opcodes that differ only in the bit the top three bits of the code select."
+    },
+    {
+      "table": "C-19",
+      "title": "Program Status Flag Operation Commands",
+      "manualPage": "C-10",
+      "pdfPage": 236,
+      "rows": [
+        {
+          "code": "60",
+          "mnemonic": "CLRC",
+          "bytes": 1,
+          "cycles": "2"
+        },
+        {
+          "code": "80",
+          "mnemonic": "SETC",
+          "bytes": 1,
+          "cycles": "2"
+        },
+        {
+          "code": "ED",
+          "mnemonic": "NOTC",
+          "bytes": 1,
+          "cycles": "3"
+        },
+        {
+          "code": "E0",
+          "mnemonic": "CLRV",
+          "bytes": 1,
+          "cycles": "2"
+        },
+        {
+          "code": "20",
+          "mnemonic": "CLRP",
+          "bytes": 1,
+          "cycles": "2"
+        },
+        {
+          "code": "40",
+          "mnemonic": "SETP",
+          "bytes": 1,
+          "cycles": "2"
+        },
+        {
+          "code": "A0",
+          "mnemonic": "EI",
+          "bytes": 1,
+          "cycles": "3"
+        },
+        {
+          "code": "C0",
+          "mnemonic": "DI",
+          "bytes": 1,
+          "cycles": "3"
+        }
+      ]
+    },
+    {
+      "table": "C-20",
+      "title": "Other Commands",
+      "manualPage": "C-10",
+      "pdfPage": 236,
+      "rows": [
+        {
+          "code": "00",
+          "mnemonic": "NOP",
+          "bytes": 1,
+          "cycles": "2"
+        },
+        {
+          "code": "EF",
+          "mnemonic": "SLEEP",
+          "bytes": 1,
+          "cycles": "3"
+        },
+        {
+          "code": "FF",
+          "mnemonic": "STOP",
+          "bytes": 1,
+          "cycles": "3"
+        }
+      ]
+    }
+  ]
+}
