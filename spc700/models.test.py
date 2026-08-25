@@ -6,6 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import spc700
 from spc700 import models
+from spc700.errors import UnknownModelError
 from spc700.memory import Memory
 
 
@@ -25,11 +26,11 @@ class CatalogueTest(unittest.TestCase):
             self.assertEqual(models.describe(written).name, "spc700")
 
     def test_a_model_the_family_does_not_have_is_refused_by_name(self) -> None:
-        with self.assertRaises(models.UnknownModelError):
+        with self.assertRaises(UnknownModelError):
             models.describe("z80")
 
     def test_the_refusal_lists_what_is_available(self) -> None:
-        with self.assertRaises(models.UnknownModelError) as raised:
+        with self.assertRaises(UnknownModelError) as raised:
             models.describe("nonsense")
 
         self.assertIn("spc700", str(raised.exception))
@@ -46,23 +47,23 @@ class CatalogueTest(unittest.TestCase):
 
 class BuildTest(unittest.TestCase):
     def test_a_processor_is_built_from_its_model_name(self) -> None:
-        cpu = spc700.Cpu(Memory(fill=0), model="spc700")
+        cpu = spc700.Cpu("spc700", Memory(fill=0))
 
         self.assertEqual(cpu.model, "spc700")
 
     def test_the_default_model_is_the_one_the_console_carries(self) -> None:
-        cpu = spc700.Cpu(Memory(fill=0))
+        cpu = spc700.Cpu(memory=Memory(fill=0))
 
         self.assertEqual(cpu.model, "spc700")
 
     def test_options_reach_the_processor_that_gets_built(self) -> None:
-        cpu = spc700.Cpu(Memory(fill=0), model="spc700", step_limit=17)
+        cpu = spc700.Cpu("spc700", Memory(fill=0), step_limit=17)
 
         self.assertEqual(cpu.step_limit, 17)
 
     def test_a_model_the_family_does_not_have_is_refused_at_construction(self) -> None:
-        with self.assertRaises(models.UnknownModelError):
-            spc700.Cpu(Memory(fill=0), model="6502")
+        with self.assertRaises(UnknownModelError):
+            spc700.Cpu("6502", Memory(fill=0))
 
 
 if __name__ == "__main__":

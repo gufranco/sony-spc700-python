@@ -44,6 +44,15 @@ class SparseMemory:
     and still reads the same twice, at no setup cost.
     """
 
+    __slots__ = ("cells", "seed")
+    """Without them a name this class does not have is accepted in silence.
+
+    The caller sets a stray attribute, the one they meant keeps whatever it held,
+    and nothing reports that the write went nowhere. A sibling package shipped
+    exactly that, where two parts spell a flag differently and reaching for the
+    wrong one did nothing at all.
+    """
+
     def __init__(self, seed: int = UNSET_SEED) -> None:
         self.cells: dict[int, int] = {}
         self.seed = seed & _WORD
@@ -70,6 +79,15 @@ class Memory:
     `fill` is a byte, a bytes-like image loaded at the bottom, or None for the
     scrambled pattern above. A caller that genuinely wants zeroes asks for zero
     and says so, which is the point: it becomes a decision rather than a default.
+    """
+
+    __slots__ = ("data",)
+    """Without them a name this class does not have is accepted in silence.
+
+    The caller sets a stray attribute, the one they meant keeps whatever it held,
+    and nothing reports that the write went nowhere. A sibling package shipped
+    exactly that, where two parts spell a flag differently and reaching for the
+    wrong one did nothing at all.
     """
 
     def __init__(

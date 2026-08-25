@@ -45,7 +45,7 @@ def machine_for(initial: Mapping[str, Any]) -> tuple[Any, Any]:
     for address, value in initial["ram"]:
         memory.write8(address, value)
 
-    cpu = Cpu(memory, reset=False)
+    cpu = Cpu(memory=memory)
     cpu.a = initial["a"]
     cpu.x = initial["x"]
     cpu.y = initial["y"]

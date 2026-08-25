@@ -7,16 +7,30 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from spc700 import core
+from spc700.errors import RunLimit
 from spc700.memory import Memory
 
 
 def machine(
     code: Sequence[int], base: int = 0x0200, fill: int = 0, **registers: int
 ) -> tuple[Any, Memory]:
+    """A part in a state this file chose, rather than the one a rail leaves.
+
+    Construction scrambles every register, because that is what powering on
+    does. These are tests of what an instruction does, so they start from a
+    defined state and say so here: the flags are cleared, which matters most for
+    `P`, since a scrambled direct-page bit sends every direct access to the wrong
+    page and turns an instruction test into a test of where it landed.
+
+    A test that wants a flag set passes it, and the power-on state itself is
+    tested where it belongs rather than relied on here.
+    """
     memory = Memory(fill=fill)
     for offset, byte in enumerate(code):
         memory.write8(base + offset, byte)
-    cpu = core.Cpu(memory, reset=False)
+    cpu = core.Cpu(memory)
+    cpu.psw = 0x00
+    cpu.a = cpu.x = cpu.y = 0x00
     cpu.pc = base
     cpu.sp = 0xEF
     for name, value in registers.items():
@@ -36,10 +50,31 @@ class ResetTest(unittest.TestCase):
         memory = Memory(fill=0)
         memory.write8(core.RESET_VECTOR, 0x00)
         memory.write8(core.RESET_VECTOR + 1, 0xFF)
+        cpu = core.Cpu(memory)
+
+        cpu.reset()
+
+        self.assertEqual(cpu.pc, 0xFF00)
+
+    def test_but_only_once_a_caller_drives_the_pin(self) -> None:
+        """Power on and reset are two events, and construction is the first.
+
+        A part that arrived reset would hide one that costs cycles and drives
+        pins, and no board offers one.
+        """
+        memory = Memory(fill=0)
+        memory.write8(core.RESET_VECTOR, 0x00)
+        memory.write8(core.RESET_VECTOR + 1, 0xFF)
 
         cpu = core.Cpu(memory)
 
-        self.assertEqual(cpu.pc, 0xFF00)
+        self.assertNotEqual(cpu.pc, 0xFF00)
+
+    def test_and_the_program_counter_comes_up_holding_something(self) -> None:
+        """Rubbish from a rubbish address, which is what the silicon does."""
+        held = {core.Cpu(Memory(fill=0), seed=one).pc for one in range(8)}
+
+        self.assertGreater(len(held), 1)
 
     def test_the_registers_are_not_assumed_clear(self) -> None:
         cpu = core.Cpu(Memory(fill=0))
@@ -716,7 +751,7 @@ class HaltTest(unittest.TestCase):
         cpu, _ = machine([0x2F, 0xFE])
         cpu.step_limit = 100
 
-        with self.assertRaises(core.StepLimit):
+        with self.assertRaises(RunLimit):
             cpu.run_until(lambda found: False)
 
 
@@ -724,7 +759,7 @@ class EveryOpcodeTest(unittest.TestCase):
     def test_every_opcode_executes(self) -> None:
         for opcode in range(256):
             memory = Memory(seed=opcode)
-            cpu = core.Cpu(memory, reset=False)
+            cpu = core.Cpu(memory)
             cpu.pc = 0x0200
             memory.write8(0x0200, opcode)
             with self.subTest(opcode=f"${opcode:02X}"):

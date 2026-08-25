@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from spc700 import opcodes
+from spc700.errors import Truncated
 
 
 class TableTest(unittest.TestCase):
@@ -88,11 +89,11 @@ class DecodeTest(unittest.TestCase):
         self.assertEqual(found.text, "or1 c,$0234:7")
 
     def test_reading_past_the_end_is_refused(self) -> None:
-        with self.assertRaises(opcodes.Truncated):
+        with self.assertRaises(Truncated):
             opcodes.decode(bytes([0xE8]), 0, 0x0200)
 
     def test_an_offset_past_the_end_is_refused(self) -> None:
-        with self.assertRaises(opcodes.Truncated):
+        with self.assertRaises(Truncated):
             opcodes.decode(bytes([0x00]), 5, 0x0200)
 
     def test_the_opcode_is_carried_on_the_result(self) -> None:

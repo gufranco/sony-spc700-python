@@ -84,7 +84,7 @@ def _run(
         memory.write8(TESTED_BYTE, held)
 
     line = Bus()
-    cpu = Cpu(memory, reset=False, bus=line)
+    cpu = Cpu(memory=memory, bus=line)
     cpu.a = a
     cpu.x = 0x00
     cpu.y = y

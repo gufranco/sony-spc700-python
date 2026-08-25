@@ -12,13 +12,11 @@ identical mnemonics would put the same information in two places.
 
 import collections
 
+from .errors import Truncated
+
 Instruction = collections.namedtuple("Instruction", "address size text opcode mnemonic mode")
 
 RETURNS = frozenset({"ret", "reti"})
-
-
-class Truncated(Exception):
-    pass
 
 
 OPCODES = (

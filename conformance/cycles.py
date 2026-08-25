@@ -38,7 +38,7 @@ def machine_for(initial: dict[str, Any]) -> tuple[Any, Bus]:
         memory.write8(address, value)
 
     line = Bus(recording=True)
-    cpu = Cpu(memory, reset=False, bus=line)
+    cpu = Cpu(memory=memory, bus=line)
     cpu.a = initial["a"]
     cpu.x = initial["x"]
     cpu.y = initial["y"]

@@ -15,16 +15,23 @@ fidelity would be a claim rather than a measurement.
 from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING, Any, override
 
+from .errors import UnknownModelError
+
 if TYPE_CHECKING:
     Builder = Callable[..., Any]
 
 
-class UnknownModelError(Exception):
-    pass
-
-
 class Model:
     """One part: what it is, what it reaches, and how to build it."""
+
+    __slots__ = ("address_bits", "aliases", "core", "data_bits", "name", "summary")
+    """Without them a name this class does not have is accepted in silence.
+
+    The caller sets a stray attribute, the one they meant keeps whatever it held,
+    and nothing reports that the write went nowhere. A sibling package shipped
+    exactly that, where two parts spell a flag differently and reaching for the
+    wrong one did nothing at all.
+    """
 
     def __init__(
         self,

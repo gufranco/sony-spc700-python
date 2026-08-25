@@ -18,6 +18,7 @@ from typing import Protocol
 
 from . import opcodes as table
 from .bus import Bus
+from .errors import RunLimit
 from .memory import UNSET_SEED, scramble
 
 
@@ -70,43 +71,76 @@ BRANCHES = {
 }
 
 
-class StepLimit(Exception):
-    pass
-
-
 class Cpu:
-    """An SPC700 in the state a reset leaves it, not one chosen for tidiness.
+    """An SPC700 holding whatever the rail coming up left in it.
 
-    A reset defines less than a model usually assumes. It loads the program
+    Power on and reset are two events and this is the first. Construction puts
+    every register in the state a rail coming up leaves it, the program counter
+    included, so a newly built part executes rubbish from a rubbish address
+    exactly as the silicon would. Nothing here calls `reset`, because no board
+    offers a part that arrives reset: a caller drives that pin.
+
+    `reset` then defines less than a model usually assumes. It loads the program
     counter from the vector at the top of the space and says nothing about the
     accumulator, the index registers, the stack pointer, or most of the status
-    register. Hardware leaves those holding whatever they held, so they are
-    scrambled from a seed here rather than zeroed: reproducible, so a differential
-    run stays comparable, and not zero, which is what stops code that reads them
-    before writing them from looking correct here and failing on a console.
+    register. Hardware leaves those holding whatever they held, so they stay
+    scrambled: reproducible from a seed, so a differential run stays comparable,
+    and not zero, which is what stops code that reads them before writing them
+    from looking correct here and failing on a console.
     """
+
+    __slots__ = (
+        "a",
+        "b",
+        "bus",
+        "c",
+        "cycles",
+        "h",
+        "i",
+        "memory",
+        "model",
+        "n",
+        "on_cycle",
+        "p",
+        "pc",
+        "sp",
+        "step_limit",
+        "steps",
+        "stopped",
+        "v",
+        "x",
+        "y",
+        "z",
+    )
+
+    on_cycle: Callable[[], None] | None
 
     def __init__(
         self,
         memory: MemoryLike,
         step_limit: int = STEP_LIMIT,
         seed: int = UNSET_SEED,
-        reset: bool = True,
         bus: Bus | None = None,
     ) -> None:
         self.memory = memory
         self.bus = Bus() if bus is None else bus
+        self.bus.on_spend = self._spent
         self.step_limit = step_limit
         self.model = "spc700"
         self.steps = 0
+        self.cycles = 0
+        self.on_cycle = None
         self.stopped = False
         self.a = self.x = self.y = 0x00
         self.sp = 0xFF
         self.pc = 0x0000
-        self.n = self.v = self.p = self.b = False
-        self.h = self.i = self.z = self.c = False
-        if reset:
-            self.reset(seed)
+        undefined = scramble(6, seed)
+        self.a = undefined[0]
+        self.x = undefined[1]
+        self.y = undefined[2]
+        self.sp = undefined[3]
+        self.pc = undefined[4] | (undefined[5] << 8)
+        self.psw = undefined[4]
 
     def reset(self, seed: int = UNSET_SEED) -> None:
         """Put the processor where a reset puts it, undefined parts included."""
@@ -245,10 +279,19 @@ class Cpu:
     def direct(self, offset: int) -> int:
         return self.direct_page | (offset & 0xFF)
 
-    def step(self) -> "Cpu":
-        """Execute one instruction, or nothing at all once the processor stops."""
+    def step(self) -> int:
+        """Execute one instruction and answer what it cost.
+
+        The count comes from the bus rather than from a table, because the bus is
+        where every cycle is actually spent: a read, a write, or an idle the part
+        takes on itself. A table would be a second place for a cycle count to
+        live and a second place for it to be wrong.
+
+        A stopped part costs nothing and does nothing. It has not left the world:
+        the board's clock is still running and `held()` says so.
+        """
         if self.stopped:
-            return self
+            return 0
         self.bus.restart()
         opcode = self.fetch8()
         mnemonic, mode, size = OPCODES[opcode]
@@ -256,13 +299,62 @@ class Cpu:
             self.peek8(self.pc)
         getattr(self, f"op_{mnemonic}")(mode, opcode)
         self.steps += 1
-        return self
+        return self.bus.cycles
+
+    def run_for(self, cycles: int) -> int:
+        """Advance at least this many cycles and answer what was really spent.
+
+        It usually overshoots, because an instruction is not divisible. A host
+        carries the difference into the next slice rather than discarding it, and
+        a long run does not drift.
+
+        A stopped part still costs its host the whole budget. Whatever the
+        processor is doing, the board's clock has not stopped, and a host pacing
+        against a wall clock has to be told the time passed.
+        """
+        spent = 0
+        while spent < cycles:
+            if self.stopped:
+                while spent < cycles:
+                    self.held_cycle()
+                    spent += 1
+                return spent
+            spent += self.step()
+        return spent
+
+    def _spent(self, count: int = 1) -> None:
+        """The one place a cycle is charged, so nothing can charge one twice.
+
+        The bus calls this as it spends, rather than the instruction handing a
+        total over at the end. A clock stopping between two cycles of one
+        instruction therefore sees a tally that is already correct, which is the
+        whole reason a clock exists.
+        """
+        self.cycles += count
+        if self.on_cycle is not None:
+            for _ in range(count):
+                self.on_cycle()
+
+    def held(self) -> bool:
+        """Whether the part has stopped advancing the program."""
+        return self.stopped
+
+    def held_cycle(self) -> None:
+        """One cycle of a part that has stopped, which costs time and no bus.
+
+        `STOP` and `SLEEP` both leave the part waiting for something outside it,
+        and neither completes another instruction, so `step` has nothing to
+        advance. The board's clock has not stopped, so the time is charged. What
+        the part drives while waiting is not recorded here, because this project
+        records accesses and there is no access to record.
+        """
+        self._spent(1)
 
     def run_until(self, done: Callable[["Cpu"], bool]) -> "Cpu":
         """Step until the caller says stop, or refuse to run forever."""
         while not done(self):
             if self.steps >= self.step_limit:
-                raise StepLimit(f"still running after {self.steps} instructions")
+                raise RunLimit(f"still running after {self.steps} instructions")
             self.step()
         return self
 
