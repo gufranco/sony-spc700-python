@@ -23,7 +23,7 @@
   <a href="https://github.com/gufranco/sony-spc700-python/issues">Issues</a>
 </p>
 
-**256** opcodes · **256,000** conformance cases and **1,182,940** cycles compared, **0** failures · every cycle count checked against **Nintendo's own tables** · **670** tests · **100%** statement and branch coverage · no dependencies
+**256** opcodes · **256,000** conformance cases and **1,182,940** cycles compared, **0** failures · every cycle count checked against **Nintendo's own tables** · **671** tests · **100%** statement and branch coverage · no dependencies
 
 ```python
 from spc700 import Cpu, SparseMemory
