@@ -66,5 +66,48 @@ class BuildTest(unittest.TestCase):
             spc700.Cpu("6502", Memory(fill=0))
 
 
+class QuietStoreTest(unittest.TestCase):
+    """`fill`, which is the one spelling across this family for a store of one byte.
+
+    Not what a board hands over and not the default: a caller asking for zeroes
+    is asking for something no machine does, so they have to say so. What it is
+    for is a run that has to get through a few dozen instructions without meeting
+    an opcode that stops the part, which is what every check of a cycle budget
+    needs and what scrambled memory cannot give.
+    """
+
+    def test_a_fill_puts_that_byte_everywhere(self) -> None:
+        part = spc700.Cpu(spc700.DEFAULT_MODEL, fill=0)
+
+        self.assertEqual({part.memory.read8(address) for address in range(0x40)}, {0})
+
+    def test_and_any_byte_works_rather_than_only_zero(self) -> None:
+        part = spc700.Cpu(spc700.DEFAULT_MODEL, fill=0xAA)
+
+        self.assertEqual({part.memory.read8(address) for address in range(0x40)}, {0xAA})
+
+    def test_without_one_the_store_is_scrambled_rather_than_cleared(self) -> None:
+        """The default has to stay the thing a machine actually hands over.
+
+        Read address by address rather than off the store's own bytes, because
+        the default store allocates nothing until it is asked and has no bytes
+        to read.
+        """
+        part = spc700.Cpu(spc700.DEFAULT_MODEL)
+
+        held = {part.memory.read8(address) for address in range(0x40)}
+
+        self.assertNotEqual(held, {0})
+
+    def test_and_a_store_handed_in_is_left_alone(self) -> None:
+        """So `fill` cannot quietly replace memory a caller already built."""
+        own = spc700.Memory(fill=0xAA)
+
+        part = spc700.Cpu(spc700.DEFAULT_MODEL, own, fill=0)
+
+        self.assertIs(part.memory, own)
+        self.assertEqual({part.memory.read8(address) for address in range(0x40)}, {0xAA})
+
+
 if __name__ == "__main__":
     unittest.main()
