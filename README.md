@@ -23,7 +23,7 @@
   <a href="https://github.com/gufranco/sony-spc700-python/issues">Issues</a>
 </p>
 
-**256** opcodes · **256,000** conformance cases and **1,182,940** cycles compared, **0** failures · every cycle count checked against **Nintendo's own tables** · **271** tests · **100%** statement and branch coverage
+**256** opcodes · **256,000** conformance cases and **1,182,940** cycles compared, **0** failures · every cycle count checked against **Nintendo's own tables** · **655** tests · **100%** statement and branch coverage · no dependencies
 
 ```python
 from spc700 import Cpu, SparseMemory
@@ -32,7 +32,7 @@ memory = SparseMemory()
 memory.write8(0x0200, 0xE8)
 memory.write8(0x0201, 0x42)
 
-cpu = Cpu(memory, model="spc700", reset=False)
+cpu = Cpu("spc700", memory)
 cpu.pc = 0x0200
 cpu.step()
 
@@ -43,14 +43,48 @@ cpu.a
 
 ---
 
-## The problem
+## Install
+```bash
+pip install git+https://github.com/gufranco/sony-spc700-python.git
+```
 
+Python 3.12 or newer. Nothing else.
+
+## The interface
+Everything a caller touches. Nothing else is public.
+
+| Name | What it is |
+|:--|:--|
+| `Cpu(model, memory)` | The processor, on a store it builds when one is not handed over |
+| `Memory`, `SparseMemory` | Flat memory, and the same promise without the allocation |
+| `describe(model)`, `MODELS`, `DEFAULT_MODEL` | The catalogue, without building anything |
+| `disassemble(data, at)` | Reading a program without running it |
+| `Clock` | Driving it one cycle at a time |
+| `OPCODES` | The opcode table, keyed by byte |
+| `FLAG_N` and the seven beside it | The bits of the status word, by name |
+| `scramble`, `UNSET_SEED` | The pattern memory and registers come up holding |
+| `RunLimit`, `ClockClosed`, `Truncated`, `UnknownModelError` | Everything a caller can catch |
+
+`Cpu` takes the model first, which is the argument every member of the family
+takes first.
+
+### Running it
+
+| Call | What it does |
+|:--|:--|
+| `step()` | One instruction, returning what it cost in cycles |
+| `run_for(cycles)` | Instructions until the budget is spent, returning what was really spent |
+| `run_until(predicate, limit)` | Instructions until the predicate holds, refusing to run forever |
+| `reset()` | The reset line, which is a different event from power on |
+| `held()` | Whether the part has stopped advancing the program on its own |
+| `cycles`, `steps` | What has been spent, and how many instructions spent it |
+
+## The problem
 The SPC700 looks like a 6502 with a couple of extra registers, and that resemblance is the trap. Several of its instructions behave in ways the family would not lead you to expect, and each one is a place where a reasonable implementation quietly diverges from the hardware.
 
 The division does not compute a quotient once the answer stops fitting. The decimal adjust reads an accumulator it has already modified halfway through. The half carry means the opposite thing after a subtraction than it does after an addition. None of those is exotic; all of them are reachable from ordinary audio driver code, and all of them are easy to get subtly wrong in a way no smoke test catches.
 
 ## The solution
-
 Every one of the 256 opcodes is implemented, and correctness is measured rather than asserted. Two different questions are asked and both are gates. What do the registers and memory hold one instruction later, against [SingleStepTests](https://github.com/SingleStepTests/ProcessorTests) and its 1,000 cases per opcode. And what happened on the bus while that instruction ran, cycle by cycle, against the same recording. All 256,000 cases and all 1,182,940 cycles agree.
 
 And nothing starts clean. Memory is filled with a reproducible scrambled pattern unless a caller asks for something else in writing, and a reset sets only what the hardware itself defines.
@@ -106,8 +140,7 @@ Pure Python, standard library only. The release tooling is the sole `node_module
 </tr>
 </table>
 
-## Quick start
-
+## Running it at a real speed
 ### Prerequisites
 
 | Tool | Version | Install |
@@ -131,13 +164,105 @@ python3 spc700/core.test.py
 # OK
 ```
 
-## The instructions worth knowing about
+## Driving it one cycle at a time
+A host that needs to interleave the processor with something else drives the
+clock rather than the part, and a `Clock` hands back control on every cycle.
 
+```python
+from spc700 import Clock, Cpu, Memory
+
+cpu = Cpu(memory=Memory(image=bytes([0xE8, 0x2A]), fill=0))
+cpu.pc = 0x0000
+clock = Clock(cpu)
+
+for _ in range(4):
+    clock.tick()
+
+print(clock.cycles)
+```
+
+```
+4
+```
+
+The clock stops between two cycles of one instruction rather than after it, which
+is the difference between a model that can be interleaved and one that can only
+be stepped.
+
+## Models
+The model is chosen at construction, the same way it is across the sibling repositories.
+
+```python
+from spc700 import Cpu, SparseMemory, describe
+
+describe("s-smp").name
+
+# 'spc700'
+
+cpu = Cpu("spc700", SparseMemory())
+```
+
+| Model | Address bits | Notes |
+|:------|:------------:|:------|
+| `spc700` | 16 | Sony SPC700, the core inside the S-SMP. Aliases: `spc`, `ssmp`, `smp`, `sonyspc700` |
+
+> [!NOTE]
+> Unlike the 65xx parts, the SPC700 has essentially one form. Sony built it into the S-SMP and never sold it separately, so there is no family of pin variants or licensee revisions to model. The catalogue exists anyway, because a hardware difference discovered later should mean adding an entry rather than restructuring the package.
+
+## Reading without running
+A survey of a program has nothing but the file, so reading and running are
+separate halves.
+
+```python
+from spc700 import disassemble
+
+for found in disassemble(bytes([0xE8, 0x42, 0xC4, 0x10, 0x6F]), 0, 0x0200):
+    print(f"{found.address:04X}  {found.text}")
+```
+
+```
+0200  mov a,#$42
+0202  mov $010,a
+0204  ret
+```
+
+A run of bytes too short to complete its instruction raises `Truncated` rather
+than returning a guess.
+
+## Nothing starts clean
+```python
+from spc700 import Cpu, Memory, SparseMemory
+
+SparseMemory().read8(0x1234)
+
+# some byte derived from the address; the same byte every time; not zero
+
+Memory(size=0x1000).data == bytearray(0x1000)
+
+# False
+
+Memory(size=0x1000, fill=0).data == bytearray(0x1000)
+
+# True, because a caller asked for it in writing
+
+cpu = Cpu(memory=Memory(fill=0))
+cpu.a, cpu.x, cpu.y, cpu.sp
+
+# whatever a reset leaves behind, reproducible from the seed, not zero
+```
+
+Audio RAM is not cleared at power on. It holds whatever pattern the parts settle into, and a driver that reads a byte before writing it is reading that pattern. Memory that begins at zero makes such a read look deliberate and stable, which is exactly how that class of bug survives a test suite and fails on hardware.
+
+## The instructions worth knowing about
 These are the four places an implementation written from a summary of the instruction set will disagree with a console.
 
 ### The division keeps going past the answer
 
 ```python
+from spc700 import Cpu, Memory
+
+cpu = Cpu(memory=Memory(image=bytes([0x9E]), fill=0))
+cpu.pc = 0x0000
 cpu.y, cpu.a, cpu.x = 0x00, 0x0A, 0x03
 cpu.step()
 
@@ -149,6 +274,10 @@ Once the quotient no longer fits, the hardware does not fail and does not satura
 ### The decimal adjust reads what it just wrote
 
 ```python
+from spc700 import Cpu, Memory
+
+cpu = Cpu(memory=Memory(image=bytes([0xDF]), fill=0))
+cpu.pc = 0x0000
 cpu.a, cpu.c = 0x9A, False
 cpu.step()
 
@@ -165,66 +294,17 @@ After `ADC` the half carry is set when a carry crossed out of the low nibble. Af
 
 The `P` flag decides whether the direct page sits at `$0000` or `$0100`, so the same instruction byte reaches two different addresses depending on a flag set somewhere else entirely. A word read inside that page wraps within the page rather than carrying into the next one.
 
-## What "nothing starts clean" means
-
-```python
-from spc700 import Cpu, Memory, SparseMemory
-
-SparseMemory().read8(0x1234)
-
-# some byte derived from the address; the same byte every time; not zero
-
-Memory(size=0x1000).data == bytearray(0x1000)
-
-# False
-
-Memory(size=0x1000, fill=0).data == bytearray(0x1000)
-
-# True, because a caller asked for it in writing
-
-cpu = Cpu(Memory(fill=0))
-cpu.a, cpu.x, cpu.y, cpu.sp
-
-# whatever a reset leaves behind, reproducible from the seed, not zero
-```
-
-Audio RAM is not cleared at power on. It holds whatever pattern the parts settle into, and a driver that reads a byte before writing it is reading that pattern. Memory that begins at zero makes such a read look deliberate and stable, which is exactly how that class of bug survives a test suite and fails on hardware.
-
-## Where the facts come from
-
-Two sources, in order, and they answer different questions.
-
-**Nintendo's SNES Development Manual, Appendix C** gives every opcode with its length and the cycles it takes. [`conformance/hardware.json`](conformance/hardware.json) pins all 256 rows with the page each was read from, and [`conformance/hardware.test.py`](conformance/hardware.test.py) assembles each instruction, steps it, and checks it against that figure. A citation here is a check that can fail, not a claim in prose.
-
-**The recording** decides everything the manual does not, which is most of what matters. A count per instruction says nothing about which address a cycle drives, where the internal cycles fall, or which reads the part performs and throws away. Two cores agreeing with the manual on all 256 totals can still disagree with each other on most cycles.
-
-Nothing else is evidence. No emulator, no wiki, no other implementation of this part.
-
-> [!WARNING]
-> The manual's OCR text layer interleaves the table columns and will hand you a plausible wrong number without complaint. Every row was read off a rendered page image, and the three that disagree with the recording were read again at 450 dots per inch before being called a disagreement.
-
-[`conformance/divergences.json`](conformance/divergences.json) records every place the two part company, including the one instruction Nintendo gives the wrong figure.
-
-### The manual is wrong about one instruction
-
-`MOVW dp, YA` is printed as four cycles. The part takes five.
-
-The fifth is a read of the destination that every store on this part performs and discards. The manual is also uneven here: it gives the reading form `MOVW YA, dp` five cycles for two reads, and the writing form four for two writes plus the same addressing work.
-
-That read is invisible in a comparison of the final state, because the byte goes nowhere. It went unnoticed here through 256,000 passing cases until the bus was compared.
-
-## Conformance
-
+## Is it right
 ```bash
-python3 conformance/fetch.py ~/.cache/conformance-suites
+python3 -m conformance.fetch ~/.cache/conformance-suites
 
-python3 conformance/singlestep.py ~/.cache/conformance-suites/spc700/spc700/v1
+python3 -m conformance.singlestep ~/.cache/conformance-suites/spc700/spc700/v1
 
 #   256 files from ~/.cache/conformance-suites/spc700/spc700/v1
 
 #   256000 agreed, 0 did not
 
-python3 conformance/cycles.py ~/.cache/conformance-suites/spc700/spc700/v1
+python3 -m conformance.cycles ~/.cache/conformance-suites/spc700/spc700/v1
 
 #   256 files from ~/.cache/conformance-suites/spc700/spc700/v1
 
@@ -249,28 +329,48 @@ The suite comes from JSMoo by way of SingleStepTests, and its generator is publi
 
 A pinned oracle keeps a build reproducible and stops an upstream edit from turning this repository red with no commit of its own to explain it. It is also how a repository stops noticing that the thing judging it has moved. [`.github/workflows/suite-watch.yml`](.github/workflows/suite-watch.yml) closes that gap without ever moving the pin on its own.
 
-## Models
+### Where the facts come from
 
-The model is chosen at construction, the same way it is across the sibling repositories.
+Two sources, in order, and they answer different questions.
 
-```python
-from spc700 import Cpu, SparseMemory, describe
+**Nintendo's SNES Development Manual, Appendix C** gives every opcode with its length and the cycles it takes. [`conformance/hardware.json`](conformance/hardware.json) pins all 256 rows with the page each was read from, and [`conformance/hardware.test.py`](conformance/hardware.test.py) assembles each instruction, steps it, and checks it against that figure. A citation here is a check that can fail, not a claim in prose.
 
-describe("s-smp").name
+**The recording** decides everything the manual does not, which is most of what matters. A count per instruction says nothing about which address a cycle drives, where the internal cycles fall, or which reads the part performs and throws away. Two cores agreeing with the manual on all 256 totals can still disagree with each other on most cycles.
 
-# 'spc700'
+Nothing else is evidence. No emulator, no wiki, no other implementation of this part.
 
-cpu = Cpu(SparseMemory(), model="spc700")
+> [!WARNING]
+> The manual's OCR text layer interleaves the table columns and will hand you a plausible wrong number without complaint. Every row was read off a rendered page image, and the three that disagree with the recording were read again at 450 dots per inch before being called a disagreement.
+
+[`conformance/divergences.json`](conformance/divergences.json) records every place the two part company, including the one instruction Nintendo gives the wrong figure.
+
+### The manual is wrong about one instruction
+
+`MOVW dp, YA` is printed as four cycles. The part takes five.
+
+The fifth is a read of the destination that every store on this part performs and discards. The manual is also uneven here: it gives the reading form `MOVW YA, dp` five cycles for two reads, and the writing form four for two writes plus the same addressing work.
+
+That read is invisible in a comparison of the final state, because the byte goes nowhere. It went unnoticed here through 256,000 passing cases until the bus was compared.
+
+**Open questions** are listed with the measurement that would close each one:
+[`OPEN-QUESTIONS.md`](OPEN-QUESTIONS.md). Where two sources part, both are kept
+in [`conformance/divergences.json`](conformance/divergences.json) with what would
+settle it.
+
+## Working on it
+```bash
+python -m coverage erase
+for file in $(find spc700 conformance -name '*.test.py' | sort); do
+  python -m coverage run -a "$file"
+done
+python -m coverage report
 ```
 
-| Model | Address bits | Notes |
-|:------|:------------:|:------|
-| `spc700` | 16 | Sony SPC700, the core inside the S-SMP. Aliases: `spc`, `ssmp`, `smp`, `sonyspc700` |
+`python3 spc700/doctor.py` says what is actually on this machine: the part, where it came up, and whether the suite this repository cannot carry is fetched and whole. It is run as a file rather than with `-m` so that it still runs when the package itself will not import, which is the case it exists for. Its report is what an issue asks for.
 
-> [!NOTE]
-> Unlike the 65xx parts, the SPC700 has essentially one form. Sony built it into the S-SMP and never sold it separately, so there is no family of pin variants or licensee revisions to model. The catalogue exists anyway, because a hardware difference discovered later should mean adding an entry rather than restructuring the package.
+[`AGENTS.md`](AGENTS.md) is the document for an agent working here. [`FAMILY.md`](FAMILY.md) is the standard this repository shares with the rest of the family, kept identical in every member.
 
-## Project structure
+### Project structure
 
 ```
 spc700/
@@ -293,7 +393,7 @@ conformance/
 
 Each module has its tests beside it as `<module>.test.py`, so a module and the cases that pin its behaviour are read together.
 
-## Tests
+### Tests
 
 ```bash
 for f in spc700/*.test.py conformance/*.test.py; do python3 "$f"; done
@@ -315,7 +415,7 @@ Nothing is stubbed. The fetch tests run git against a repository built in a temp
 
 Coverage is enforced at 100% of statements and branches by [`pyproject.toml`](pyproject.toml), so a new branch without a test fails the build rather than quietly lowering the number.
 
-## Development
+### Development
 
 | Command | Description |
 |:--------|:------------|
@@ -323,10 +423,10 @@ Coverage is enforced at 100% of statements and branches by [`pyproject.toml`](py
 | `ruff check .` | Lint |
 | `python3 -m coverage run -a <file>` | Run one test file under coverage |
 | `python3 -m coverage report` | Coverage, which fails below 100% |
-| `python3 conformance/fetch.py <dir>` | Fetch the pinned suite |
-| `python3 conformance/singlestep.py <dir> [limit] [filter]` | Run the suite |
+| `python3 -m conformance.fetch <dir>` | Fetch the pinned suite |
+| `python3 -m conformance.singlestep <dir> [limit] [filter]` | Run the suite |
 
-## Project conventions
+### Project conventions
 
 | Convention | Source |
 |:-----------|:-------|
@@ -335,14 +435,14 @@ Coverage is enforced at 100% of statements and branches by [`pyproject.toml`](py
 | Lint and format | [Ruff](https://docs.astral.sh/ruff/), configured in [`pyproject.toml`](pyproject.toml) |
 | Test layout | `<module>.test.py` beside the module it covers |
 
-## Versioning
+### Versioning
 
 This project follows [Semantic Versioning](https://semver.org/), and every release is tagged from `main` by semantic-release. See [releases](https://github.com/gufranco/sony-spc700-python/releases).
 
 > [!IMPORTANT]
 > While the version is below `1.0.0`, the public interface may change on a minor release. Pin an exact version if that matters to you.
 
-## FAQ
+### FAQ
 
 <details>
 <summary><strong>Does this emulate the audio DSP as well?</strong></summary>
@@ -378,6 +478,35 @@ Because the hardware only has one. The 65xx family was sold to many customers in
 
 </details>
 
-## License
+## References
+This repository carries no documents. Every claim is traced to something
+published elsewhere, listed here so a reader can fetch the same file and check
+the same page. The digest is the first sixteen characters of the file's SHA-256,
+because vendor links move and a link that has rotted into a different revision is
+easy to follow without noticing. Compute the full digest with
+`shasum -a 256 <file>`.
 
+The manual below is copyrighted and not redistributable, which is why it is not
+in this repository. Individual sentences are quoted in
+[`conformance/hardware.json`](conformance/hardware.json) with the page they came
+from, and [`conformance/quotes.py`](conformance/quotes.py) looks for each of them
+in the document on a machine that has it.
+
+| Document | Date | Pages | SHA-256 | Redistributable |
+|:---------|:-----|------:|:--------|:----------------|
+| Nintendo of America Inc., *SNES Development Manual, Book 1*, Appendix C | undated | 240 | `f1405241000046ab…` | No |
+
+Sony published no data sheet for this processor. The rung a data sheet would
+occupy on the authority ladder is empty, and
+[`conformance/hardware.json`](conformance/hardware.json) says so rather than
+promoting the rung below it.
+
+| Source | Used for |
+|:-------|:---------|
+| [SingleStepTests/ProcessorTests](https://github.com/SingleStepTests/ProcessorTests) | The pinned corpus, 256,000 cases. Commit in [`conformance/suites.json`](conformance/suites.json) |
+
+## Citing this
+[CITATION.cff](CITATION.cff) is kept in step with the released version by the same script that stamps the package, so the version it names is the version that shipped. GitHub renders it as a Cite this repository button.
+
+## License
 [MIT](LICENSE)

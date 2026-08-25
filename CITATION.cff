@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: sony-spc700-python
+message: >-
+  If you use this work, or the conformance runs it was settled against, please
+  cite it.
+type: software
+authors:
+  - given-names: Gustavo
+    family-names: Franco
+    alias: gufranco
+repository-code: https://github.com/gufranco/sony-spc700-python
+url: https://github.com/gufranco/sony-spc700-python
+abstract: >-
+  An interpreter for the Sony SPC700, the processor inside the Super Nintendo
+  audio unit. Every opcode is held to a published per-opcode corpus that states
+  every register and every byte of memory before and after, and then held to it
+  again cycle by cycle with the address each access drove, so a caller driving
+  the clock can stop between two cycles of one instruction.
+keywords:
+  - emulation
+  - super-nintendo
+  - spc700
+  - s-smp
+  - sony
+  - hardware-model
+  - conformance
+license: MIT
+version: 1.1.0

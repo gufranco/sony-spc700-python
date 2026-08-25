@@ -107,12 +107,12 @@ class MemoryTest(unittest.TestCase):
         self.assertEqual(Memory(size=0x100, fill=0).data, bytearray(0x100))
 
     def test_takes_an_image_at_the_bottom(self) -> None:
-        memory = Memory(size=0x100, fill=b"\x01\x02\x03")
+        memory = Memory(size=0x100, image=b"\x01\x02\x03")
 
         self.assertEqual(bytes(memory.data[:3]), b"\x01\x02\x03")
 
     def test_pads_the_rest_of_an_image(self) -> None:
-        self.assertEqual(Memory(size=0x10, fill=b"\xff").data[1:], bytearray(0x0F))
+        self.assertEqual(Memory(size=0x10, image=b"\xff", fill=0).data[1:], bytearray(0x0F))
 
     def test_repeats_for_one_seed(self) -> None:
         self.assertEqual(Memory(size=0x100, seed=3).data, Memory(size=0x100, seed=3).data)

@@ -100,6 +100,36 @@ jobs:
       - name: Coverage must be total
         run: python -m coverage report
 
+  speed:
+    name: Throughput
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: The core must still run faster than the floor
+        run: python -m conformance.speed
+
+  quotes:
+    name: Every quoted sentence, against the document it came from
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # The manual is not redistributable, so it is not here and this checks
+      # nothing on a runner. It says so rather than reporting a pass: the value
+      # is that somebody running it with the manual on disk gets a real answer,
+      # and that a run without it cannot be mistaken for one.
+      - name: Every quoted sentence, against the document it came from
+        run: python -m conformance.quotes
+
   conformance:
     name: Conformance against SingleStepTests
     runs-on: ubuntu-latest
@@ -125,7 +155,7 @@ jobs:
 
       - name: Fetch the suite
         if: steps.cache.outputs.cache-hit != 'true'
-        run: python conformance/fetch.py ~/.cache/conformance-suites
+        run: python -m conformance.fetch ~/.cache/conformance-suites
 
       # A pull request runs a tenth of each file for a quick answer. A push to
       # main runs all 256,000 cases, because that is the number both claims rest
@@ -142,8 +172,8 @@ jobs:
           else
             limit=0
           fi
-          python conformance/singlestep.py \
+          python -m conformance.singlestep \
             ~/.cache/conformance-suites/spc700/spc700/v1 "${limit}"
-          python conformance/cycles.py \
+          python -m conformance.cycles \
             ~/.cache/conformance-suites/spc700/spc700/v1 "${limit}"
         shell: bash

@@ -1,24 +1,16 @@
 {
-  "document": {
-    "publisher": "Nintendo of America Inc.",
-    "title": "SNES Development Manual, Book 1",
-    "section": "Appendix C, SPC700 Commands, tables C-4 to C-20",
-    "readOn": "2026-08-21",
-    "retrievedFrom": "archive.org/details/SNESDevManual, book1_text.pdf",
-    "sha256": "f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791",
-    "pages": 240,
-    "note": "A scan with an OCR text layer. The text layer interleaves the table columns and cannot be trusted for a number, so every row below was read off the rendered page image at 200 dots per inch, and the three that disagree with the recording were read again at 450."
-  },
   "part": {
     "family": "Sony SPC700",
     "role": "the processor inside the SNES audio unit",
-    "quotedFrom": "page C-1",
-    "quote": "An SPC700 series is used for the SNES sound source CPU. However, standby and sleep modes cannot be used."
+    "quote": "An SPC700 series is used for the SNES sound source CPU. However, standby and sleep modes cannot be used.",
+    "page": "C-1",
+    "source": "developmentManual"
   },
   "conditionalBranches": {
-    "quotedFrom": "page C-2",
     "quote": "Note: The number of cycles of conditional branching commands are appropriate to cases when there is no branching to the left side and there is branching to the right side.",
-    "meaning": "A cycle figure written as two numbers separated by a slash gives the count when the branch is not taken first and when it is taken second."
+    "meaning": "A cycle figure written as two numbers separated by a slash gives the count when the branch is not taken first and when it is taken second.",
+    "page": "C-2",
+    "source": "developmentManual"
   },
   "notStated": [
     "What happens inside a cycle. The tables give a count per instruction and no breakdown, so nothing here can settle which address the part drives on which cycle.",
@@ -1944,5 +1936,31 @@
         }
       ]
     }
-  ]
+  ],
+  "documents": {
+    "developmentManual": {
+      "publisher": "Nintendo of America Inc.",
+      "title": "SNES Development Manual, Book 1",
+      "section": "Appendix C, SPC700 Commands, tables C-4 to C-20",
+      "readOn": "2026-08-21",
+      "retrievedFrom": "archive.org/details/SNESDevManual, book1_text.pdf",
+      "sha256": "f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791",
+      "pages": 240,
+      "note": "A scan with an OCR text layer. The text layer interleaves the table columns and cannot be trusted for a number, so every row below was read off the rendered page image at 200 dots per inch, and the three that disagree with the recording were read again at 450.",
+      "file": "book1_text.pdf"
+    }
+  },
+  "authority": {
+    "order": [
+      "Nintendo's SNES Development Manual, for the instruction tables it prints",
+      "the single step corpus, for everything the manual does not print, which is most of the behaviour",
+      "nothing else"
+    ],
+    "why": "Sony published no data sheet for this processor. What exists is Nintendo's appendix, which tabulates the instruction set for somebody writing sound drivers rather than describing the part, so it names operands and lengths and says almost nothing about cycles or about what a flag does at an edge. Where the manual prints a figure it decides. Everywhere else the corpus decides, and the corpus is a recording rather than a document, which is why the rung above it is named as empty rather than quietly skipped.",
+    "whatIsMissing": "A manufacturer data sheet for the SPC700. None is known to exist, so the top rung of the ladder is occupied by a manual written for a different purpose and the rung a data sheet would occupy is empty.",
+    "comparedAgainst": {
+      "runner": "conformance/singlestep.py",
+      "what": "A published per-opcode corpus stating every register and every byte of memory before and after: 256,000 cases across 256 opcodes, and 1,182,940 cycles compared access by access with the cycle each access fell on."
+    }
+  }
 }

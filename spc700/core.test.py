@@ -747,6 +747,21 @@ class HaltTest(unittest.TestCase):
 
         self.assertIs(cpu.run_until(lambda found: found.steps > 0), cpu)
 
+    def test_a_call_of_its_own_can_be_bounded_shorter_than_the_part_s(self) -> None:
+        cpu, _ = machine([0x00])
+
+        with self.assertRaises(RunLimit):
+            cpu.run_until(lambda found: False, limit=4)
+
+    def test_and_that_bound_is_the_one_the_message_names(self) -> None:
+        """Two bounds, and a refusal that named the wrong one would be a wrong report."""
+        cpu, _ = machine([0x00])
+
+        with self.assertRaises(RunLimit) as raised:
+            cpu.run_until(lambda found: False, limit=4)
+
+        self.assertIn("gave up after 4", str(raised.exception))
+
     def test_a_run_that_never_settles_is_stopped(self) -> None:
         cpu, _ = machine([0x2F, 0xFE])
         cpu.step_limit = 100

@@ -19,9 +19,9 @@ for f in $(find spc700 conformance -name '*.test.py' | sort); do
   python3 -m coverage run -a "$f" || echo "FAILED $f"
 done
 python3 -m coverage report
-python3 conformance/fetch.py ~/.cache/conformance-suites
-python3 conformance/singlestep.py ~/.cache/conformance-suites/spc700/spc700/v1
-python3 conformance/cycles.py ~/.cache/conformance-suites/spc700/spc700/v1
+python3 -m conformance.fetch ~/.cache/conformance-suites
+python3 -m conformance.singlestep ~/.cache/conformance-suites/spc700/spc700/v1
+python3 -m conformance.cycles ~/.cache/conformance-suites/spc700/spc700/v1
 ```
 
 Coverage is a hard gate at 100% statement and branch. A branch with no test

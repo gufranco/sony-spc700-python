@@ -14,6 +14,7 @@ touches a dozen and should not pay for the whole space to do it.
 """
 
 import random
+from collections.abc import Sequence
 
 UNSET_SEED = 0x5A5A5A5A
 
@@ -76,9 +77,19 @@ class SparseMemory:
 class Memory:
     """Flat memory, filled rather than cleared.
 
-    `fill` is a byte, a bytes-like image loaded at the bottom, or None for the
-    scrambled pattern above. A caller that genuinely wants zeroes asks for zero
-    and says so, which is the point: it becomes a decision rather than a default.
+    Two ways to say what is in it, and they are separate parameters because they
+    are separate ideas. `image` is what a board genuinely knows at power on: the
+    bytes a mask ROM holds, loaded at the bottom, with everything it does not
+    cover left as it was. `fill` is one byte repeated across the whole space,
+    which no board ever hands over and which a test asks for deliberately.
+
+    One parameter carrying both was how this was written, and it made the two
+    behave differently in a way nothing said out loud: an image zeroed the space
+    it did not reach, so a read of a byte nothing wrote answered zero, which is
+    the defect the scrambled default exists to expose.
+
+    Neither given, the space comes up scrambled, because that is what a machine
+    hands over and a test that wants otherwise should have to say so.
     """
 
     __slots__ = ("data",)
@@ -93,16 +104,13 @@ class Memory:
     def __init__(
         self,
         size: int = SPACE_SIZE,
-        fill: int | bytes | bytearray | None = None,
+        image: Sequence[int] | None = None,
         seed: int = UNSET_SEED,
+        fill: int | None = None,
     ) -> None:
-        if fill is None:
-            self.data = scramble(size, seed)
-        elif isinstance(fill, int):
-            self.data = bytearray([fill & 0xFF]) * size
-        else:
-            self.data = bytearray(size)
-            self.data[: len(fill)] = fill
+        self.data = scramble(size, seed) if fill is None else bytearray([fill & 0xFF]) * size
+        if image is not None:
+            self.data[: len(image)] = image
 
     def read8(self, address: int) -> int:
         return self.data[address & ADDRESS_MASK]

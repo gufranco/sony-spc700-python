@@ -350,12 +350,23 @@ class Cpu:
         """
         self._spent(1)
 
-    def run_until(self, done: Callable[["Cpu"], bool]) -> "Cpu":
-        """Step until the caller says stop, or refuse to run forever."""
-        while not done(self):
+    def run_until(self, predicate: Callable[["Cpu"], bool], limit: int | None = None) -> "Cpu":
+        """Step until the predicate holds.
+
+        `limit` bounds the number of instructions this call takes and raises when
+        it is reached. Without one the part's own `step_limit` still applies, so
+        a program that never satisfies the predicate stops rather than running
+        forever, and the two bounds are separate on purpose: one belongs to this
+        call and the other to the part.
+        """
+        taken = 0
+        while not predicate(self):
             if self.steps >= self.step_limit:
                 raise RunLimit(f"still running after {self.steps} instructions")
             self.step()
+            taken += 1
+            if limit is not None and taken >= limit:
+                raise RunLimit(f"gave up after {taken} instructions at ${self.pc:04X}")
         return self
 
     def operand_address(self, mode: str, opcode: int) -> int:

@@ -114,7 +114,7 @@ def _branch(code: str, taken: bool) -> int:
 
 class DocumentTest(unittest.TestCase):
     def test_the_document_is_pinned_by_digest(self) -> None:
-        document = FACTS["document"]
+        document = FACTS["documents"]["developmentManual"]
 
         self.assertEqual(len(document["sha256"]), 64)
 
