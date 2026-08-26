@@ -145,24 +145,39 @@ no triple of descriptor substitutions produces the console's value, and neither
 does any class-level remapping of one descriptor into another, nor dropping
 trailing idle cycles everywhere.
 
-**It is not a verdict on this part alone.** The check leans on the audio unit's
-timers for its phase reference, and that unit's timer rate is derived rather than
-printed anywhere. Changing it changes the answer: at 128 and 16 processor cycles
-per tick the table checksums to `08 42 1c 30`, and at 256 and 32 it checksums to
-`92 33 b8 c9`. So this check measures the processor's cycle shape and the audio
-unit's timer rate together, and a disagreement cannot be assigned to either
-without separating them. The console clock is ruled out, at one, two, three and
-five of the unit's cycles per console instruction, but that was never the
-coupling that mattered.
+**It is not a verdict on this part, and the check has now been run against the
+author's own implementation.** `snes_spc 0.9.0` was built from source and handed
+the identical program, captured out of the cartridge at the instant the audio
+unit jumps into it and written back out as a file his library loads through its
+own public interface. Both were then run with no console attached at all:
 
-**What is not known.** Which opcodes disagree, and whether the corpus, this
-model's reading of it, the timer rate, or the composition is at fault.
+| Running the same program, no console | Result |
+| --- | --- |
+| This family's processor, sound generator and audio unit composed | `5e 71 f3 c3` |
+| `snes_spc 0.9.0`, by the author of the check | `5e 71 f3 c3` |
 
-**What would settle or reopen it.** His reference table rather than the checksum
-over it, which would name the opcodes. The route to it is his own implementation,
-`snes_spc`, which is buildable and which the sibling
-[sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python) already builds
-a neighbouring part of.
+**They agree byte for byte**, and both are stable: unchanged across run lengths
+of one, two and four million instructions on one side and one hundred, two
+hundred and four hundred thousand samples on the other.
+
+So the check does not separate this model from the author's own, and the
+`08 42 1c 30` this model produced while running the whole cartridge is a property
+of the cut-down console it was driven from rather than of the processor. That
+console has no picture unit and answers most of its addresses with zero, which is
+enough to hand a program over and not enough to be a console.
+
+The timer coupling is real and is recorded in the audio unit's own questions: the
+table checksums to `08 42 1c 30` at 128 and 16 processor cycles per tick and to
+`92 33 b8 c9` at 256 and 32. It is not what produced this disagreement.
+
+**What is not known.** What a real console does that the harness does not. The
+gap is now bounded on both sides: two independent implementations agree with each
+other and neither agrees with hardware.
+
+**What would settle or reopen it.** Driving the same cartridge through a console
+faithful enough to be one, or running the cartridge on hardware. His reference
+table would still name the opcodes, and getting it now means instrumenting his
+implementation rather than decoding a checksum.
 
 ## What is not in question
 

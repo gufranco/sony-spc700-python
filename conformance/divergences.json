@@ -39,15 +39,15 @@
       "wouldSettleIt": "A Sony datasheet for the SPC700, or the S-SMP schematic. Neither is known to have been published."
     },
     {
-      "id": "a-second-source-disagrees-but-does-not-judge-this-part-alone",
+      "id": "the-authors-own-implementation-agrees-with-this-one",
       "parts": ["spc700"],
-      "severity": "high",
-      "status": "open",
+      "severity": "low",
+      "status": "notADisagreement",
       "documentSays": "Nintendo documents the instruction set as a licensee-facing appendix. It is not a Sony datasheet and does not describe the silicon.",
       "referenceDoes": "Shay Green's spc_mem_access_times.sfc walks the instruction set on a console and checksums which cycle of each instruction touches memory.",
       "packageFollows": "document",
-      "reasoning": "This was written when no second source was known. One is, and an earlier version of this entry overstated what it settles. Shay Green's spc_mem_access_times.sfc expects 8f 77 58 15, read out of his own uploaded program; this model ends at 08 42 1c 30, read out of the unit's memory. The serialisation is settled rather than guessed: every byte fed to the checksum was captured at the instruction that feeds it, and plain CRC-32 begun at all ones reproduces the accumulator exactly. The disagreement is broad: CRC-32 is affine, and no single, double or triple descriptor change and no class-level remapping produces the console's value. Crucially the check leans on the audio unit's timers, whose rate is derived rather than printed, and changing that rate changes the answer, so this measures the processor and the audio unit together. The console clock is ruled out at four different rates, but that was never the coupling that mattered.",
-      "wouldSettleIt": "His reference table rather than the checksum over it. The route is his own implementation, snes_spc, which is buildable."
+      "reasoning": "Two earlier versions of this entry said a hardware-derived source disagrees with this model. It disagrees with the harness. snes_spc 0.9.0 was built and handed the identical program, captured out of the cartridge and written back out as a file his library loads through its own interface. Run with no console, this family's composed model and his own implementation both give 5e 71 f3 c3, stable across three run lengths each. A console gives 8f 77 58 15. So the check does not separate this model from his, and the 08 42 1c 30 seen while running the whole cartridge belongs to the cut-down console it was driven from, which has no picture unit and answers most addresses with zero.",
+      "wouldSettleIt": "A console faithful enough to be one, or the cartridge run on hardware. Two independent implementations now agree with each other and neither agrees with hardware, which bounds the gap on both sides."
     },
     {
       "id": "interrupts-are-not-modelled",
