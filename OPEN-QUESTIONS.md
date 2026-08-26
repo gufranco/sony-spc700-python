@@ -125,30 +125,44 @@ and a second thing: a die simulation, a second implementation, or a manufacturer
 figure. This one has the corpus and Nintendo's tables, and the tables do not
 reach the cycle level.
 
-**What is now known.** A second source exists and it disagrees. Shay Green's
-`spc_mem_access_times.sfc` walks the instruction set on a console, records which
-cycle of each instruction touches memory and how, and checks the whole table
-against a value he took on hardware. Run against this model through the audio
-unit in [sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python), it
-reports `Failed 02` and a table checksum of `CFE3BDF7`. The same check inside his
-`spc_smp.sfc` reports the same value.
+**What is now known.** A second source exists and it disagrees, but it does not
+judge this part alone, and an earlier version of this entry said it did. Shay
+Green's `spc_mem_access_times.sfc` walks the instruction set, records which cycle
+of each instruction touches memory and how, and checks the whole table against a
+value he took on a console. His expected value is `8f 77 58 15`, read out of his
+own uploaded program rather than off a screen. Driven at this model through the
+audio unit in [sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python),
+the accumulator ends at `08 42 1c 30`, read out of the unit's memory.
 
-The obvious way for that to be an artefact is the clock: the console and the
-audio unit run from separate crystals, so the harness driving this had to pick a
-rate, and picking one is the sort of arbitrary choice that produces a false
-result. It does not. Driven at one, two, three and five of the unit's cycles per
-console instruction, the checksum is `CFE3BDF7` every time, which is what a
-figure that comes out of the part rather than out of the harness looks like.
+The serialisation is settled rather than guessed: every byte fed to the checksum
+was captured at the one instruction that feeds it, and plain CRC-32 begun at all
+ones reproduces the unit's own accumulator exactly. The table is 172 opcodes of
+ASCII, one row each, from a seven symbol alphabet.
 
-**What is not known.** Which opcodes disagree, and whose fault it is. The check
-publishes one checksum over the whole table rather than a per-opcode expectation,
-so a disagreement says the table is wrong somewhere and nothing more. The corpus
-this model is held to could be wrong, the model could be reading it wrongly, or
-the harness could be. Nothing here separates those.
+**The disagreement is broad, not a few rows.** CRC-32 is affine, so a sparse
+difference can be located rather than searched for. No single change, no pair and
+no triple of descriptor substitutions produces the console's value, and neither
+does any class-level remapping of one descriptor into another, nor dropping
+trailing idle cycles everywhere.
 
-**What would settle or reopen it.** His reference table, rather than the checksum
-over it, which would name the opcodes. Failing that, running the check on real
-hardware to confirm it passes there, or a die-level simulation of the part.
+**It is not a verdict on this part alone.** The check leans on the audio unit's
+timers for its phase reference, and that unit's timer rate is derived rather than
+printed anywhere. Changing it changes the answer: at 128 and 16 processor cycles
+per tick the table checksums to `08 42 1c 30`, and at 256 and 32 it checksums to
+`92 33 b8 c9`. So this check measures the processor's cycle shape and the audio
+unit's timer rate together, and a disagreement cannot be assigned to either
+without separating them. The console clock is ruled out, at one, two, three and
+five of the unit's cycles per console instruction, but that was never the
+coupling that mattered.
+
+**What is not known.** Which opcodes disagree, and whether the corpus, this
+model's reading of it, the timer rate, or the composition is at fault.
+
+**What would settle or reopen it.** His reference table rather than the checksum
+over it, which would name the opcodes. The route to it is his own implementation,
+`snes_spc`, which is buildable and which the sibling
+[sony-s-dsp-python](https://github.com/gufranco/sony-s-dsp-python) already builds
+a neighbouring part of.
 
 ## What is not in question
 

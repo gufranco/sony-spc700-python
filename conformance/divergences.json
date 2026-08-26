@@ -39,15 +39,15 @@
       "wouldSettleIt": "A Sony datasheet for the SPC700, or the S-SMP schematic. Neither is known to have been published."
     },
     {
-      "id": "a-second-source-exists-and-disagrees",
+      "id": "a-second-source-disagrees-but-does-not-judge-this-part-alone",
       "parts": ["spc700"],
       "severity": "high",
       "status": "open",
       "documentSays": "Nintendo documents the instruction set as a licensee-facing appendix. It is not a Sony datasheet and does not describe the silicon.",
       "referenceDoes": "Shay Green's spc_mem_access_times.sfc walks the instruction set on a console and checksums which cycle of each instruction touches memory.",
       "packageFollows": "document",
-      "reasoning": "This was written when no second source was known. One is: run against this model through the audio unit member, that check reports Failed 02 with a table checksum of CFE3BDF7, and the same check inside spc_smp.sfc agrees with itself. The harness had to pick a rate between the two crystals, and the checksum is the same at one, two, three and five, so the figure comes out of the part rather than out of the harness. What is not known is which opcodes disagree or whose fault it is: the check publishes one checksum over the whole table, so the corpus, this model's reading of it, and the harness are all still candidates.",
-      "wouldSettleIt": "His reference table rather than the checksum over it, which would name the opcodes. Failing that, running the check on real hardware, or a die-level simulation."
+      "reasoning": "This was written when no second source was known. One is, and an earlier version of this entry overstated what it settles. Shay Green's spc_mem_access_times.sfc expects 8f 77 58 15, read out of his own uploaded program; this model ends at 08 42 1c 30, read out of the unit's memory. The serialisation is settled rather than guessed: every byte fed to the checksum was captured at the instruction that feeds it, and plain CRC-32 begun at all ones reproduces the accumulator exactly. The disagreement is broad: CRC-32 is affine, and no single, double or triple descriptor change and no class-level remapping produces the console's value. Crucially the check leans on the audio unit's timers, whose rate is derived rather than printed, and changing that rate changes the answer, so this measures the processor and the audio unit together. The console clock is ruled out at four different rates, but that was never the coupling that mattered.",
+      "wouldSettleIt": "His reference table rather than the checksum over it. The route is his own implementation, snes_spc, which is buildable."
     },
     {
       "id": "interrupts-are-not-modelled",
