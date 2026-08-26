@@ -82,7 +82,9 @@ def measure(calls: int = CALLS, repeats: int = REPEATS) -> Timed:
     """Run the loop and time it, rebuilding the part for each repeat."""
     seconds = []
     for _ in range(repeats):
-        part = spc700.Cpu(memory=spc700.Memory(image=PROGRAM, fill=0), step_limit=calls * 2)
+        part = spc700.Cpu(
+            "spc700", memory=spc700.Memory(image=PROGRAM, fill=0), step_limit=calls * 2
+        )
         part.pc = 0x0000
         started = time.perf_counter()
         for _ in range(calls):

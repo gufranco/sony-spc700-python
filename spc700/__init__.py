@@ -12,6 +12,7 @@ it held.
 
 from typing import Any
 
+from . import models as models
 from .clock import Clock
 from .core import (
     FLAG_B,
@@ -26,17 +27,15 @@ from .core import (
 )
 from .errors import ClockClosed, RunLimit, Truncated, UnknownModelError
 from .memory import UNSET_SEED, Memory, SparseMemory, scramble
-from .models import MODELS, describe
+from .models import MODELS
 from .opcodes import OPCODES, disassemble
 from .version import VERSION
 
 __version__ = VERSION
 
-DEFAULT_MODEL = "spc700"
-
 
 def Cpu(  # noqa: N802
-    model: str = DEFAULT_MODEL,
+    model: str | None = None,
     memory: Any = None,
     fill: int | None = None,
     **options: Any,
@@ -57,11 +56,10 @@ def Cpu(  # noqa: N802
     """
     if fill is not None and memory is None:
         memory = Memory(fill=fill)
-    return describe(model).build(SparseMemory() if memory is None else memory, **options)
+    return models.lookup(model).build(SparseMemory() if memory is None else memory, **options)
 
 
 __all__ = [
-    "DEFAULT_MODEL",
     "FLAG_B",
     "FLAG_C",
     "FLAG_H",
@@ -83,7 +81,6 @@ __all__ = [
     "Truncated",
     "UnknownModelError",
     "__version__",
-    "describe",
     "disassemble",
     "scramble",
 ]

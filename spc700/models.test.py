@@ -15,7 +15,7 @@ class CatalogueTest(unittest.TestCase):
         self.assertIn("spc700", models.MODELS)
 
     def test_a_model_says_what_it_is_and_what_it_reaches(self) -> None:
-        found = models.describe("spc700")
+        found = models.lookup("spc700")
 
         self.assertTrue(found.summary)
         self.assertEqual(found.address_bits, 16)
@@ -23,23 +23,23 @@ class CatalogueTest(unittest.TestCase):
 
     def test_a_model_name_is_matched_however_it_is_written(self) -> None:
         for written in ("SPC700", "spc-700", "s_smp", "SPC_700"):
-            self.assertEqual(models.describe(written).name, "spc700")
+            self.assertEqual(models.lookup(written).name, "spc700")
 
     def test_a_model_the_family_does_not_have_is_refused_by_name(self) -> None:
         with self.assertRaises(UnknownModelError):
-            models.describe("z80")
+            models.lookup("z80")
 
     def test_the_refusal_lists_what_is_available(self) -> None:
         with self.assertRaises(UnknownModelError) as raised:
-            models.describe("nonsense")
+            models.lookup("nonsense")
 
         self.assertIn("spc700", str(raised.exception))
 
     def test_the_address_mask_follows_the_address_bits(self) -> None:
-        self.assertEqual(models.describe("spc700").address_mask, 0xFFFF)
+        self.assertEqual(models.lookup("spc700").address_mask, 0xFFFF)
 
     def test_a_model_prints_as_its_name_and_reach(self) -> None:
-        printed = repr(models.describe("spc700"))
+        printed = repr(models.lookup("spc700"))
 
         self.assertIn("spc700", printed)
         self.assertIn("16", printed)
@@ -51,10 +51,28 @@ class BuildTest(unittest.TestCase):
 
         self.assertEqual(cpu.model, "spc700")
 
-    def test_the_default_model_is_the_one_the_console_carries(self) -> None:
-        cpu = spc700.Cpu(memory=Memory(fill=0))
+    def test_building_without_naming_a_model_is_refused(self) -> None:
+        """There is no default, and the one-model case is where that matters most.
 
-        self.assertEqual(cpu.model, "spc700")
+        A caller who learns to leave it out here writes the same call against a
+        member covering sixteen parts and gets one nobody picked.
+        """
+        with self.assertRaises(UnknownModelError):
+            spc700.Cpu()
+
+    def test_and_the_refusal_names_every_model_there_is(self) -> None:
+        with self.assertRaises(UnknownModelError) as caught:
+            spc700.Cpu()
+
+        missing = [name for name in spc700.MODELS if name not in str(caught.exception)]
+
+        self.assertEqual(missing, [])
+
+    def test_nothing_named_describe_is_published(self) -> None:
+        self.assertFalse(hasattr(spc700, "describe"))
+
+    def test_and_no_default_model_is_published_either(self) -> None:
+        self.assertFalse(hasattr(spc700, "DEFAULT_MODEL"))
 
     def test_options_reach_the_processor_that_gets_built(self) -> None:
         cpu = spc700.Cpu("spc700", Memory(fill=0), step_limit=17)
@@ -77,12 +95,12 @@ class QuietStoreTest(unittest.TestCase):
     """
 
     def test_a_fill_puts_that_byte_everywhere(self) -> None:
-        part = spc700.Cpu(spc700.DEFAULT_MODEL, fill=0)
+        part = spc700.Cpu("spc700", fill=0)
 
         self.assertEqual({part.memory.read8(address) for address in range(0x40)}, {0})
 
     def test_and_any_byte_works_rather_than_only_zero(self) -> None:
-        part = spc700.Cpu(spc700.DEFAULT_MODEL, fill=0xAA)
+        part = spc700.Cpu("spc700", fill=0xAA)
 
         self.assertEqual({part.memory.read8(address) for address in range(0x40)}, {0xAA})
 
@@ -93,7 +111,7 @@ class QuietStoreTest(unittest.TestCase):
         the default store allocates nothing until it is asked and has no bytes
         to read.
         """
-        part = spc700.Cpu(spc700.DEFAULT_MODEL)
+        part = spc700.Cpu("spc700")
 
         held = {part.memory.read8(address) for address in range(0x40)}
 
@@ -103,7 +121,7 @@ class QuietStoreTest(unittest.TestCase):
         """So `fill` cannot quietly replace memory a caller already built."""
         own = spc700.Memory(fill=0xAA)
 
-        part = spc700.Cpu(spc700.DEFAULT_MODEL, own, fill=0)
+        part = spc700.Cpu("spc700", own, fill=0)
 
         self.assertIs(part.memory, own)
         self.assertEqual({part.memory.read8(address) for address in range(0x40)}, {0xAA})

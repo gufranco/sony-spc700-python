@@ -120,7 +120,7 @@ def _default_build(name: str) -> Cpu:
     Named rather than inlined because a caller passes a different one in to make
     the build fail on purpose, which is the branch a doctor exists for.
     """
-    built: Cpu = models.describe(name).build(SparseMemory())
+    built: Cpu = models.lookup(name).build(SparseMemory())
     return built
 
 

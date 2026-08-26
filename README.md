@@ -4,7 +4,7 @@ An interpreter for the Sony SPC700, the processor inside the SNES audio unit.
 
 [![CI](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
 
-**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, every cycle count checked against **Nintendo's own tables**, **675** tests, **100%** statement and branch coverage, no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, every cycle count checked against **Nintendo's own tables**, **678** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, SparseMemory
@@ -37,7 +37,7 @@ Everything a caller touches. Nothing else is public.
 |:--|:--|
 | `Cpu(model, memory)` | The processor, on a store it builds when one is not handed over |
 | `Memory`, `SparseMemory` | Flat memory, and the same promise without the allocation |
-| `describe(model)`, `MODELS`, `DEFAULT_MODEL` | The catalogue, without building anything |
+| `MODELS` | Every model this package covers, by the name it goes by |
 | `disassemble(data, at)` | Reading a program without running it |
 | `Clock` | Driving it one cycle at a time |
 | `OPCODES` | The opcode table, keyed by byte |
@@ -151,7 +151,7 @@ clock rather than the part, and a `Clock` hands back control on every cycle.
 ```python
 from spc700 import Clock, Cpu, Memory
 
-cpu = Cpu(memory=Memory(image=bytes([0xE8, 0x2A]), fill=0))
+cpu = Cpu("spc700", memory=Memory(image=bytes([0xE8, 0x2A]), fill=0))
 cpu.pc = 0x0000
 clock = Clock(cpu)
 
@@ -170,17 +170,22 @@ is the difference between a model that can be interleaved and one that can only
 be stepped.
 
 ## Models
-The model is chosen at construction, the same way it is across the sibling repositories.
+The model is named at construction, the same way it is across the sibling
+repositories. There is no default: naming none raises and lists every model
+there is, so a caller who did not know what to pass learns it from the error.
 
 ```python
-from spc700 import Cpu, SparseMemory, describe
+from spc700 import Cpu, SparseMemory
 
-describe("s-smp").name
+cpu = Cpu("s-smp", SparseMemory())
+
+cpu.model
 
 # 'spc700'
-
-cpu = Cpu("spc700", SparseMemory())
 ```
+
+An alias builds the part it names, and the part carries the model's own name
+rather than the alias it was reached by.
 
 | Model | Address bits | Notes |
 |:------|:------------:|:------|
@@ -225,7 +230,7 @@ Memory(size=0x1000, fill=0).data == bytearray(0x1000)
 
 # True, because a caller asked for it in writing
 
-cpu = Cpu(memory=Memory(fill=0))
+cpu = Cpu("spc700", memory=Memory(fill=0))
 cpu.a, cpu.x, cpu.y, cpu.sp
 
 # whatever a reset leaves behind, reproducible from the seed, not zero
@@ -241,7 +246,7 @@ These are the four places an implementation written from a summary of the instru
 ```python
 from spc700 import Cpu, Memory
 
-cpu = Cpu(memory=Memory(image=bytes([0x9E]), fill=0))
+cpu = Cpu("spc700", memory=Memory(image=bytes([0x9E]), fill=0))
 cpu.pc = 0x0000
 cpu.y, cpu.a, cpu.x = 0x00, 0x0A, 0x03
 cpu.step()
@@ -256,7 +261,7 @@ Once the quotient no longer fits, the hardware does not fail and does not satura
 ```python
 from spc700 import Cpu, Memory
 
-cpu = Cpu(memory=Memory(image=bytes([0xDF]), fill=0))
+cpu = Cpu("spc700", memory=Memory(image=bytes([0xDF]), fill=0))
 cpu.pc = 0x0000
 cpu.a, cpu.c = 0x9A, False
 cpu.step()
