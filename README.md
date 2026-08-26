@@ -1,29 +1,10 @@
-<div align="center">
+# SPC700
 
-<h1>SPC700</h1>
-
-<strong>An interpreter for the Sony SPC700, the processor inside the SNES audio unit.</strong>
-
-<br>
-<br>
+An interpreter for the Sony SPC700, the processor inside the SNES audio unit.
 
 [![CI](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
-[![Conformance](https://img.shields.io/badge/SingleStepTests-256%2C000%20%2F%20256%2C000-brightgreen)](#conformance)
-[![Coverage](https://img.shields.io/badge/coverage-100%25%20statement%20%2B%20branch-brightgreen)](#tests)
-[![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue)](pyproject.toml)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-</div>
-
-<p align="center">
-  <a href="#quick-start">Quick start</a> &nbsp;|&nbsp;
-  <a href="#conformance">Conformance</a> &nbsp;|&nbsp;
-  <a href="#the-instructions-worth-knowing-about">Hardware quirks</a> &nbsp;|&nbsp;
-  <a href="#what-nothing-starts-clean-means">Undefined state</a> &nbsp;|&nbsp;
-  <a href="https://github.com/gufranco/sony-spc700-python/issues">Issues</a>
-</p>
-
-**256** opcodes · **256,000** conformance cases and **1,182,940** cycles compared, **0** failures · every cycle count checked against **Nintendo's own tables** · **675** tests · **100%** statement and branch coverage · no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, every cycle count checked against **Nintendo's own tables**, **675** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, SparseMemory
@@ -41,7 +22,6 @@ cpu.a
 # 0x42
 ```
 
----
 
 ## Install
 ```bash
