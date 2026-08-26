@@ -156,9 +156,14 @@ own public interface. Both were then run with no console attached at all:
 | This family's processor, sound generator and audio unit composed | `5e 71 f3 c3` |
 | `snes_spc 0.9.0`, by the author of the check | `5e 71 f3 c3` |
 
-**They agree byte for byte**, and both are stable: unchanged across run lengths
-of one, two and four million instructions on one side and one hundred, two
-hundred and four hundred thousand samples on the other.
+**They agree byte for byte**, and the agreement survives every control tried.
+Unchanged across run lengths of one, two and four million instructions on one
+side and one hundred, two hundred and four hundred thousand samples on the
+other, and unchanged across call sizes of one, two, two hundred and fifty six
+and four thousand samples per call into his library. That last control matters
+because the sibling check on the sound generator is sensitive to call size and
+this one is not, so the agreement here is a property of the check rather than of
+a lucky way of driving it.
 
 So the check does not separate this model from the author's own, and the
 `08 42 1c 30` this model produced while running the whole cartridge is a property
