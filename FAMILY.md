@@ -900,5 +900,8 @@ it reports what it spent, so the whole of the section about a clock applies.
 
 This models the processor alone. The unit Sony shipped is that processor beside
 64 KB of RAM and a 64 byte boot ROM, and the two of those are not modelled here
-because a processor is not the place to keep a board's memory map. A member that
-composes the three is the right home for it and does not exist yet.
+because a processor is not the place to keep a board's memory map. The member
+that composes the three is
+[sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python), and composing
+them is what caught this model scrambling the direct-page flag at reset: the boot
+program's own first two writes prove it must come up clear.
