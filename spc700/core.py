@@ -143,13 +143,27 @@ class Cpu:
         self.psw = undefined[4]
 
     def reset(self, seed: int = UNSET_SEED) -> None:
-        """Put the processor where a reset puts it, undefined parts included."""
+        """Put the processor where a reset puts it, undefined parts included.
+
+        Every flag is scrambled except the one that picks the direct page, and
+        that one is cleared because the part's own boot program proves it must
+        be. The sixty four bytes Sony put in the audio unit answer the console's
+        handshake with `mov $f4,#$aa` and `mov $f5,#$bb`, which reach the ports
+        only while the direct page is the zero page. With the flag set they would
+        write two bytes of ordinary memory at 0x01f4, the handshake would never
+        appear, and no cartridge would ever get its audio program uploaded.
+
+        That is the artifact settling a question the manual leaves open, rather
+        than a value copied from an implementation. Nothing else about the flag
+        word is claimed: the rest stays scrambled because the rest is genuinely
+        undefined.
+        """
         undefined = scramble(6, seed)
         self.a = undefined[0]
         self.x = undefined[1]
         self.y = undefined[2]
         self.sp = undefined[3]
-        self.psw = undefined[4]
+        self.psw = undefined[4] & ~FLAG_P
 
         self.pc = self.read16(RESET_VECTOR)
         self.steps = 0

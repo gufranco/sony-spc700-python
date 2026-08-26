@@ -68,8 +68,8 @@
       "documentSays": "Nothing about what the registers hold at power on.",
       "referenceDoes": "Nothing. Every case declares a full initial state, so the suite never exercises a reset.",
       "packageFollows": "neither",
-      "reasoning": "A processor coming out of reset holds whatever it held, so this core scrambles the registers from a seed rather than clearing them, and reads the program counter from the reset vector. The scramble is deliberately not a claim about the hardware: it is a way to make a program that depends on an undefined register fail visibly instead of quietly working because everything happened to be zero.",
-      "wouldSettleIt": "A measurement of a real S-SMP immediately after reset, repeated across parts, or a manufacturer statement."
+      "reasoning": "A processor coming out of reset holds whatever it held, so this core scrambles the registers from a seed rather than clearing them, and reads the program counter from the reset vector. The scramble is deliberately not a claim about the hardware: it is a way to make a program that depends on an undefined register fail visibly instead of quietly working because everything happened to be zero. One flag is no longer invented. The direct-page bit is cleared on reset because the part's own boot program proves it must be: the sixty four bytes Sony put in the audio unit answer the console's handshake with `mov $f4,#$aa` and `mov $f5,#$bb`, which reach the ports only while the direct page is the zero page. With the bit set they would write ordinary memory at 0x01f4, the handshake would never appear, and no cartridge would ever get its audio program uploaded. That is the artifact answering a question the manual leaves open. Everything else in the flag word is still scrambled, because everything else is still genuinely undefined.",
+      "wouldSettleIt": "A capture of the register file coming out of reset on real hardware. The direct-page bit is settled without one, by the boot program that depends on it."
     },
     {
       "id": "the-audio-unit-around-the-processor-is-out-of-scope",

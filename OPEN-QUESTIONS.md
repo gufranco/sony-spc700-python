@@ -68,8 +68,22 @@ over cleared registers, and a model that answers zero turns a read of something
 nothing wrote into a passing test. The scramble is honest about being arbitrary
 in a way zero is not.
 
+**One bit of it is settled, and the part settled it.** The direct-page flag is
+cleared rather than scrambled, because the boot program Sony put in the audio
+unit depends on it. Those sixty four bytes answer the console's handshake with
+`mov $f4,#$aa` and `mov $f5,#$bb`, and a direct-page write reaches the four ports
+only while the direct page is the zero page. With the flag set the same two
+instructions would write ordinary memory at `$01f4`, the handshake would never
+appear at the console, and no cartridge would ever get its audio program
+uploaded. Every SNES that has ever made a sound is the measurement.
+
+That is the artifact answering a question the manual leaves open, which is rung
+two of this family's ladder rather than a value copied from an implementation.
+Nothing else in the flag word moves: the rest is still scrambled because the rest
+is still genuinely undefined.
+
 **What would settle or reopen it.** A measurement of a real audio unit at power
-on, or a Sony document.
+on, or a Sony document. Neither is needed for the direct-page bit.
 
 ### What an interrupt does.
 

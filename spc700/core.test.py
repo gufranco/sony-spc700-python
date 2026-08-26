@@ -791,5 +791,45 @@ class EveryOpcodeTest(unittest.TestCase):
         self.assertEqual(missing, [])
 
 
+class ResetDirectPageTest(unittest.TestCase):
+    """The one flag a reset settles, because the boot program depends on it."""
+
+    def test_reset_leaves_the_direct_page_flag_clear(self) -> None:
+        cpu, _memory = machine([0x00])
+
+        cpu.reset(seed=1)
+
+        self.assertFalse(cpu.p)
+
+    def test_it_stays_clear_whatever_the_scramble_produced(self) -> None:
+        cpu, _memory = machine([0x00])
+
+        clear = []
+        for seed in range(64):
+            cpu.reset(seed=seed)
+            clear.append(cpu.p)
+
+        self.assertEqual(set(clear), {False})
+
+    def test_the_rest_of_the_flag_word_is_still_scrambled(self) -> None:
+        cpu, _memory = machine([0x00])
+
+        seen = set()
+        for seed in range(64):
+            cpu.reset(seed=seed)
+            seen.add(cpu.psw)
+
+        self.assertGreater(len(seen), 1)
+
+    def test_a_direct_page_write_after_reset_reaches_the_zero_page(self) -> None:
+        cpu, memory = machine([0x8F, 0xAA, 0xF4])
+        cpu.reset(seed=7)
+        cpu.pc = 0x0200
+
+        cpu.step()
+
+        self.assertEqual(memory.read8(0x00F4), 0xAA)
+
+
 if __name__ == "__main__":
     unittest.main()
