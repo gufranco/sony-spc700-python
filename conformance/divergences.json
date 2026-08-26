@@ -39,15 +39,15 @@
       "wouldSettleIt": "A Sony datasheet for the SPC700, or the S-SMP schematic. Neither is known to have been published."
     },
     {
-      "id": "no-second-source-for-the-part-itself",
+      "id": "a-second-source-exists-and-disagrees",
       "parts": ["spc700"],
-      "severity": "medium",
+      "severity": "high",
       "status": "open",
       "documentSays": "Nintendo documents the instruction set as a licensee-facing appendix. It is not a Sony datasheet and does not describe the silicon.",
-      "referenceDoes": "n/a",
+      "referenceDoes": "Shay Green's spc_mem_access_times.sfc walks the instruction set on a console and checksums which cycle of each instruction touches memory.",
       "packageFollows": "document",
-      "reasoning": "Nintendo shipped the part and wrote the manual its licensees programmed against, which makes the appendix manufacturer documentation for this purpose. It is still one source, written to be programmed against rather than to describe a device, and where it and a recording of the part disagree the part wins.",
-      "wouldSettleIt": "A Sony SPC700 datasheet or user manual. Searched on 2026-08-21 across Sony's semiconductor archives and the usual datasheet indexes; nothing was found."
+      "reasoning": "This was written when no second source was known. One is: run against this model through the audio unit member, that check reports Failed 02 with a table checksum of CFE3BDF7, and the same check inside spc_smp.sfc agrees with itself. The harness had to pick a rate between the two crystals, and the checksum is the same at one, two, three and five, so the figure comes out of the part rather than out of the harness. What is not known is which opcodes disagree or whose fault it is: the check publishes one checksum over the whole table, so the corpus, this model's reading of it, and the harness are all still candidates.",
+      "wouldSettleIt": "His reference table rather than the checksum over it, which would name the opcodes. Failing that, running the check on real hardware, or a die-level simulation."
     },
     {
       "id": "interrupts-are-not-modelled",
@@ -82,5 +82,6 @@
       "reasoning": "This package is the processor. The registers at 00F0 to 00FF, the timers, and the IPL ROM belong to the S-SMP around it, and modelling them here would put two parts in one package and make the conformance comparison meaningless, because the suite reads and writes those addresses as ordinary memory.",
       "wouldSettleIt": "n/a. This is a scope boundary rather than an unknown."
     }
-  ]
+  ],
+  "readOn": "2026-08-26"
 }

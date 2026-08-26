@@ -125,8 +125,30 @@ and a second thing: a die simulation, a second implementation, or a manufacturer
 figure. This one has the corpus and Nintendo's tables, and the tables do not
 reach the cycle level.
 
-**What would settle or reopen it.** A second per-opcode corpus produced
-independently, or a die-level simulation of the part.
+**What is now known.** A second source exists and it disagrees. Shay Green's
+`spc_mem_access_times.sfc` walks the instruction set on a console, records which
+cycle of each instruction touches memory and how, and checks the whole table
+against a value he took on hardware. Run against this model through the audio
+unit in [sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python), it
+reports `Failed 02` and a table checksum of `CFE3BDF7`. The same check inside his
+`spc_smp.sfc` reports the same value.
+
+The obvious way for that to be an artefact is the clock: the console and the
+audio unit run from separate crystals, so the harness driving this had to pick a
+rate, and picking one is the sort of arbitrary choice that produces a false
+result. It does not. Driven at one, two, three and five of the unit's cycles per
+console instruction, the checksum is `CFE3BDF7` every time, which is what a
+figure that comes out of the part rather than out of the harness looks like.
+
+**What is not known.** Which opcodes disagree, and whose fault it is. The check
+publishes one checksum over the whole table rather than a per-opcode expectation,
+so a disagreement says the table is wrong somewhere and nothing more. The corpus
+this model is held to could be wrong, the model could be reading it wrongly, or
+the harness could be. Nothing here separates those.
+
+**What would settle or reopen it.** His reference table, rather than the checksum
+over it, which would name the opcodes. Failing that, running the check on real
+hardware to confirm it passes there, or a die-level simulation of the part.
 
 ## What is not in question
 
