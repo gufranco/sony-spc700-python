@@ -11,6 +11,8 @@ from typing import Any, NoReturn, override
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from spc700 import doctor
+from spc700.core import Cpu
+from spc700.memory import UNSET_SEED, SparseMemory
 
 
 class Complaint(Exception):
@@ -122,6 +124,25 @@ class ExaminationTest(unittest.TestCase):
 
         self.assertTrue(found[0].ok)
         self.assertIn("scrambled rather than cleared", found[0].detail)
+
+    def test_and_where_the_reset_left_it(self) -> None:
+        """The reset is driven here rather than described, so a broken one shows."""
+        found = [one for one in doctor.examine() if one.name == "spc700"]
+
+        self.assertIn("resets to $", found[0].detail)
+
+    def test_a_part_that_builds_and_will_not_reset_is_reported_as_broken(self) -> None:
+        class WillNotReset(Cpu):
+            @override
+            def reset(self, seed: int = UNSET_SEED) -> NoReturn:
+                raise Complaint("the pin did nothing")
+
+        def build(_name: str) -> Cpu:
+            return WillNotReset(SparseMemory())
+
+        found = [one for one in doctor.examine(build=build) if one.name == "spc700"]
+
+        self.assertFalse(found[0].ok)
 
 
 class DeclaredTest(unittest.TestCase):

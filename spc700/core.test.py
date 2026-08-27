@@ -56,6 +56,14 @@ class ResetTest(unittest.TestCase):
 
         self.assertEqual(cpu.pc, 0xFF00)
 
+    def test_the_part_is_handed_back_so_the_call_chains(self) -> None:
+        """A caller builds and resets in one expression, as the rest of the family does."""
+        cpu = core.Cpu(Memory(fill=0))
+
+        back = cpu.reset()
+
+        self.assertIs(back, cpu)
+
     def test_but_only_once_a_caller_drives_the_pin(self) -> None:
         """Power on and reset are two events, and construction is the first.
 

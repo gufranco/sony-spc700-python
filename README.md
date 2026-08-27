@@ -4,7 +4,7 @@ An interpreter for the Sony SPC700, the processor inside the SNES audio unit.
 
 [![CI](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
 
-**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, every cycle count checked against **Nintendo's own tables**, **678** tests, **100%** statement and branch coverage, no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, every cycle count checked against **Nintendo's own tables**, **681** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, SparseMemory
@@ -13,7 +13,7 @@ memory = SparseMemory()
 memory.write8(0x0200, 0xE8)
 memory.write8(0x0201, 0x42)
 
-cpu = Cpu("spc700", memory)
+cpu = Cpu("spc700", memory).reset()
 cpu.pc = 0x0200
 cpu.step()
 
@@ -55,7 +55,7 @@ takes first.
 | `step()` | One instruction, returning what it cost in cycles |
 | `run_for(cycles)` | Instructions until the budget is spent, returning what was really spent |
 | `run_until(predicate, limit)` | Instructions until the predicate holds, refusing to run forever |
-| `reset()` | The reset line, which is a different event from power on |
+| `reset()` | The reset line, which is a different event from power on. Handed back, so a caller can build and reset in one expression |
 | `held()` | Whether the part has stopped advancing the program on its own |
 | `cycles`, `steps` | What has been spent, and how many instructions spent it |
 
@@ -151,8 +151,7 @@ clock rather than the part, and a `Clock` hands back control on every cycle.
 ```python
 from spc700 import Clock, Cpu, Memory
 
-cpu = Cpu("spc700", memory=Memory(image=bytes([0xE8, 0x2A]), fill=0))
-cpu.pc = 0x0000
+cpu = Cpu("spc700", memory=Memory(image=bytes([0xE8, 0x2A]), fill=0)).reset()
 clock = Clock(cpu)
 
 for _ in range(4):
@@ -233,7 +232,7 @@ Memory(size=0x1000, fill=0).data == bytearray(0x1000)
 cpu = Cpu("spc700", memory=Memory(fill=0))
 cpu.a, cpu.x, cpu.y, cpu.sp
 
-# whatever a reset leaves behind, reproducible from the seed, not zero
+# whatever power on leaves behind, reproducible from the seed, not zero
 ```
 
 Audio RAM is not cleared at power on. It holds whatever pattern the parts settle into, and a driver that reads a byte before writing it is reading that pattern. Memory that begins at zero makes such a read look deliberate and stable, which is exactly how that class of bug survives a test suite and fails on hardware.
@@ -246,8 +245,7 @@ These are the four places an implementation written from a summary of the instru
 ```python
 from spc700 import Cpu, Memory
 
-cpu = Cpu("spc700", memory=Memory(image=bytes([0x9E]), fill=0))
-cpu.pc = 0x0000
+cpu = Cpu("spc700", memory=Memory(image=bytes([0x9E]), fill=0)).reset()
 cpu.y, cpu.a, cpu.x = 0x00, 0x0A, 0x03
 cpu.step()
 
@@ -261,8 +259,7 @@ Once the quotient no longer fits, the hardware does not fail and does not satura
 ```python
 from spc700 import Cpu, Memory
 
-cpu = Cpu("spc700", memory=Memory(image=bytes([0xDF]), fill=0))
-cpu.pc = 0x0000
+cpu = Cpu("spc700", memory=Memory(image=bytes([0xDF]), fill=0)).reset()
 cpu.a, cpu.c = 0x9A, False
 cpu.step()
 

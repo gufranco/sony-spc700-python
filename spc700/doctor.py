@@ -125,15 +125,22 @@ def _default_build(name: str) -> Cpu:
 
 
 def _processor(name: str, build: Callable[[str], Cpu]) -> Finding:
-    """Whether that part builds, saying exactly what stopped it if not.
+    """Whether that part builds and resets, saying what stopped it if not.
 
-    What is reported is where it came up, because a part built here comes up
-    scrambled rather than cleared and two people comparing a run that started
-    from different rubbish will disagree about everything after the first
-    branch.
+    Where it came up is reported because a part built here comes up scrambled
+    rather than cleared, and two people comparing a run that started from
+    different rubbish will disagree about everything after the first branch.
+
+    Where the reset left it is reported beside it, and the reset is driven
+    rather than described. It is the one event that reads the vector out of the
+    part's own memory and clears the flag that picks the direct page, so a
+    report that only built the part has said nothing about the path every
+    caller takes first.
     """
     try:
         cpu = build(name)
+        came_up = cpu.pc
+        cpu.reset()
     except Exception as trouble:
         return Finding(
             name,
@@ -145,7 +152,8 @@ def _processor(name: str, build: Callable[[str], Cpu]) -> Finding:
     return Finding(
         name,
         True,
-        f"builds, scrambled rather than cleared, at ${cpu.pc:04X}"
+        f"builds, scrambled rather than cleared, at ${came_up:04X},"
+        f" and resets to ${cpu.pc:04X}"
         f" with sp ${cpu.sp:02X} and psw ${cpu.psw:02X}",
     )
 

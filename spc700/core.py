@@ -142,8 +142,13 @@ class Cpu:
         self.pc = undefined[4] | (undefined[5] << 8)
         self.psw = undefined[4]
 
-    def reset(self, seed: int = UNSET_SEED) -> None:
+    def reset(self, seed: int = UNSET_SEED) -> "Cpu":
         """Put the processor where a reset puts it, undefined parts included.
+
+        The part is handed back so a caller can build and reset in one
+        expression, which is what the rest of the family does and what every
+        example in the README relies on. A reset that returned nothing made the
+        two steps read as separate decisions when only one of them is optional.
 
         Every flag is scrambled except the one that picks the direct page, and
         that one is cleared because the part's own boot program proves it must
@@ -168,6 +173,7 @@ class Cpu:
         self.pc = self.read16(RESET_VECTOR)
         self.steps = 0
         self.stopped = False
+        return self
 
     @property
     def psw(self) -> int:
