@@ -4,7 +4,7 @@ An interpreter for the Sony SPC700, the processor inside the SNES audio unit.
 
 [![CI](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
 
-**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, every cycle count checked against **Nintendo's own tables**, **714** tests, **100%** statement and branch coverage, no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, every cycle count checked against **Nintendo's own tables**, **722** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, SparseMemory
