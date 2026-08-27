@@ -4,7 +4,7 @@ An interpreter for the Sony SPC700, the processor inside the SNES audio unit.
 
 [![CI](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
 
-**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, every cycle count checked against **Nintendo's own tables**, **682** tests, **100%** statement and branch coverage, no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, every cycle count checked against **Nintendo's own tables**, **714** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, SparseMemory
@@ -487,6 +487,13 @@ promoting the rung below it.
 |:-------|:---------|
 | [SingleStepTests/ProcessorTests](https://github.com/SingleStepTests/ProcessorTests) | The pinned corpus, 256,000 cases. Commit in [`conformance/suites.json`](conformance/suites.json) |
 
+
+Fetching it is a command rather than an exercise. [`conformance/documents.json`](conformance/documents.json) carries the full digest, the byte count and a fetchable address, and [`conformance/documents.py`](conformance/documents.py) brings it down into `docs/`, which git ignores, and refuses anything whose digest does not match.
+
+```bash
+python3 -m conformance.documents          # fetch and verify the digest
+python3 -m conformance.documents --check  # verify what is already here
+```
 ## Citing this
 [CITATION.cff](CITATION.cff) is kept in step with the released version by the same script that stamps the package, so the version it names is the version that shipped. GitHub renders it as a Cite this repository button.
 
