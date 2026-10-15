@@ -1,15 +1,3 @@
-"""Check the interpreter against the SingleStepTests suite for the SPC700.
-
-Each case gives a full initial state, the bytes of memory that matter, and the
-state one instruction later. This builds exactly that machine, steps once, and
-compares every register and every named byte.
-
-Memory outside the bytes a case names is scrambled rather than cleared. The suite
-says nothing about those addresses, so an instruction that reads one is reading
-something undefined, and filling them with zeroes would make such a read look
-deliberate.
-"""
-
 import json
 import sys
 from collections.abc import Mapping
@@ -32,7 +20,6 @@ REGISTERS = (
 
 
 def suite_files(directory: Path | str) -> list[Path]:
-    """Every test file in the suite, in a fixed order, or none if it is absent."""
     directory = Path(directory)
     if not directory.is_dir():
         return []
@@ -40,7 +27,6 @@ def suite_files(directory: Path | str) -> list[Path]:
 
 
 def machine_for(initial: Mapping[str, Any]) -> tuple[Any, Any]:
-    """A processor and memory in exactly the state the case declares."""
     memory = SparseMemory(seed=initial["pc"])
     for address, value in initial["ram"]:
         memory.write8(address, value)
@@ -56,7 +42,6 @@ def machine_for(initial: Mapping[str, Any]) -> tuple[Any, Any]:
 
 
 def check(test: Mapping[str, Any]) -> list[tuple[str, object, object]]:
-    """Where the interpreter and the suite disagree after one instruction."""
     cpu, memory = machine_for(test["initial"])
     cpu.step()
 
@@ -83,7 +68,6 @@ def check(test: Mapping[str, Any]) -> list[tuple[str, object, object]]:
 def run_tests(
     tests: list[dict[str, Any]],
 ) -> tuple[int, int, list[tuple[str, list[tuple[str, object, object]]]]]:
-    """How many agreed, how many did not, and a few that did not."""
     passed = failed = 0
     examples: list[tuple[str, list[tuple[str, object, object]]]] = []
     for test in tests:
@@ -103,7 +87,6 @@ def run_tests(
 def run_file(
     path: Path | str, limit: int | None = None
 ) -> tuple[int, int, list[tuple[str, list[tuple[str, object, object]]]]]:
-    """One test file, optionally only its first few cases."""
     with Path(path).open() as handle:
         tests = json.load(handle)
     if limit:

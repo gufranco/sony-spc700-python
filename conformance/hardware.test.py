@@ -1,16 +1,3 @@
-"""Hold this core to the figures Nintendo printed, rather than to prose about them.
-
-Every number in `hardware.json` was read off a rendered page of the manual. This
-assembles each documented instruction, steps it, and compares the cycles it took
-against the figure the table gives, so a citation is a check that can fail rather
-than a claim nobody runs.
-
-The three rows where the manual and the recording disagree are named here as
-exceptions and cross-checked against `divergences.json`, so removing one from the
-divergence record breaks a test rather than quietly widening what this core is
-allowed to do.
-"""
-
 import json
 import sys
 import unittest
@@ -40,10 +27,8 @@ FOLLOWS_THE_RECORDING_INSTEAD = {
 }
 
 PROGRAM_AT = 0x0400
-"""Somewhere with a direct page below it and a stack above, so nothing overlaps."""
 
 TESTED_BYTE = 0x10
-"""The direct page offset every assembled instruction is given as its operand."""
 
 FLAG_C = 0x01
 FLAG_Z = 0x02
@@ -60,7 +45,6 @@ BY_FLAG = {
     "D0": (FLAG_Z, False),
     "F0": (FLAG_Z, True),
 }
-"""Which flag each conditional branch reads, and the value it branches on."""
 
 
 def _run(
@@ -71,11 +55,6 @@ def _run(
     y: int = 0x00,
     held: int | None = None,
 ) -> int:
-    """Assemble one instruction, step it once, and report the cycles it took.
-
-    `held` is the byte at the direct page offset the operand names, which is what
-    the bit branches and the compare branches read their condition out of.
-    """
     memory = SparseMemory(seed=code)
     memory.write8(PROGRAM_AT, code)
     for offset, value in enumerate(operands, start=1):
@@ -96,7 +75,6 @@ def _run(
 
 
 def _branch(code: str, taken: bool) -> int:
-    """One conditional branch, in a state where it does or does not branch."""
     number = int(code, 16)
     if code in BY_FLAG:
         flag, branches_when_set = BY_FLAG[code]
@@ -161,13 +139,6 @@ class LengthTest(unittest.TestCase):
 
 
 class CycleTest(unittest.TestCase):
-    """Every instruction the manual gives one figure for, run and counted.
-
-    A branch is excluded because its figure depends on whether it is taken, and a
-    taken branch needs a state the condition holds in. Those have their own test
-    below rather than being folded in here.
-    """
-
     def _fixed(self) -> list[tuple[str, dict[str, Any]]]:
         return [
             (code, row)
@@ -225,8 +196,6 @@ class CycleTest(unittest.TestCase):
 
 
 class WorkedExampleTest(unittest.TestCase):
-    """A few instructions whose figure is worth naming on its own."""
-
     def test_a_multiply_takes_the_nine_cycles_the_manual_gives_it(self) -> None:
         row = ROWS["CF"]
 

@@ -78,13 +78,6 @@ class LatestTest(unittest.TestCase):
 
 
 def build_upstream(root: Path | str) -> tuple[Path, str]:
-    """A real repository on disk, shaped like the suite this core is held to.
-
-    Nothing here is stubbed. The fetch path is git for its whole length, so a
-    stand-in for git would only prove the stand-in works. A repository in a
-    temporary directory is the same software the real fetch talks to, reached
-    over a path instead of over the network.
-    """
     upstream = Path(root) / "upstream"
     suite = upstream / "spc700" / "v1"
     suite.mkdir(parents=True)

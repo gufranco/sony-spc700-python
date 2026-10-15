@@ -1,18 +1,3 @@
-"""An SPC700 interpreter that follows the processor rather than a convenient model.
-
-All 256 opcodes are implemented. The SPC700 leaves none undefined, so there is no
-illegal instruction to decide about, but several of the defined ones behave in
-ways no summary of the instruction set would lead you to expect. The division
-does not compute a quotient once the result stops fitting, the decimal adjust
-reads the accumulator it has already modified, and the half carry means the
-opposite thing after a subtraction than it does after an addition. Each of those
-is written the way the hardware does it, not the way it reads better.
-
-Nothing here starts from a clean state. A processor coming out of reset holds
-whatever its registers held, memory holds whatever it held, and an interpreter
-that quietly begins at zero models a machine that has never existed.
-"""
-
 from collections.abc import Callable
 from typing import Protocol
 
@@ -23,13 +8,6 @@ from .memory import UNSET_SEED, scramble
 
 
 class MemoryLike(Protocol):
-    """The whole of what this core needs from the thing it is plugged into.
-
-    Naming the two methods rather than the class keeps a caller free to supply
-    audio RAM, a test double, or a bus that decodes to several devices, and keeps
-    this module from importing any of them.
-    """
-
     def read8(self, address: int) -> int: ...
 
     def write8(self, address: int, value: int) -> None: ...
@@ -40,7 +18,6 @@ OPCODES = table.OPCODES
 STEP_LIMIT = 2_000_000
 
 HALT_CYCLES = 2
-"""Read and idle pairs a recording of a halted part is cut off after."""
 
 FLAG_C = 0x01
 FLAG_Z = 0x02
@@ -72,23 +49,6 @@ BRANCHES = {
 
 
 class Cpu:
-    """An SPC700 holding whatever the rail coming up left in it.
-
-    Power on and reset are two events and this is the first. Construction puts
-    every register in the state a rail coming up leaves it, the program counter
-    included, so a newly built part executes rubbish from a rubbish address
-    exactly as the silicon would. Nothing here calls `reset`, because no board
-    offers a part that arrives reset: a caller drives that pin.
-
-    `reset` then defines less than a model usually assumes. It loads the program
-    counter from the vector at the top of the space and says nothing about the
-    accumulator, the index registers, the stack pointer, or most of the status
-    register. Hardware leaves those holding whatever they held, so they stay
-    scrambled: reproducible from a seed, so a differential run stays comparable,
-    and not zero, which is what stops code that reads them before writing them
-    from looking correct here and failing on a console.
-    """
-
     __slots__ = (
         "a",
         "b",
@@ -143,26 +103,6 @@ class Cpu:
         self.psw = undefined[4]
 
     def reset(self, seed: int = UNSET_SEED) -> "Cpu":
-        """Put the processor where a reset puts it, undefined parts included.
-
-        The part is handed back so a caller can build and reset in one
-        expression, which is what the rest of the family does and what every
-        example in the README relies on. A reset that returned nothing made the
-        two steps read as separate decisions when only one of them is optional.
-
-        Every flag is scrambled except the one that picks the direct page, and
-        that one is cleared because the part's own boot program proves it must
-        be. The sixty four bytes Sony put in the audio unit answer the console's
-        handshake with `mov $f4,#$aa` and `mov $f5,#$bb`, which reach the ports
-        only while the direct page is the zero page. With the flag set they would
-        write two bytes of ordinary memory at 0x01f4, the handshake would never
-        appear, and no cartridge would ever get its audio program uploaded.
-
-        That is the artifact settling a question the manual leaves open, rather
-        than a value copied from an implementation. Nothing else about the flag
-        word is claimed: the rest stays scrambled because the rest is genuinely
-        undefined.
-        """
         undefined = scramble(6, seed)
         self.a = undefined[0]
         self.x = undefined[1]
@@ -201,7 +141,6 @@ class Cpu:
 
     @property
     def direct_page(self) -> int:
-        """Where the direct page currently sits, which the P flag decides."""
         return 0x0100 if self.p else 0x0000
 
     @property
@@ -219,16 +158,9 @@ class Cpu:
         return value
 
     def peek8(self, address: int) -> None:
-        """A read the processor performs and then throws away.
-
-        The part still drives the address for a whole cycle, so it is a read on
-        the bus like any other. Only what happens to the value differs, and that
-        is the caller's business rather than the bus's.
-        """
         self.bus.read(address, self.memory.read8(address & 0xFFFF) & 0xFF)
 
     def idle(self, count: int = 1) -> None:
-        """Cycles spent inside the processor, with nothing on the bus."""
         self.bus.idle(count)
 
     def write8(self, address: int, value: int) -> None:
@@ -236,12 +168,6 @@ class Cpu:
         self.bus.write(address, value)
 
     def store8(self, address: int, value: int) -> None:
-        """A store, which reads the destination first and throws the byte away.
-
-        Every store to memory on this part costs that read. It is invisible in a
-        state comparison, because the value goes nowhere, and it is visible on
-        the bus, which is the only place the difference can be seen.
-        """
         self.peek8(address)
         self.write8(address, value)
 
@@ -249,7 +175,6 @@ class Cpu:
         return self.read8(address) | (self.read8(address + 1) << 8)
 
     def read_direct16(self, address: int) -> int:
-        """A word in the direct page, whose high byte wraps inside that page."""
         page = address & 0xFF00
         return self.read8(address) | (self.read8(page | ((address + 1) & 0xFF)) << 8)
 
@@ -275,7 +200,6 @@ class Cpu:
         return self.read8(STACK_PAGE | self.sp)
 
     def pull_after_idle8(self) -> int:
-        """A pull that begins with the cycle the part spends moving the pointer."""
         self.idle()
         return self.pull8()
 
@@ -300,16 +224,6 @@ class Cpu:
         return self.direct_page | (offset & 0xFF)
 
     def step(self) -> int:
-        """Execute one instruction and answer what it cost.
-
-        The count comes from the bus rather than from a table, because the bus is
-        where every cycle is actually spent: a read, a write, or an idle the part
-        takes on itself. A table would be a second place for a cycle count to
-        live and a second place for it to be wrong.
-
-        A stopped part costs nothing and does nothing. It has not left the world:
-        the board's clock is still running and `held()` says so.
-        """
         if self.stopped:
             return 0
         self.bus.restart()
@@ -322,16 +236,6 @@ class Cpu:
         return self.bus.cycles
 
     def run_for(self, cycles: int) -> int:
-        """Advance at least this many cycles and answer what was really spent.
-
-        It usually overshoots, because an instruction is not divisible. A host
-        carries the difference into the next slice rather than discarding it, and
-        a long run does not drift.
-
-        A stopped part still costs its host the whole budget. Whatever the
-        processor is doing, the board's clock has not stopped, and a host pacing
-        against a wall clock has to be told the time passed.
-        """
         spent = 0
         while spent < cycles:
             if self.stopped:
@@ -343,42 +247,18 @@ class Cpu:
         return spent
 
     def _spent(self, count: int = 1) -> None:
-        """The one place a cycle is charged, so nothing can charge one twice.
-
-        The bus calls this as it spends, rather than the instruction handing a
-        total over at the end. A clock stopping between two cycles of one
-        instruction therefore sees a tally that is already correct, which is the
-        whole reason a clock exists.
-        """
         self.cycles += count
         if self.on_cycle is not None:
             for _ in range(count):
                 self.on_cycle()
 
     def held(self) -> bool:
-        """Whether the part has stopped advancing the program."""
         return self.stopped
 
     def held_cycle(self) -> None:
-        """One cycle of a part that has stopped, which costs time and no bus.
-
-        `STOP` and `SLEEP` both leave the part waiting for something outside it,
-        and neither completes another instruction, so `step` has nothing to
-        advance. The board's clock has not stopped, so the time is charged. What
-        the part drives while waiting is not recorded here, because this project
-        records accesses and there is no access to record.
-        """
         self._spent(1)
 
     def run_until(self, predicate: Callable[["Cpu"], bool], limit: int | None = None) -> "Cpu":
-        """Step until the predicate holds.
-
-        `limit` bounds the number of instructions this call takes and raises when
-        it is reached. Without one the part's own `step_limit` still applies, so
-        a program that never satisfies the predicate stops rather than running
-        forever, and the two bounds are separate on purpose: one belongs to this
-        call and the other to the part.
-        """
         taken = 0
         while not predicate(self):
             if self.steps >= self.step_limit:
@@ -390,13 +270,6 @@ class Cpu:
         return self
 
     def operand_address(self, mode: str, opcode: int) -> int:
-        """Where an addressing mode points, for the modes that name a location.
-
-        Adding an index costs a cycle the part spends on itself, and the pointer
-        modes pay it once before either half of the pointer is read rather than
-        after. Both placements come from the recording; a count alone could not
-        distinguish them.
-        """
         if mode in ("dp", "dp_bit", "dp_a", "dp_x", "dp_y", "dp_ya", "a_dp", "x_dp", "y_dp"):
             return self.direct(self.fetch8())
         if mode in ("dpx", "dpx_a", "dpx_y", "a_dpx", "y_dpx"):
@@ -434,7 +307,6 @@ class Cpu:
         raise KeyError(f"{mode} does not name an address")
 
     def source_value(self, mode: str, opcode: int) -> int:
-        """The value an arithmetic or logic instruction reads."""
         if mode in ("a_imm", "x_imm", "y_imm"):
             return self.fetch8()
         if mode == "ix_iy":
@@ -446,7 +318,6 @@ class Cpu:
         return self.read8(self.operand_address(mode, opcode))
 
     def target_address(self, mode: str, opcode: int) -> int:
-        """Where a two operand instruction writes, once its source is read."""
         if mode == "ix_iy":
             return self.direct(self.x)
         return self.direct(self.fetch8())
@@ -454,13 +325,6 @@ class Cpu:
     def _accumulate(
         self, mode: str, opcode: int, operation: Callable[[int, int], int | None]
     ) -> None:
-        """Run one of the forms every accumulator arithmetic instruction comes in.
-
-        Only the accumulator is handled here. The index registers appear in these
-        instructions once each, as the left side of a comparison, and a comparison
-        writes nothing back, so routing them through a path that assigns a result
-        would add a store that no opcode can reach.
-        """
         if mode in ("dp_imm", "dp_dp", "ix_iy"):
             value = self.source_value(mode, opcode)
             address = self.target_address(mode, opcode)
@@ -625,11 +489,6 @@ class Cpu:
         self.write_direct16(address, self.ya)
 
     def _word_at_direct(self, pause: bool = True) -> int:
-        """A word in the direct page, with the cycle the part spends between halves.
-
-        `CMPW` is the one word instruction that does not pause, so the pause is
-        asked for rather than assumed.
-        """
         address = self.direct(self.fetch8())
         page = address & 0xFF00
         low = self.read8(address)
@@ -662,12 +521,6 @@ class Cpu:
         self.set_nz16(result)
 
     def _word_read_modify_write(self, step: int) -> None:
-        """Increment or decrement a word, one half at a time.
-
-        The low half is written before the high half is read. Treating the word
-        as a unit would read both halves and then write both, which leaves the
-        same two bytes behind and touches them in an order the part never uses.
-        """
         address = self.direct(self.fetch8())
         page = address & 0xFF00
         high_address = page | ((address + 1) & 0xFF)
@@ -693,15 +546,6 @@ class Cpu:
         self.set_nz(self.y)
 
     def op_div(self, mode: str, opcode: int) -> None:
-        """The divide, including what it does once the quotient stops fitting.
-
-        Below the point where the result fits, this is an ordinary division. Above
-        it the hardware does not fail or saturate; it keeps running the same shift
-        and subtract network past the end of its useful range and leaves behind
-        the value that falls out. The overflow flag reports that the answer is not
-        a quotient, and the half carry reports a nibble comparison that has nothing
-        to do with the division at all.
-        """
         self.idle(10)
         dividend = self.ya
         divisor = self.x
@@ -718,13 +562,6 @@ class Cpu:
         self.set_nz(self.a)
 
     def op_daa(self, mode: str, opcode: int) -> None:
-        """Decimal adjust after an addition, reading the accumulator it just wrote.
-
-        The second test looks at the value the first branch may already have
-        changed, so a carry produced by adding sixty can feed the nibble test
-        below it. Testing the original value instead is the obvious reading and
-        the wrong one.
-        """
         self.idle()
         if self.c or self.a > 0x99:
             self.a = (self.a + 0x60) & 0xFF
@@ -743,12 +580,6 @@ class Cpu:
         self.set_nz(self.a)
 
     def _branch(self, taken: bool) -> None:
-        """Take a branch, or do not, and pay for it only when it is taken.
-
-        Every conditional branch on this part costs two more cycles when the
-        condition holds, which is what the two figures in the manual's cycle
-        column mean.
-        """
         offset = self.fetch8()
         if taken:
             self.idle(2)
@@ -896,7 +727,6 @@ class Cpu:
         self.set_nz(self.a - held)
 
     def _addressed_bit(self) -> tuple[int, int]:
-        """The address and bit a memory bit instruction names, packed in one word."""
         packed = self.fetch16()
         return packed & 0x1FFF, packed >> 13
 
@@ -968,13 +798,6 @@ class Cpu:
         self._halt()
 
     def _halt(self) -> None:
-        """Stop, in the only shape a recording of a stopped part can have.
-
-        The part reads the byte after the instruction and idles, over and over,
-        until something outside it intervenes. That loop does not end, so the
-        cycles counted here are where the recording stops rather than anything
-        the processor decides.
-        """
         for _ in range(HALT_CYCLES):
             self.idle()
             self.peek8(self.pc)

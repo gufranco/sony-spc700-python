@@ -1,15 +1,3 @@
-"""The SPC700 instruction set: what each opcode is, and how it reads back.
-
-Two views of the same 256 entries. `OPCODES` gives an instruction, an addressing
-mode and a length, which is what an interpreter dispatches on. `TEXT` gives the
-assembler form, which is what a listing prints.
-
-The bit indexed instructions collapse into one entry each. `SET1`, `CLR1`, `BBS`
-and `BBC` occupy sixteen opcodes apiece and differ only in which bit they touch,
-and that bit is the top three bits of the opcode, so carrying eight near
-identical mnemonics would put the same information in two places.
-"""
-
 import collections
 
 from .errors import Truncated
@@ -539,12 +527,10 @@ TEXT = (
 
 
 def bit_index(opcode: int) -> int:
-    """Which bit a SET1, CLR1, BBS or BBC opcode acts on."""
     return opcode >> 5
 
 
 def call_index(opcode: int) -> int:
-    """Which entry of the call table a TCALL opcode jumps through."""
     return opcode >> 4
 
 
@@ -570,7 +556,6 @@ def _fields(data: bytes | bytearray, offset: int, address: int, p: int) -> dict[
 
 
 def decode(data: bytes | bytearray, offset: int, address: int, p: int = 0) -> Instruction:
-    """One instruction, or `Truncated` when the bytes run out mid instruction."""
     if offset >= len(data):
         raise Truncated(f"offset {offset} is past the end of {len(data)} bytes")
     opcode = data[offset]
@@ -597,7 +582,6 @@ def disassemble(
     p: int = 0,
     stop_at_return: bool = False,
 ) -> list[Instruction]:
-    """A listing, stopping at the count, at a return, or where the bytes end."""
     listing: list[Instruction] = []
     while count is None or len(listing) < count:
         try:

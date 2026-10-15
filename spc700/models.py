@@ -1,17 +1,3 @@
-"""Which parts this package covers, and what each one is.
-
-The SPC700 is unusual among the processors in a SNES in having essentially one
-form. Sony built it into the S-SMP and it was never sold on its own, so there is
-no family of pin variants or licensee revisions to model the way the 65xx parts
-demand. The catalogue exists anyway, and for the same reason it exists there: a
-model is where hardware differences belong, and discovering one later should mean
-adding an entry rather than restructuring the package around it.
-
-Adding a model means adding an entry here and holding it to a conformance suite.
-A model with no suite behind it does not belong in this table, because then its
-fidelity would be a claim rather than a measurement.
-"""
-
 from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING, Any, override
 
@@ -22,16 +8,7 @@ if TYPE_CHECKING:
 
 
 class Model:
-    """One part: what it is, what it reaches, and how to build it."""
-
     __slots__ = ("address_bits", "aliases", "core", "data_bits", "name", "summary")
-    """Without them a name this class does not have is accepted in silence.
-
-    The caller sets a stray attribute, the one they meant keeps whatever it held,
-    and nothing reports that the write went nowhere. A sibling package shipped
-    exactly that, where two parts spell a flag differently and reaching for the
-    wrong one did nothing at all.
-    """
 
     def __init__(
         self,
@@ -99,19 +76,6 @@ def _normalise(name: str) -> str:
 
 
 def lookup(name: str | None) -> Model:
-    """The model of that name, however it happens to be written.
-
-    Naming nothing is refused rather than filled in. A default would be the one
-    implicit thing in the call that builds a part, and it is worst where it looks
-    most harmless: a caller who learns to leave the model out against a member
-    covering one part writes the same call against a member covering sixteen.
-    The refusal names every model there is, so somebody who did not know what to
-    pass learns it here rather than from the source.
-
-    Not exported from the package. What a caller wants is the part, and the part
-    carries its own model; handing back a description of a part nobody built
-    reads like a test fixture rather than an interface.
-    """
     if name is None:
         raise UnknownModelError(
             "no model was named, and this package will not choose one for you."

@@ -1,12 +1,3 @@
-"""That a part can be driven one cycle at a time, and stopped between any two.
-
-The claim worth testing is not that the count comes out right. It is that the
-part is genuinely suspended part way through an instruction, which is shown by
-changing what memory answers between two cycles and watching the instruction
-pick the new value up. A model that ran the instruction and replayed its cycles
-afterwards would pass a count test and fail that one.
-"""
-
 from __future__ import annotations
 
 import sys
@@ -22,12 +13,6 @@ import spc700  # noqa: E402
 
 class ClockTest(unittest.TestCase):
     def part(self) -> Any:
-        """A part in a state this file chose, rather than the one a rail leaves.
-
-        The flags are cleared, which matters most for `P`: a scrambled
-        direct-page bit sends the read below into page one, where nothing was
-        written, and the test then measures where it landed rather than when.
-        """
         self.memory = spc700.Memory(fill=0x00)
         for at, byte in enumerate((0xE4, 0x10, 0x00, 0x00)):
             self.memory.write8(at, byte)
@@ -55,16 +40,6 @@ class ClockTest(unittest.TestCase):
         self.assertEqual(spent, 7)
 
     def test_the_part_is_suspended_part_way_through_an_instruction(self) -> None:
-        """A write landing between two cycles of one instruction is seen by it.
-
-        That is the whole point of a clock: the part is stopped inside an
-        instruction, not between two of them, so a board can change what the next
-        read answers.
-
-        The log is read inside the block and while the instruction is the one in
-        flight, because the bus forgets the previous instruction when the next
-        one starts. Reading it afterwards finds an empty list and proves nothing.
-        """
         cpu = self.part()
         cpu.bus.recording = True
 
@@ -80,11 +55,6 @@ class ClockTest(unittest.TestCase):
     def test_a_budget_on_a_running_part_overshoots_rather_than_cutting_one_short(
         self,
     ) -> None:
-        """An instruction is not divisible, so the budget is a floor.
-
-        A host carries the difference into the next slice rather than discarding
-        it, and a long run does not drift.
-        """
         cpu = self.part()
 
         spent = cpu.run_for(2)
@@ -93,11 +63,6 @@ class ClockTest(unittest.TestCase):
         self.assertEqual(spent, cpu.cycles)
 
     def test_a_stopped_part_still_costs_its_host_the_whole_budget(self) -> None:
-        """The board's clock has not stopped just because the processor has.
-
-        A host pacing against a wall has to be told the time passed, so a budget
-        handed to a stopped part comes back spent rather than short.
-        """
         space = spc700.Memory(fill=0x00)
         space.write8(0x0000, 0xFF)
         cpu = spc700.Cpu("spc700", space)

@@ -1,5 +1,3 @@
-"""What the cycle comparison compares, and what it refuses to compare."""
-
 import importlib
 import json
 import sys

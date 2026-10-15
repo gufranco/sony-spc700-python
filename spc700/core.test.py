@@ -14,17 +14,6 @@ from spc700.memory import Memory
 def machine(
     code: Sequence[int], base: int = 0x0200, fill: int = 0, **registers: int
 ) -> tuple[Any, Memory]:
-    """A part in a state this file chose, rather than the one a rail leaves.
-
-    Construction scrambles every register, because that is what powering on
-    does. These are tests of what an instruction does, so they start from a
-    defined state and say so here: the flags are cleared, which matters most for
-    `P`, since a scrambled direct-page bit sends every direct access to the wrong
-    page and turns an instruction test into a test of where it landed.
-
-    A test that wants a flag set passes it, and the power-on state itself is
-    tested where it belongs rather than relied on here.
-    """
     memory = Memory(fill=fill)
     for offset, byte in enumerate(code):
         memory.write8(base + offset, byte)
@@ -57,7 +46,6 @@ class ResetTest(unittest.TestCase):
         self.assertEqual(cpu.pc, 0xFF00)
 
     def test_the_part_is_handed_back_so_the_call_chains(self) -> None:
-        """A caller builds and resets in one expression, as the rest of the family does."""
         cpu = core.Cpu(Memory(fill=0))
 
         back = cpu.reset()
@@ -65,11 +53,6 @@ class ResetTest(unittest.TestCase):
         self.assertIs(back, cpu)
 
     def test_but_only_once_a_caller_drives_the_pin(self) -> None:
-        """Power on and reset are two events, and construction is the first.
-
-        A part that arrived reset would hide one that costs cycles and drives
-        pins, and no board offers one.
-        """
         memory = Memory(fill=0)
         memory.write8(core.RESET_VECTOR, 0x00)
         memory.write8(core.RESET_VECTOR + 1, 0xFF)
@@ -79,7 +62,6 @@ class ResetTest(unittest.TestCase):
         self.assertNotEqual(cpu.pc, 0xFF00)
 
     def test_and_the_program_counter_comes_up_holding_something(self) -> None:
-        """Rubbish from a rubbish address, which is what the silicon does."""
         held = {core.Cpu(Memory(fill=0), seed=one).pc for one in range(8)}
 
         self.assertGreater(len(held), 1)
@@ -762,7 +744,6 @@ class HaltTest(unittest.TestCase):
             cpu.run_until(lambda found: False, limit=4)
 
     def test_and_that_bound_is_the_one_the_message_names(self) -> None:
-        """Two bounds, and a refusal that named the wrong one would be a wrong report."""
         cpu, _ = machine([0x00])
 
         with self.assertRaises(RunLimit) as raised:
@@ -800,8 +781,6 @@ class EveryOpcodeTest(unittest.TestCase):
 
 
 class ResetDirectPageTest(unittest.TestCase):
-    """The one flag a reset settles, because the boot program depends on it."""
-
     def test_reset_leaves_the_direct_page_flag_clear(self) -> None:
         cpu, _memory = machine([0x00])
 

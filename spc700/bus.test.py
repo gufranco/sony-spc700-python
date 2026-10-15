@@ -1,5 +1,3 @@
-"""What the bus records, and what it deliberately does not."""
-
 import sys
 import unittest
 from pathlib import Path
