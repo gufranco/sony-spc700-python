@@ -31,9 +31,6 @@ packages = ["spc700"]
 [tool.setuptools.dynamic]
 version = { attr = "spc700.version.VERSION" }
 
-[tool.setuptools.exclude-package-data]
-spc700 = ["*.test.py"]
-
 [tool.ruff]
 target-version = "py312"
 line-length = 100
