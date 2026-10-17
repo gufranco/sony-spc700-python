@@ -1,8 +1,8 @@
-[English](README.md) | [日本語](README.ja.md) | 简体中文 | [繁體中文（香港）](README.zh-HK.md)
-
 # Sony SPC700
 
 Sony SPC700 是 SNES 音频单元中 S-SMP 内部的处理器。本项目用 Python 实现它，可以每次执行一条指令或一个周期，并以 Nintendo 的 SNES Development Manual 附录 C 和 SingleStepTests 语料库为准。
+
+[English](README.md) &nbsp;|&nbsp; [日本語](README.ja.md) &nbsp;|&nbsp; 简体中文 &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
 
 [![CI](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
