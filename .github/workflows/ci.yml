@@ -1,3 +1,4 @@
+---
 name: CI
 
 on:
@@ -49,6 +50,11 @@ jobs:
       - name: Check that every JSON file is formatted
         run: pnpm run format:check
 
+      - name: Lint every YAML file
+        run: |
+          pipx install yamllint==1.38.0
+          yamllint --strict .
+
   types:
     name: Types
     runs-on: ubuntu-26.04
@@ -62,10 +68,7 @@ jobs:
       - name: Install mypy
         run: pipx install mypy==1.14.1
 
-      # Strict, with every optional error class the checker offers. The
-      # configuration lives in pyproject.toml so this run and a local one are
-      # the same run.
-      - name: Check types
+      - name: Check types, strictly, as configured in pyproject.toml
         run: mypy
 
   test:
@@ -123,11 +126,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      # The manual is not redistributable, so it is not here and this checks
-      # nothing on a runner. It says so rather than reporting a pass: the value
-      # is that somebody running it with the manual on disk gets a real answer,
-      # and that a run without it cannot be mistaken for one.
-      - name: Every quoted sentence, against the document it came from
+      - name: Every quote against the manual, which says so when it is absent
         run: python -m conformance.quotes
 
   conformance:
@@ -143,7 +142,13 @@ jobs:
       - name: Read the pinned suite commit
         id: pin
         run: |
-          commit=$(python -c "import json,pathlib;print(json.loads(pathlib.Path('conformance/suites.json').read_text())['suites'][0]['commit'])")
+          commit=$(python - <<'PY'
+          import json
+          import pathlib
+          suites = json.loads(pathlib.Path("conformance/suites.json").read_text())
+          print(suites["suites"][0]["commit"])
+          PY
+          )
           echo "commit=${commit}" >> "${GITHUB_OUTPUT}"
 
       - name: Cache the suite
@@ -157,15 +162,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: python -m conformance.fetch ~/.cache/conformance-suites
 
-      # A pull request runs a tenth of each file for a quick answer. A push to
-      # main runs all 256,000 cases, because that is the number both claims rest
-      # on.
-      #
-      # Both runners, always. The state comparison asks what the registers and
-      # memory hold afterwards; the cycle comparison asks what happened on the
-      # bus. A core can pass either one while failing the other, and a store
-      # that reads its destination is invisible to the first.
-      - name: Run the suite
+      - name: Run the suite through both runners, a tenth of each file on a pull request
         run: |
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
             limit=100
