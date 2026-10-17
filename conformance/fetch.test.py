@@ -1,5 +1,4 @@
 import contextlib
-import importlib
 import io
 import json
 import os
@@ -8,14 +7,14 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 from typing import Any, override
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "conformance"))
 
-fetch: Any = importlib.import_module("fetch")
+from conformance import fetch  # noqa: E402
 
 A_SUITE = {
     "name": "spc700",
@@ -161,7 +160,14 @@ class FetchTest(unittest.TestCase):
         self.assertIn("gave up", str(raised.exception))
 
     def test_git_is_told_never_to_stop_and_ask(self) -> None:
-        self.assertEqual(fetch._git_environment()["GIT_TERMINAL_PROMPT"], "0")
+        # Arrange
+        asked = "GIT_TERMINAL_PROMPT"
+
+        # Act
+        environment = fetch.git_environment()
+
+        # Assert
+        self.assertEqual(environment[asked], "0")
 
 
 class MainTest(unittest.TestCase):
@@ -217,15 +223,19 @@ class MainTest(unittest.TestCase):
         self.assertIn("cannot reach", output)
 
     def test_no_directory_falls_back_to_a_cache_below_the_home_directory(self) -> None:
+        # Arrange
         chosen: dict[str, Any] = {}
-        original = fetch.fetch
-        fetch.fetch = lambda suite, directory, commit=None, quiet=True: (
-            chosen.setdefault("directory", directory) or Path(directory) / suite["path"]
-        )
-        self.addCleanup(setattr, fetch, "fetch", original)
 
+        def noting(suite: Any, directory: Any, commit: Any = None, quiet: bool = True) -> Path:
+            chosen["directory"] = directory
+            return Path(directory) / str(suite["path"])
+
+        self.enterContext(unittest.mock.patch.object(fetch, "fetch", noting))
+
+        # Act
         code, _ = self.run_main([])
 
+        # Assert
         self.assertEqual(code, 0)
         self.assertIn(".cache", str(chosen["directory"]))
 

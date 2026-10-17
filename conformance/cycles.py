@@ -5,8 +5,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from spc700 import Cpu, SparseMemory
-from spc700.bus import Bus
+from spc700 import Bus, Cpu, SparseMemory
 
 EXAMPLE_LIMIT = 5
 

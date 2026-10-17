@@ -8,7 +8,7 @@ Sony SPC700 是 SNES 音效單元中 S-SMP 內的處理器。本專案以 Python
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-比對了 **256** 個操作碼、**256,000** 個一致性案例及 **1,182,940** 個週期，**0** 個失敗；**256** 個長度及 **253** 個週期數與 Nintendo 的表格相符；**848** 個測試；**100%** 語句及分支覆蓋率；無任何依賴
+比對了 **256** 個操作碼、**256,000** 個一致性案例及 **1,182,940** 個週期，**0** 個失敗；**256** 個長度及 **253** 個週期數與 Nintendo 的表格相符；**865** 個測試；**100%** 語句及分支覆蓋率；無任何依賴
 
 ```python
 from spc700 import Cpu, Memory
@@ -55,7 +55,7 @@ python3 spc700/doctor.py
 
 ## 介面
 
-`spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)` 建立一個部件。`model` 為必填。`memory` 可以是任何具備 `read8(address)` 及 `write8(address, value)` 的物件；若未提供，部件會取得一個 `SparseMemory`，或在提供 `fill` 時取得一個每個位元組都是 `fill` 的 `Memory`。`seed` 設定暫存器的開機模式。`bus` 是一個 `spc700.bus.Bus`，若省略，部件會自行建立。建構函式不會重設部件。
+`spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)` 建立一個部件。`model` 為必填。`memory` 可以是任何具備 `read8(address)` 及 `write8(address, value)` 的物件；若未提供，部件會取得一個 `SparseMemory`，或在提供 `fill` 時取得一個每個位元組都是 `fill` 的 `Memory`。`seed` 設定暫存器的開機模式。`bus` 是一個 `spc700.Bus`，若省略，部件會自行建立。建構函式不會重設部件。
 
 | 型號 | 別名 | 位址位元數 | 數據位元數 |
 |:--|:--|:--|:--|
@@ -128,6 +128,8 @@ gave up after 8 instructions at $0001
 | `spc700.FLAG_N`, `FLAG_V`, `FLAG_P`, `FLAG_B`, `FLAG_H`, `FLAG_I`, `FLAG_Z`, `FLAG_C` | `psw` 的各位元：`0x80`、`0x40`、`0x20`、`0x10`、`0x08`、`0x04`、`0x02`、`0x01` |
 | `spc700.OPCODES` | 以操作碼位元組為索引的 256 行 `(mnemonic, mode, size)`。執行及反組譯都讀取它 |
 | `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)` | 指令清單，每條帶有 `address`、`size`、`text`、`opcode`、`mnemonic` 及 `mode` |
+| `spc700.decode(data, offset, address, p=0)` | `offset` 處的一條指令，帶有相同的屬性。位元組在指令中途用完時拋出 `Truncated` |
+| `spc700.Bus(recording=False)` | 部件每個週期都經過的週期記錄器，帶有 `bus` 一項所述的 `cycles`、`recording` 及 `log` |
 | `spc700.Clock(cpu)` | 逐個週期驅動部件 |
 | `spc700.__version__` | 已安裝的版本 |
 
@@ -138,7 +140,7 @@ gave up after 8 instructions at $0001
 | `UnknownModelError` | `Cpu` 沒有取得型號名稱，或取得的名稱不屬於任何型號。訊息會列出可接受的名稱 |
 | `RunLimit` | `run_until` 超過其 `limit`，或 `steps` 達到 `step_limit` |
 | `ClockClosed` | 在已關閉的 `Clock` 上呼叫 `tick()` |
-| `Truncated` | `spc700.opcodes.decode` 在指令中途用完位元組。`disassemble` 則會在該處停止 |
+| `Truncated` | `spc700.decode` 在指令中途用完位元組。`disassemble` 則會在該處停止 |
 
 ```python
 import spc700
@@ -263,8 +265,7 @@ spc700
 `disassemble(data, offset, address)` 以獨立參數接收緩衝區內的偏移量，以及該偏移量對應的位址。`p` 設定列印直接頁運算元時所用的直接頁。
 
 ```python
-from spc700 import Truncated, disassemble
-from spc700.opcodes import decode
+from spc700 import Truncated, decode, disassemble
 
 program = bytes([0xE8, 0x42, 0xC4, 0x10, 0x3F, 0x00, 0x04, 0x6F, 0x8F])
 for found in disassemble(program, 0, 0x0200):

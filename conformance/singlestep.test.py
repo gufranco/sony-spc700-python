@@ -1,5 +1,4 @@
 import contextlib
-import importlib
 import io
 import json
 import shutil
@@ -11,9 +10,8 @@ from typing import Any, override
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "conformance"))
 
-singlestep = importlib.import_module("singlestep")
+from conformance import singlestep  # noqa: E402
 
 
 def a_test(**changes: Any) -> dict[str, Any]:

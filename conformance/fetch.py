@@ -45,7 +45,7 @@ def checkout_command(
     ]
 
 
-def _git_environment() -> dict[str, str]:
+def git_environment() -> dict[str, str]:
     return {**os.environ, "GIT_TERMINAL_PROMPT": "0"}
 
 
@@ -57,7 +57,7 @@ def latest_commit(suite: Mapping[str, Any], timeout: int = PROBE_TIMEOUT) -> str
             text=True,
             check=False,
             timeout=timeout,
-            env=_git_environment(),
+            env=git_environment(),
         )
     except subprocess.TimeoutExpired:
         return None
@@ -83,7 +83,7 @@ def fetch(
                 text=True,
                 check=False,
                 timeout=timeout,
-                env=_git_environment(),
+                env=git_environment(),
             )
         except subprocess.TimeoutExpired:
             raise SystemExit(

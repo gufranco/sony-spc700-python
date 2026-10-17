@@ -88,11 +88,12 @@ ruff check .
 mypy
 pnpm run format:check
 uvx yamllint==1.38.0 --strict .
-python3 -m coverage erase
-for file in $(find spc700 conformance -name '*.test.py' | sort); do
-  python3 -m coverage run -a "$file"
+cov=(uvx --python 3.12 --from coverage==7.6.10 --with setuptools==84.0.0 coverage)
+"${cov[@]}" erase
+for f in $(find spc700 conformance -name '*.test.py' | sort); do
+  "${cov[@]}" run -a "$f" || echo "FAILED $f"
 done
-python3 -m coverage report
+"${cov[@]}" report
 ```
 
 Then the throughput floor, which runs outside the coverage step because a tracer

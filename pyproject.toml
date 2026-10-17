@@ -94,8 +94,13 @@ enable_error_code = [
 ]
 files = ["spc700", "conformance"]
 
+[[tool.mypy.overrides]]
+module = ["setuptools.*"]
+follow_imports = "skip"
+ignore_missing_imports = true
+
 [tool.coverage.run]
-source = ["spc700", "conformance"]
+source = ["."]
 branch = true
 
 [tool.coverage.report]

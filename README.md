@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **848** tests, **100%** statement and branch coverage, no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **865** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, Memory
@@ -55,7 +55,7 @@ Releases follow [Semantic Versioning](https://semver.org/) and are cut from the 
 
 ## The interface
 
-`spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)` builds one part. `model` is required. `memory` is any object with `read8(address)` and `write8(address, value)`; without one the part gets a `SparseMemory`, or a `Memory` holding `fill` in every byte when `fill` is given. `seed` sets the power-on pattern of the registers. `bus` is a `spc700.bus.Bus`, and the part builds one when it is left out. The constructor does not reset the part.
+`spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)` builds one part. `model` is required. `memory` is any object with `read8(address)` and `write8(address, value)`; without one the part gets a `SparseMemory`, or a `Memory` holding `fill` in every byte when `fill` is given. `seed` sets the power-on pattern of the registers. `bus` is a `spc700.Bus`, and the part builds one when it is left out. The constructor does not reset the part.
 
 | Model | Aliases | Address bits | Data bits |
 |:--|:--|:--|:--|
@@ -128,6 +128,8 @@ gave up after 8 instructions at $0001
 | `spc700.FLAG_N`, `FLAG_V`, `FLAG_P`, `FLAG_B`, `FLAG_H`, `FLAG_I`, `FLAG_Z`, `FLAG_C` | The bits of `psw`: `0x80`, `0x40`, `0x20`, `0x10`, `0x08`, `0x04`, `0x02`, `0x01` |
 | `spc700.OPCODES` | 256 `(mnemonic, mode, size)` rows indexed by opcode byte. Execution and disassembly both read it |
 | `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)` | A list of instructions, each with `address`, `size`, `text`, `opcode`, `mnemonic` and `mode` |
+| `spc700.decode(data, offset, address, p=0)` | One instruction at `offset`, with the same fields. Raises `Truncated` when the bytes run out partway through it |
+| `spc700.Bus(recording=False)` | The cycle recorder a part spends every cycle through, with the `cycles`, `recording` and `log` described under `bus` |
 | `spc700.Clock(cpu)` | Drives the part one cycle at a time |
 | `spc700.__version__` | The installed version |
 
@@ -138,7 +140,7 @@ gave up after 8 instructions at $0001
 | `UnknownModelError` | `Cpu` gets no model name, or one no model goes by. The message lists the names accepted |
 | `RunLimit` | `run_until` passes its `limit`, or `steps` reaches `step_limit` |
 | `ClockClosed` | `tick()` is called on a closed `Clock` |
-| `Truncated` | `spc700.opcodes.decode` runs out of bytes partway through an instruction. `disassemble` stops there instead |
+| `Truncated` | `spc700.decode` runs out of bytes partway through an instruction. `disassemble` stops there instead |
 
 ```python
 import spc700
@@ -263,8 +265,7 @@ An alias builds the part it names, and the part reports the canonical name.
 `disassemble(data, offset, address)` takes the offset into the buffer and the address that offset maps to as separate arguments. `p` sets the direct page used to print direct-page operands.
 
 ```python
-from spc700 import Truncated, disassemble
-from spc700.opcodes import decode
+from spc700 import Truncated, decode, disassemble
 
 program = bytes([0xE8, 0x42, 0xC4, 0x10, 0x3F, 0x00, 0x04, 0x6F, 0x8F])
 for found in disassemble(program, 0, 0x0200):

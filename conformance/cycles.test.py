@@ -1,4 +1,3 @@
-import importlib
 import json
 import sys
 import tempfile
@@ -8,9 +7,8 @@ from typing import Any, override
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "conformance"))
 
-cycles: Any = importlib.import_module("cycles")
+from conformance import cycles  # noqa: E402
 
 
 def _case(name: str, cycle_list: list[list[Any]], **initial: Any) -> dict[str, Any]:

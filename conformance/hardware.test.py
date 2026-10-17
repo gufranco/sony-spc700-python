@@ -6,9 +6,7 @@ from typing import Any, override
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from spc700 import Cpu, SparseMemory
-from spc700.bus import Bus
-from spc700.opcodes import OPCODES
+from spc700 import OPCODES, Cpu, SparseMemory
 
 HERE = Path(__file__).resolve().parent
 FACTS: dict[str, Any] = json.loads((HERE / "hardware.json").read_text())
@@ -62,16 +60,14 @@ def _run(
     if held is not None:
         memory.write8(TESTED_BYTE, held)
 
-    line = Bus()
-    cpu = Cpu("spc700", memory=memory, bus=line)
+    cpu = Cpu("spc700", memory=memory)
     cpu.a = a
     cpu.x = 0x00
     cpu.y = y
     cpu.sp = 0xF0
     cpu.psw = psw
     cpu.pc = PROGRAM_AT
-    cpu.step()
-    return line.cycles
+    return int(cpu.step())
 
 
 def _branch(code: str, taken: bool) -> int:
@@ -98,7 +94,7 @@ AFTER_HALT = 1000
 def halted(code: int) -> Any:
     memory = SparseMemory(seed=code)
     memory.write8(PROGRAM_AT, code)
-    cpu = Cpu("spc700", memory=memory, bus=Bus())
+    cpu = Cpu("spc700", memory=memory)
     cpu.pc = PROGRAM_AT
     cpu.step()
     return cpu

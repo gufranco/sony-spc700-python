@@ -1,6 +1,7 @@
 from typing import Any
 
 from . import models as models
+from .bus import Bus
 from .clock import Clock
 from .core import (
     FLAG_B,
@@ -16,7 +17,7 @@ from .core import (
 from .errors import ClockClosed, RunLimit, Truncated, UnknownModelError
 from .memory import UNSET_SEED, Memory, SparseMemory, scramble
 from .models import MODELS
-from .opcodes import OPCODES, disassemble
+from .opcodes import OPCODES, decode, disassemble
 from .version import VERSION
 
 __version__ = VERSION
@@ -46,6 +47,7 @@ __all__ = [
     "OPCODES",
     "STEP_LIMIT",
     "UNSET_SEED",
+    "Bus",
     "Clock",
     "ClockClosed",
     "Cpu",
@@ -55,6 +57,7 @@ __all__ = [
     "Truncated",
     "UnknownModelError",
     "__version__",
+    "decode",
     "disassemble",
     "scramble",
 ]

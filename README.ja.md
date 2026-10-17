@@ -8,7 +8,7 @@ SNESオーディオユニットのS-SMPに内蔵されたプロセッサであ�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256**個のオペコード、**256,000**件の適合性ケースと**1,182,940**サイクルを比較して失敗**0**件、**256**個の命令長と**253**個のサイクル数がNintendoの表に一致、テスト**848**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
+**256**個のオペコード、**256,000**件の適合性ケースと**1,182,940**サイクルを比較して失敗**0**件、**256**個の命令長と**253**個のサイクル数がNintendoの表に一致、テスト**865**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
 ```python
 from spc700 import Cpu, Memory
@@ -55,7 +55,7 @@ python3 spc700/doctor.py
 
 ## インターフェース
 
-`spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)`はパーツを1つ構築します。`model`は必須です。`memory`は`read8(address)`と`write8(address, value)`を持つ任意のオブジェクトです。指定しない場合、パーツは`SparseMemory`を受け取り、`fill`を指定した場合はすべてのバイトに`fill`を保持する`Memory`を受け取ります。`seed`はレジスタの電源投入時のパターンを設定します。`bus`は`spc700.bus.Bus`で、省略するとパーツが自分で構築します。コンストラクタはパーツをリセットしません。
+`spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)`はパーツを1つ構築します。`model`は必須です。`memory`は`read8(address)`と`write8(address, value)`を持つ任意のオブジェクトです。指定しない場合、パーツは`SparseMemory`を受け取り、`fill`を指定した場合はすべてのバイトに`fill`を保持する`Memory`を受け取ります。`seed`はレジスタの電源投入時のパターンを設定します。`bus`は`spc700.Bus`で、省略するとパーツが自分で構築します。コンストラクタはパーツをリセットしません。
 
 | モデル | 別名 | アドレスビット数 | データビット数 |
 |:--|:--|:--|:--|
@@ -128,6 +128,8 @@ gave up after 8 instructions at $0001
 | `spc700.FLAG_N`, `FLAG_V`, `FLAG_P`, `FLAG_B`, `FLAG_H`, `FLAG_I`, `FLAG_Z`, `FLAG_C` | `psw`のビットで、`0x80`、`0x40`、`0x20`、`0x10`、`0x08`、`0x04`、`0x02`、`0x01`です |
 | `spc700.OPCODES` | オペコードバイトでインデックスされた256行の`(mnemonic, mode, size)`です。実行と逆アセンブルの両方がこれを読みます |
 | `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)` | 命令のリストで、各命令は`address`、`size`、`text`、`opcode`、`mnemonic`、`mode`を持ちます |
+| `spc700.decode(data, offset, address, p=0)` | `offset`にある1命令で、同じ属性を持ちます。命令の途中でバイトが尽きると`Truncated`を送出します |
+| `spc700.Bus(recording=False)` | パーツがすべてのサイクルを通すサイクル記録器で、`bus`の項で説明した`cycles`、`recording`、`log`を持ちます |
 | `spc700.Clock(cpu)` | パーツを1サイクルずつ駆動します |
 | `spc700.__version__` | インストールされているバージョンです |
 
@@ -138,7 +140,7 @@ gave up after 8 instructions at $0001
 | `UnknownModelError` | `Cpu`にモデル名が渡されない場合、またはどのモデルにも該当しない名前が渡された場合です。メッセージには受け付ける名前が列挙されます |
 | `RunLimit` | `run_until`が`limit`を超えた場合、または`steps`が`step_limit`に達した場合です |
 | `ClockClosed` | 閉じた`Clock`で`tick()`が呼ばれた場合です |
-| `Truncated` | `spc700.opcodes.decode`が命令の途中でバイトを使い切った場合です。`disassemble`は代わりにそこで停止します |
+| `Truncated` | `spc700.decode`が命令の途中でバイトを使い切った場合です。`disassemble`は代わりにそこで停止します |
 
 ```python
 import spc700
@@ -263,8 +265,7 @@ spc700
 `disassemble(data, offset, address)`は、バッファ内のオフセットと、そのオフセットが対応するアドレスを別々の引数として受け取ります。`p`は、ダイレクトページのオペランドを表示する際に使うダイレクトページを設定します。
 
 ```python
-from spc700 import Truncated, disassemble
-from spc700.opcodes import decode
+from spc700 import Truncated, decode, disassemble
 
 program = bytes([0xE8, 0x42, 0xC4, 0x10, 0x3F, 0x00, 0x04, 0x6F, 0x8F])
 for found in disassemble(program, 0, 0x0200):
