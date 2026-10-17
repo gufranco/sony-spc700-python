@@ -4,13 +4,19 @@
     "role": "the processor inside the SNES audio unit",
     "quote": "An SPC700 series is used for the SNES sound source CPU. However, standby and sleep modes cannot be used.",
     "page": "C-1",
-    "source": "developmentManual"
+    "source": "developmentManual",
+    "heldBy": [
+      "conformance/hardware.test.py::PrintedBehaviourTest.test_neither_standby_nor_sleep_is_a_mode_the_part_comes_back_from"
+    ]
   },
   "conditionalBranches": {
     "quote": "Note: The number of cycles of conditional branching commands are appropriate to cases when there is no branching to the left side and there is branching to the right side.",
     "meaning": "A cycle figure written as two numbers separated by a slash gives the count when the branch is not taken first and when it is taken second.",
     "page": "C-2",
-    "source": "developmentManual"
+    "source": "developmentManual",
+    "heldBy": [
+      "conformance/hardware.test.py::PrintedBehaviourTest.test_every_branch_costs_its_untaken_figure_first_and_its_taken_figure_second"
+    ]
   },
   "notStated": [
     "What happens inside a cycle. The tables give a count per instruction and no breakdown, so nothing here can settle which address the part drives on which cycle.",

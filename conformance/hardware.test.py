@@ -90,6 +90,24 @@ def _branch(code: str, taken: bool) -> int:
     return _run(number, 0x10, y=0x00 if taken else 0x01)
 
 
+HALTING = {"SLEEP": 0xEF, "STOP": 0xFF}
+
+AFTER_HALT = 1000
+
+
+def halted(code: int) -> Any:
+    memory = SparseMemory(seed=code)
+    memory.write8(PROGRAM_AT, code)
+    cpu = Cpu("spc700", memory=memory, bus=Bus())
+    cpu.pc = PROGRAM_AT
+    cpu.step()
+    return cpu
+
+
+def where(cpu: Any) -> tuple[int, int, bool]:
+    return cpu.pc, cpu.steps, cpu.held()
+
+
 class DocumentTest(unittest.TestCase):
     def test_the_document_is_pinned_by_digest(self) -> None:
         document = FACTS["documents"]["developmentManual"]
@@ -193,6 +211,39 @@ class CycleTest(unittest.TestCase):
         branches = [code for code, row in ROWS.items() if "/" in row["cycles"]]
 
         self.assertEqual(len(branches), 28)
+
+
+class PrintedBehaviourTest(unittest.TestCase):
+    def test_every_branch_costs_its_untaken_figure_first_and_its_taken_figure_second(self) -> None:
+        # Arrange
+        note = FACTS["conditionalBranches"]["quote"]
+        branches = {
+            code: row["cycles"] for code, row in sorted(ROWS.items()) if "/" in row["cycles"]
+        }
+
+        # Act
+        costs = {code: f"{_branch(code, False)}/{_branch(code, True)}" for code in branches}
+
+        # Assert
+        self.assertIn("no branching to the left side", note)
+        self.assertEqual(costs, branches)
+
+    def test_neither_standby_nor_sleep_is_a_mode_the_part_comes_back_from(self) -> None:
+        # Arrange
+        stated = FACTS["part"]["quote"]
+        parts = {name: halted(code) for name, code in HALTING.items()}
+        before = {name: where(cpu) for name, cpu in parts.items()}
+
+        # Act
+        spent = [cpu.run_for(AFTER_HALT) for cpu in parts.values()]
+
+        # Assert
+        self.assertIn("standby and sleep modes cannot be used", stated)
+        self.assertEqual(
+            ({name: where(cpu) for name, cpu in parts.items()}, spent),
+            (before, [AFTER_HALT] * len(HALTING)),
+        )
+        self.assertEqual({held for _, _, held in before.values()}, {True})
 
 
 class WorkedExampleTest(unittest.TestCase):
