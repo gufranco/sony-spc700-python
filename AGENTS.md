@@ -139,6 +139,9 @@ the case it exists for.
   imported from there.
 - A check nobody has seen fail is not known to work. Drive every new check
   against input that should fail it before keeping it.
+- [`spc700/core.py`](spc700/core.py) passes 500 lines under the exemption for
+  a single calculation engine sharing intermediate state: one `Cpu` whose 256
+  opcode handlers read and write the same registers, flags and bus.
 
 The linter's ignores in [`pyproject.toml`](pyproject.toml) carry no comments, so
 their reasons live here:
