@@ -226,13 +226,13 @@ class Cpu:
     def step(self) -> int:
         if self.stopped:
             return 0
+        self.steps += 1
         self.bus.restart()
         opcode = self.fetch8()
         mnemonic, mode, size = OPCODES[opcode]
         if size == 1:
             self.peek8(self.pc)
         getattr(self, f"op_{mnemonic}")(mode, opcode)
-        self.steps += 1
         return self.bus.cycles
 
     def run_for(self, cycles: int) -> int:

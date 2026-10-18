@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import sys
+import threading
 import unittest
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +11,52 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 import spc700  # noqa: E402
+
+NOP = 0x00
+
+ORIGIN = 0x0200
+
+INSTRUCTIONS = 4
+
+BUDGET = 8
+
+PATIENCE_SECONDS = 10.0
+
+
+def a_run_of_nops() -> Any:
+    cpu = spc700.Cpu("spc700", spc700.Memory(fill=NOP))
+    cpu.psw = 0x00
+    cpu.pc = ORIGIN
+    return cpu
+
+
+def stepped(instructions: int) -> tuple[int, int, int]:
+    cpu = a_run_of_nops()
+    for _ in range(instructions):
+        cpu.step()
+    return cpu.steps, cpu.cycles, cpu.pc
+
+
+def within(call: Callable[[], Any]) -> tuple[str, Any]:
+    outcome: list[tuple[str, Any]] = []
+
+    def attempt() -> None:
+        try:
+            outcome.append(("returned", call()))
+        except Exception as raised:  # noqa: BLE001
+            outcome.append(("raised", raised))
+
+    worker = threading.Thread(target=attempt, daemon=True)
+    worker.start()
+    worker.join(PATIENCE_SECONDS)
+    return outcome[0] if outcome else ("still running", None)
+
+
+def clocked_then_closed(budget: int) -> tuple[int, int, int]:
+    cpu = a_run_of_nops()
+    with spc700.Clock(cpu) as clock:
+        clock.run_for(budget)
+    return cpu.steps, cpu.cycles, cpu.pc
 
 
 class ClockTest(unittest.TestCase):
@@ -96,17 +144,29 @@ class ClockTest(unittest.TestCase):
         self.assertEqual(spent, [1, 2, 3, 4])
 
     def test_iteration_ends_when_the_clock_is_closed(self) -> None:
+        # Arrange
         clock = spc700.Clock(self.part())
         clock.close()
 
-        self.assertEqual(list(clock), [])
+        # Act
+        found = within(lambda: list(clock))
+
+        # Assert
+        self.assertEqual(found, ("returned", []))
 
     def test_a_closed_clock_refuses_to_tick(self) -> None:
+        # Arrange
         clock = spc700.Clock(self.part())
         clock.close()
 
-        with self.assertRaises(spc700.ClockClosed):
-            clock.tick()
+        # Act
+        kind, raised = within(clock.tick)
+
+        # Assert
+        self.assertEqual(
+            (kind, type(raised).__name__, str(raised)),
+            ("raised", "ClockClosed", "this clock has been closed"),
+        )
 
     def test_closing_twice_is_not_an_error(self) -> None:
         clock = spc700.Clock(self.part())
@@ -156,6 +216,33 @@ class ClockTest(unittest.TestCase):
 
         with self.assertRaises(spc700.ClockClosed):
             clock.tick()
+
+
+class CountedLikeAStepTest(unittest.TestCase):
+    def test_a_clock_counts_the_same_instructions_and_cycles_as_stepping(self) -> None:
+        # Arrange
+        cpu = a_run_of_nops()
+        clock = spc700.Clock(cpu)
+        self.addCleanup(clock.close)
+
+        # Act
+        clock.run_for(BUDGET)
+
+        # Assert
+        self.assertEqual(
+            ((cpu.steps, cpu.cycles, cpu.pc), stepped(INSTRUCTIONS)),
+            ((4, 8, 0x0204),) * 2,
+        )
+
+    def test_and_still_does_once_the_clock_is_closed(self) -> None:
+        # Arrange
+        expected = stepped(INSTRUCTIONS)
+
+        # Act
+        found = within(lambda: clocked_then_closed(BUDGET))
+
+        # Assert
+        self.assertEqual((found, expected), (("returned", (4, 8, 0x0204)), (4, 8, 0x0204)))
 
 
 if __name__ == "__main__":

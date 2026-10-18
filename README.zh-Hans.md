@@ -8,7 +8,7 @@ Sony SPC700 是 SNES 音频单元中 S-SMP 内部的处理器。本项目用 Pyt
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256** 个操作码，比对了 **256,000** 个一致性用例和 **1,182,940** 个周期，**0** 个失败，**256** 个长度和 **253** 个周期数与 Nintendo 的表格一致，**868** 个测试，**100%** 语句和分支覆盖率，无依赖
+**256** 个操作码，比对了 **256,000** 个一致性用例和 **1,182,940** 个周期，**0** 个失败，**256** 个长度和 **253** 个周期数与 Nintendo 的表格一致，**870** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from spc700 import Cpu, Memory
@@ -226,7 +226,7 @@ except ClockClosed as error:
 ```
 
 ```
-[(1, 0, '0xeb'), (2, 0, '0xeb'), (3, 1, '0x2a'), (4, 1, '0x2a'), (5, 1, '0x2a'), (6, 1, '0x2a')]
+[(1, 1, '0xeb'), (2, 1, '0xeb'), (3, 2, '0x2a'), (4, 2, '0x2a'), (5, 2, '0x2a'), (6, 2, '0x2a')]
 this clock has been closed
 ```
 
