@@ -183,6 +183,7 @@ spc700/
   bus.py         cycles, and the one place they are spent
   clock.py       driving it one cycle at a time
   opcodes.py     the opcode table and a disassembler
+  syntax.py      the text each opcode disassembles to
   memory.py      memory that holds what it held
   models.py      the catalogue, and the names the part answers to
   errors.py      everything this package raises, in one place
