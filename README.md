@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **875** tests, **100%** statement and branch coverage, no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **880** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, Memory
@@ -113,7 +113,7 @@ gave up after 8 instructions at $0001
 | `model` | The canonical model name |
 | `memory` | The store the part reads and writes |
 | `bus` | The cycle recorder. `bus.cycles` is the cost of the instruction in progress, and with `bus.recording` set, `bus.log` lists each cycle as `(address, value, kind)` with kind `read`, `write` or `wait` |
-| `on_cycle` | A callable run once per cycle, or `None`. `Clock` installs its own |
+| `on_cycle` | A callable run once per cycle, at its end, after that cycle's work, or `None`. `Clock` installs its own |
 
 ### Module contents
 
@@ -226,11 +226,11 @@ except ClockClosed as error:
 ```
 
 ```
-[(1, 1, '0xeb'), (2, 1, '0xeb'), (3, 2, '0x2a'), (4, 2, '0x2a'), (5, 2, '0x2a'), (6, 2, '0x2a')]
+[(1, 1, '0xeb'), (2, 1, '0x2a'), (3, 2, '0x2a'), (4, 2, '0x2a'), (5, 2, '0x2a'), (6, 2, '0x2a')]
 this clock has been closed
 ```
 
-`MOV A, #$2A` takes 2 cycles. After the second tick the operand has been fetched and A still holds its power-on value, `$EB`. A changes before the third tick, which stops on the first cycle of the store.
+`MOV A, #$2A` takes 2 cycles. After the first tick only the opcode has been fetched, and A still holds its power-on value, `$EB`. The second tick ends the instruction, so A holds `$2A` as one `step()` leaves it, whether the clock is then closed or not. The third tick stops on the first cycle of the store.
 
 | Clock call | Effect |
 |:--|:--|

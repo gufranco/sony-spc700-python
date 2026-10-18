@@ -59,6 +59,102 @@ def clocked_then_closed(budget: int) -> tuple[int, int, int]:
     return cpu.steps, cpu.cycles, cpu.pc
 
 
+LOAD_THEN_STORE = bytes([0xE8, 0x2A, 0xC4, 0x20])
+
+EVERY_KIND_OF_CYCLE = bytes.fromhex("E8 2A C4 20 3D 5D 88 01 2D EE CF 9E 3F 00 03 AB 20 DA 40 3D")
+
+EVERY_KIND_COUNT = 14
+
+SUBROUTINE = 0x0300
+
+RETURN = 0x6F
+
+
+def a_program(program: bytes) -> Any:
+    memory = spc700.Memory(image=program, fill=NOP)
+    memory.write8(SUBROUTINE, RETURN)
+    cpu = spc700.Cpu("spc700", memory)
+    cpu.psw = 0x00
+    cpu.pc = 0x0000
+    cpu.bus.recording = True
+    return cpu
+
+
+def observed(cpu: Any) -> tuple[Any, ...]:
+    return (
+        cpu.a,
+        cpu.x,
+        cpu.y,
+        cpu.sp,
+        cpu.pc,
+        cpu.psw,
+        cpu.cycles,
+        cpu.steps,
+        cpu.held(),
+        cpu.bus.cycles,
+        tuple(cpu.bus.log),
+        bytes(cpu.memory.data),
+    )
+
+
+def after_steps(program: bytes, instructions: int) -> tuple[int, tuple[Any, ...]]:
+    cpu = a_program(program)
+    spent = sum(cpu.step() for _ in range(instructions))
+    return spent, observed(cpu)
+
+
+def after_ticks(program: bytes, budget: int, closing: bool) -> tuple[Any, ...]:
+    cpu = a_program(program)
+    clock = spc700.Clock(cpu)
+    try:
+        clock.run_for(budget)
+        if closing:
+            clock.close()
+        return observed(cpu)
+    finally:
+        clock.close()
+
+
+class Watched:
+    __slots__ = ("base", "inner", "parts", "paused", "seen")
+
+    def __init__(self, inner: Any) -> None:
+        self.inner = inner
+        self.parts: list[Any] = []
+        self.paused = 0
+        self.base = 0
+        self.seen: list[tuple[int, int]] = []
+
+    def noted(self, address: int) -> int:
+        for part in self.parts:
+            self.seen.append((self.paused, self.base + part.bus.cycles))
+        return address
+
+    def read8(self, address: int) -> int:
+        return int(self.inner.read8(self.noted(address)))
+
+    def write8(self, address: int, value: int) -> None:
+        self.inner.write8(self.noted(address), value)
+
+    def pause(self) -> None:
+        self.paused += 1
+
+
+def watched_run(program: bytes, instructions: int) -> list[tuple[int, int]]:
+    space = spc700.Memory(image=program, fill=NOP)
+    space.write8(SUBROUTINE, RETURN)
+    memory = Watched(space)
+    cpu = spc700.Cpu("spc700", memory)
+    cpu.psw = 0x00
+    cpu.pc = 0x0000
+    memory.parts.append(cpu)
+    cpu.on_cycle = memory.pause
+    for _ in range(instructions):
+        memory.base = memory.paused
+        cpu.step()
+    return memory.seen
+
+
 class ClockTest(unittest.TestCase):
     def part(self) -> Any:
         self.memory = spc700.Memory(fill=0x00)
@@ -243,6 +339,60 @@ class CountedLikeAStepTest(unittest.TestCase):
 
         # Assert
         self.assertEqual((found, expected), (("returned", (4, 8, 0x0204)), (4, 8, 0x0204)))
+
+
+class TheLastCycleOfAnInstructionFinishesItTest(unittest.TestCase):
+    def test_a_clock_leaves_the_state_one_step_leaves(self) -> None:
+        # Arrange
+        budget, expected = after_steps(LOAD_THEN_STORE, 1)
+
+        # Act
+        found = within(lambda: after_ticks(LOAD_THEN_STORE, budget, closing=False))
+
+        # Assert
+        self.assertEqual(found, ("returned", expected))
+
+    def test_and_so_does_a_clock_closed_on_that_cycle(self) -> None:
+        # Arrange
+        budget, expected = after_steps(LOAD_THEN_STORE, 1)
+
+        # Act
+        found = within(lambda: after_ticks(LOAD_THEN_STORE, budget, closing=True))
+
+        # Assert
+        self.assertEqual(found, ("returned", expected))
+
+    def test_through_idle_cycles_a_call_a_return_and_a_word_store(self) -> None:
+        # Arrange
+        budget, expected = after_steps(EVERY_KIND_OF_CYCLE, EVERY_KIND_COUNT)
+
+        # Act
+        found = within(lambda: after_ticks(EVERY_KIND_OF_CYCLE, budget, closing=False))
+
+        # Assert
+        self.assertEqual(found, ("returned", expected))
+
+    def test_and_through_them_once_the_clock_is_closed(self) -> None:
+        # Arrange
+        budget, expected = after_steps(EVERY_KIND_OF_CYCLE, EVERY_KIND_COUNT)
+
+        # Act
+        found = within(lambda: after_ticks(EVERY_KIND_OF_CYCLE, budget, closing=True))
+
+        # Assert
+        self.assertEqual(found, ("returned", expected))
+
+
+class EveryAccessStaysOnItsOwnCycleTest(unittest.TestCase):
+    def test_no_access_is_made_before_the_cycle_ahead_of_it_has_paused(self) -> None:
+        # Arrange
+        program = EVERY_KIND_OF_CYCLE
+
+        # Act
+        seen = watched_run(program, EVERY_KIND_COUNT)
+
+        # Assert
+        self.assertEqual([paused for paused, _ in seen], [due for _, due in seen])
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ Sony SPC700 是 SNES 音频单元中 S-SMP 内部的处理器。本项目用 Pyt
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256** 个操作码，比对了 **256,000** 个一致性用例和 **1,182,940** 个周期，**0** 个失败，**256** 个长度和 **253** 个周期数与 Nintendo 的表格一致，**875** 个测试，**100%** 语句和分支覆盖率，无依赖
+**256** 个操作码，比对了 **256,000** 个一致性用例和 **1,182,940** 个周期，**0** 个失败，**256** 个长度和 **253** 个周期数与 Nintendo 的表格一致，**880** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from spc700 import Cpu, Memory
@@ -113,7 +113,7 @@ gave up after 8 instructions at $0001
 | `model` | 规范的型号名称 |
 | `memory` | 器件读写的存储 |
 | `bus` | 周期记录器。`bus.cycles` 是正在执行的指令的耗费，设置 `bus.recording` 后，`bus.log` 将每个周期列为 `(address, value, kind)`，其中 kind 为 `read`、`write` 或 `wait` |
-| `on_cycle` | 每个周期运行一次的可调用对象，或 `None`。`Clock` 会安装自己的 |
+| `on_cycle` | 每个周期运行一次、在该周期结束且其工作完成之后运行的可调用对象，或 `None`。`Clock` 会安装自己的 |
 
 ### 模块内容
 
@@ -226,11 +226,11 @@ except ClockClosed as error:
 ```
 
 ```
-[(1, 1, '0xeb'), (2, 1, '0xeb'), (3, 2, '0x2a'), (4, 2, '0x2a'), (5, 2, '0x2a'), (6, 2, '0x2a')]
+[(1, 1, '0xeb'), (2, 1, '0x2a'), (3, 2, '0x2a'), (4, 2, '0x2a'), (5, 2, '0x2a'), (6, 2, '0x2a')]
 this clock has been closed
 ```
 
-`MOV A, #$2A` 需要 2 个周期。第二个节拍之后，操作数已被取出，A 仍保持其上电值 `$EB`。A 在第三个节拍之前改变，第三个节拍停在存储指令的第一个周期上。
+`MOV A, #$2A` 需要 2 个周期。第一个节拍之后只取出了操作码，A 仍保持其上电值 `$EB`。第二个节拍结束这条指令，所以无论之后是否关闭时钟，A 都与调用一次 `step()` 后一样保持 `$2A`。第三个节拍停在存储指令的第一个周期上。
 
 | Clock 调用 | 作用 |
 |:--|:--|

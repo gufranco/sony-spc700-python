@@ -50,6 +50,7 @@ BRANCHES = {
 
 class Cpu:
     __slots__ = (
+        "_open",
         "a",
         "b",
         "bus",
@@ -90,6 +91,7 @@ class Cpu:
         self.steps = 0
         self.cycles = 0
         self.on_cycle = None
+        self._open = False
         self.stopped = False
         self.a = self.x = self.y = 0x00
         self.sp = 0xFF
@@ -113,6 +115,7 @@ class Cpu:
         self.pc = self.read16(RESET_VECTOR)
         self.steps = 0
         self.stopped = False
+        self.settle()
         return self
 
     @property
@@ -153,17 +156,20 @@ class Cpu:
         self.y = (value >> 8) & 0xFF
 
     def read8(self, address: int) -> int:
+        self.settle()
         value = self.memory.read8(address & 0xFFFF) & 0xFF
         self.bus.read(address, value)
         return value
 
     def peek8(self, address: int) -> None:
+        self.settle()
         self.bus.read(address, self.memory.read8(address & 0xFFFF) & 0xFF)
 
     def idle(self, count: int = 1) -> None:
         self.bus.idle(count)
 
     def write8(self, address: int, value: int) -> None:
+        self.settle()
         self.memory.write8(address & 0xFFFF, value & 0xFF)
         self.bus.write(address, value)
 
@@ -233,6 +239,7 @@ class Cpu:
         if size == 1:
             self.peek8(self.pc)
         getattr(self, f"op_{mnemonic}")(mode, opcode)
+        self.settle()
         return self.bus.cycles
 
     def run_for(self, cycles: int) -> int:
@@ -247,16 +254,24 @@ class Cpu:
         return spent
 
     def _spent(self, count: int = 1) -> None:
-        self.cycles += count
+        for _ in range(count):
+            self.settle()
+            self._open = True
+
+    def settle(self) -> None:
+        if not self._open:
+            return
+        self._open = False
+        self.cycles += 1
         if self.on_cycle is not None:
-            for _ in range(count):
-                self.on_cycle()
+            self.on_cycle()
 
     def held(self) -> bool:
         return self.stopped
 
     def held_cycle(self) -> None:
         self._spent(1)
+        self.settle()
 
     def run_until(self, predicate: Callable[["Cpu"], bool], limit: int | None = None) -> "Cpu":
         taken = 0

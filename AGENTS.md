@@ -74,11 +74,13 @@ test.
 
 ## Every cycle passes through one place
 
-`Bus.spend` is the only thing that advances the cycle count, and every read,
-write and idle goes through it. That is what lets a clock stop mid-instruction,
-and it is why the order matters: the access is recorded first and charged second,
-so a clock that stops on a cycle sees the access that cycle performed rather than
-the one before it.
+`Bus.spend` charges every read, write and idle, and each charge opens a cycle on
+the part. `Cpu.settle` is the only thing that closes one: it advances the cycle
+count and calls `on_cycle`. It runs just before the next access and at the end of
+an instruction, so a clock that stops on a cycle sees the access that cycle
+performed and the work done before the next one, and no access moves to another
+cycle. A clock stopped on an instruction's last cycle leaves the part as
+`step()` does.
 
 ## Every gate, in the order to run them
 
