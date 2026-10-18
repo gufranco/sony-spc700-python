@@ -32,7 +32,7 @@ audio unit's, not the processor's.
 
 There is no `irq` and no `nmi`, and that is a fact about the part rather than an
 omission: the audio unit brings no interrupt line out. `INTERRUPT_LINES` in
-[`conformance/family.test.py`](conformance/family.test.py) is empty here, and the
+[`conformance/family_member.py`](conformance/family_member.py) is empty here, and the
 record accounts for why.
 
 `Clock(cpu)` drives it one cycle at a time. Every cycle passes through one place,
@@ -165,6 +165,14 @@ The coverage exclusions carry none either:
   gate mean something different on each runtime.
 - `^\s*\.\.\.$` and `: \.\.\.$`: a protocol method's ellipsis is a contract the
   type checker reads and the runtime never runs.
+- `@unittest\.skipUnless\(A_PART,`,
+  `@unittest\.skipUnless\(A_PART and BUILDABLE,` and
+  `^def accounts_for_a_reset\(` in the coverage exclusions: this member is not a
+  part, so the family tests that build a `Chip` and account for its reset are
+  skipped here and their bodies never run.
+- `@unittest\.skipUnless\(SOLD_AS_A_COMPONENT,`, `^def machine_mentions\(` and
+  `^def listing\(` in the coverage exclusions: this part only existed inside one
+  machine, so the family sweep for machine names is skipped here.
 
 ## Layout
 
@@ -181,7 +189,9 @@ spc700/
   doctor.py      what is actually on this machine, printed for a bug report
   version.py     rewritten by the release job and by nothing else
 conformance/
-  family.test.py the family standard, held to this repository
+  family_*.test.py the family standard, held to this repository, one topic a file
+  family_member.py what this member answers to them
+  family_shared.py what more than one of them reads
   suites.json    which corpus, at which commit
   fetch.py       fetching it into a cache
   singlestep.py  running it, state by state

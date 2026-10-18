@@ -86,4 +86,10 @@ exclude_also = [
   'if TYPE_CHECKING:',
   '^\s*\.\.\.$',
   ': \.\.\.$',
+  '@unittest\.skipUnless\(A_PART,',
+  '@unittest\.skipUnless\(A_PART and BUILDABLE,',
+  '^def accounts_for_a_reset\(',
+  '@unittest\.skipUnless\(SOLD_AS_A_COMPONENT,',
+  '^def machine_mentions\(',
+  '^def listing\(',
 ]
