@@ -21,14 +21,14 @@ audio unit's, not the processor's.
 
 `Cpu(model, memory)`, the shape every clocked part in the family takes.
 
-| Call | What it does |
-|:--|:--|
-| `step()` | One instruction, returning what it cost in cycles |
-| `run_for(cycles)` | Instructions until the budget is spent, returning what was really spent |
-| `run_until(predicate, limit)` | Instructions until the predicate holds, refusing to run forever |
-| `reset()` | The reset line, which is a different event from power on |
-| `held()` | Whether the part has stopped advancing the program on its own |
-| `cycles`, `steps` | What has been spent, and how many instructions spent it |
+| Call                          | What it does                                                            |
+| :---------------------------- | :---------------------------------------------------------------------- |
+| `step()`                      | One instruction, returning what it cost in cycles                       |
+| `run_for(cycles)`             | Instructions until the budget is spent, returning what was really spent |
+| `run_until(predicate, limit)` | Instructions until the predicate holds, refusing to run forever         |
+| `reset()`                     | The reset line, which is a different event from power on                |
+| `held()`                      | Whether the part has stopped advancing the program on its own           |
+| `cycles`, `steps`             | What has been spent, and how many instructions spent it                 |
 
 There is no `irq` and no `nmi`, and that is a fact about the part rather than an
 omission: the audio unit brings no interrupt line out. `INTERRUPT_LINES` in
@@ -176,6 +176,18 @@ The coverage exclusions carry none either:
 - `@unittest\.skipUnless\(SOLD_AS_A_COMPONENT,`, `^def machine_mentions\(` and
   `^def listing\(` in the coverage exclusions: this part only existed inside one
   machine, so the family sweep for machine names is skipped here.
+
+The formatter's ignores in [`.prettierignore`](.prettierignore) carry no
+comments either, so their reasons live here:
+
+- `pnpm-lock.yaml` and `package-lock.json`: the package manager writes them, in
+  its own layout, on every install.
+- `node_modules/`, `.venv/`, `venv/`, `build/`, `dist/` and `*.egg-info/`:
+  installed or built, never written by hand.
+- `.coverage`, `coverage.json`, `htmlcov/` and the tool caches: the output of a
+  run, never committed.
+- `docs/`, `specs/`, `.work/` and `.claude/`: local working material, never
+  committed.
 
 ## Layout
 

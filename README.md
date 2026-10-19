@@ -32,10 +32,10 @@ The program loads `$42` into A, stores it at `$10`, writes `$07` to `$11`, then 
 
 ## Install
 
-| Requirement | Version |
-|:--|:--|
-| Python | 3.12 or newer |
-| git | Any |
+| Requirement | Version       |
+| :---------- | :------------ |
+| Python      | 3.12 or newer |
+| git         | Any           |
 
 ```bash
 git clone https://github.com/gufranco/sony-spc700-python.git
@@ -57,22 +57,22 @@ Releases follow [Semantic Versioning](https://semver.org/) and are cut from the 
 
 `spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)` builds one part. `model` is required. `memory` is any object with `read8(address)` and `write8(address, value)`; without one the part gets a `SparseMemory`, or a `Memory` holding `fill` in every byte when `fill` is given. `seed` sets the power-on pattern of the registers. `bus` is a `spc700.Bus`, and the part builds one when it is left out. The constructor does not reset the part.
 
-| Model | Aliases | Address bits | Data bits |
-|:--|:--|:--|:--|
-| `spc700` | `spc`, `ssmp`, `smp`, `sonyspc700` | 16 | 8 |
+| Model    | Aliases                            | Address bits | Data bits |
+| :------- | :--------------------------------- | :----------- | :-------- |
+| `spc700` | `spc`, `ssmp`, `smp`, `sonyspc700` | 16           | 8         |
 
 A name is matched after lowercasing it and dropping `-` and `_`, so `Cpu("S-SMP")` builds the `spc700`.
 
 ### Calls
 
-| Call | Effect |
-|:--|:--|
-| `step()` | Runs one instruction and returns the cycles it cost. Returns 0 once the part is held |
-| `run_for(cycles)` | Steps until at least `cycles` cycles are spent and returns what was spent. A held part spends the rest one cycle at a time |
-| `run_until(predicate, limit=None)` | Steps while `predicate(cpu)` is false and returns the part. Raises `RunLimit` after `limit` instructions, or once `steps` reaches `step_limit` |
-| `reset(seed=UNSET_SEED)` | The reset line. Reloads A, X, Y, SP and PSW from the seeded pattern, clears P, reads PC from `$FFFE`, sets `steps` to 0 and releases a held part. Returns the part |
-| `held()` | True after `SLEEP` or `STOP` |
-| `held_cycle()` | Spends one cycle of a held part. `Clock` and `run_for` call it |
+| Call                               | Effect                                                                                                                                                             |
+| :--------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `step()`                           | Runs one instruction and returns the cycles it cost. Returns 0 once the part is held                                                                               |
+| `run_for(cycles)`                  | Steps until at least `cycles` cycles are spent and returns what was spent. A held part spends the rest one cycle at a time                                         |
+| `run_until(predicate, limit=None)` | Steps while `predicate(cpu)` is false and returns the part. Raises `RunLimit` after `limit` instructions, or once `steps` reaches `step_limit`                     |
+| `reset(seed=UNSET_SEED)`           | The reset line. Reloads A, X, Y, SP and PSW from the seeded pattern, clears P, reads PC from `$FFFE`, sets `steps` to 0 and releases a held part. Returns the part |
+| `held()`                           | True after `SLEEP` or `STOP`                                                                                                                                       |
+| `held_cycle()`                     | Spends one cycle of a held part. `Clock` and `run_for` call it                                                                                                     |
 
 The other methods on `Cpu`, `fetch8`, `push16`, `op_adc` and the rest, are the instruction implementation that `step()` dispatches to.
 
@@ -99,48 +99,48 @@ gave up after 8 instructions at $0001
 
 ### State
 
-| Attribute | Meaning |
-|:--|:--|
-| `a`, `x`, `y`, `sp`, `pc` | The registers. `sp` addresses page `$01` |
-| `ya` | Y and A read or written as one 16-bit value, Y high |
-| `psw` | The status word as one byte. Writing it sets the eight flags |
-| `n`, `v`, `p`, `b`, `h`, `i`, `z`, `c` | The eight flags as booleans |
-| `direct_page` | `$0000` or `$0100`, chosen by `p` |
-| `cycles` | Cycles since the part was built, across resets |
-| `steps` | Instructions since the last reset |
-| `stopped` | The flag `held()` reads |
-| `step_limit` | The instruction count at which `run_until` gives up |
-| `model` | The canonical model name |
-| `memory` | The store the part reads and writes |
-| `bus` | The cycle recorder. `bus.cycles` is the cost of the instruction in progress, and with `bus.recording` set, `bus.log` lists each cycle as `(address, value, kind)` with kind `read`, `write` or `wait` |
-| `on_cycle` | A callable run once per cycle, at its end, after that cycle's work, or `None`. `Clock` installs its own |
+| Attribute                              | Meaning                                                                                                                                                                                               |
+| :------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `a`, `x`, `y`, `sp`, `pc`              | The registers. `sp` addresses page `$01`                                                                                                                                                              |
+| `ya`                                   | Y and A read or written as one 16-bit value, Y high                                                                                                                                                   |
+| `psw`                                  | The status word as one byte. Writing it sets the eight flags                                                                                                                                          |
+| `n`, `v`, `p`, `b`, `h`, `i`, `z`, `c` | The eight flags as booleans                                                                                                                                                                           |
+| `direct_page`                          | `$0000` or `$0100`, chosen by `p`                                                                                                                                                                     |
+| `cycles`                               | Cycles since the part was built, across resets                                                                                                                                                        |
+| `steps`                                | Instructions since the last reset                                                                                                                                                                     |
+| `stopped`                              | The flag `held()` reads                                                                                                                                                                               |
+| `step_limit`                           | The instruction count at which `run_until` gives up                                                                                                                                                   |
+| `model`                                | The canonical model name                                                                                                                                                                              |
+| `memory`                               | The store the part reads and writes                                                                                                                                                                   |
+| `bus`                                  | The cycle recorder. `bus.cycles` is the cost of the instruction in progress, and with `bus.recording` set, `bus.log` lists each cycle as `(address, value, kind)` with kind `read`, `write` or `wait` |
+| `on_cycle`                             | A callable run once per cycle, at its end, after that cycle's work, or `None`. `Clock` installs its own                                                                                               |
 
 ### Module contents
 
-| Name | Content |
-|:--|:--|
-| `spc700.MODELS` | The `Model` records keyed by name: `name`, `summary`, `address_bits`, `data_bits`, `aliases`, `address_mask` |
-| `spc700.Memory(size=0x10000, image=None, seed=UNSET_SEED, fill=None)` | A flat store in `data`. Scrambled from `seed` unless `fill` is given, then `image` copied in at address 0 |
-| `spc700.SparseMemory(seed=UNSET_SEED)` | Holds only written bytes in `cells`. An unwritten byte is derived from its address and `seed` |
-| `spc700.scramble(size, seed=UNSET_SEED)` | The seeded byte pattern behind both stores and the registers |
-| `spc700.UNSET_SEED` | The default seed, `0x5A5A5A5A` |
-| `spc700.STEP_LIMIT` | The default `step_limit`, 2,000,000 |
-| `spc700.FLAG_N`, `FLAG_V`, `FLAG_P`, `FLAG_B`, `FLAG_H`, `FLAG_I`, `FLAG_Z`, `FLAG_C` | The bits of `psw`: `0x80`, `0x40`, `0x20`, `0x10`, `0x08`, `0x04`, `0x02`, `0x01` |
-| `spc700.OPCODES` | 256 `(mnemonic, mode, size)` rows indexed by opcode byte. Execution and disassembly both read it |
-| `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)` | A list of instructions, each with `address`, `size`, `text`, `opcode`, `mnemonic` and `mode` |
-| `spc700.decode(data, offset, address, p=0)` | One instruction at `offset`, with the same fields. Raises `Truncated` when the bytes run out partway through it |
-| `spc700.Bus(recording=False)` | The cycle recorder a part spends every cycle through, with the `cycles`, `recording` and `log` described under `bus` |
-| `spc700.Clock(cpu)` | Drives the part one cycle at a time |
-| `spc700.__version__` | The installed version |
+| Name                                                                                  | Content                                                                                                              |
+| :------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------- |
+| `spc700.MODELS`                                                                       | The `Model` records keyed by name: `name`, `summary`, `address_bits`, `data_bits`, `aliases`, `address_mask`         |
+| `spc700.Memory(size=0x10000, image=None, seed=UNSET_SEED, fill=None)`                 | A flat store in `data`. Scrambled from `seed` unless `fill` is given, then `image` copied in at address 0            |
+| `spc700.SparseMemory(seed=UNSET_SEED)`                                                | Holds only written bytes in `cells`. An unwritten byte is derived from its address and `seed`                        |
+| `spc700.scramble(size, seed=UNSET_SEED)`                                              | The seeded byte pattern behind both stores and the registers                                                         |
+| `spc700.UNSET_SEED`                                                                   | The default seed, `0x5A5A5A5A`                                                                                       |
+| `spc700.STEP_LIMIT`                                                                   | The default `step_limit`, 2,000,000                                                                                  |
+| `spc700.FLAG_N`, `FLAG_V`, `FLAG_P`, `FLAG_B`, `FLAG_H`, `FLAG_I`, `FLAG_Z`, `FLAG_C` | The bits of `psw`: `0x80`, `0x40`, `0x20`, `0x10`, `0x08`, `0x04`, `0x02`, `0x01`                                    |
+| `spc700.OPCODES`                                                                      | 256 `(mnemonic, mode, size)` rows indexed by opcode byte. Execution and disassembly both read it                     |
+| `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)`    | A list of instructions, each with `address`, `size`, `text`, `opcode`, `mnemonic` and `mode`                         |
+| `spc700.decode(data, offset, address, p=0)`                                           | One instruction at `offset`, with the same fields. Raises `Truncated` when the bytes run out partway through it      |
+| `spc700.Bus(recording=False)`                                                         | The cycle recorder a part spends every cycle through, with the `cycles`, `recording` and `log` described under `bus` |
+| `spc700.Clock(cpu)`                                                                   | Drives the part one cycle at a time                                                                                  |
+| `spc700.__version__`                                                                  | The installed version                                                                                                |
 
 ### Errors
 
-| Error | Raised when |
-|:--|:--|
-| `UnknownModelError` | `Cpu` gets no model name, or one no model goes by. The message lists the names accepted |
-| `RunLimit` | `run_until` passes its `limit`, or `steps` reaches `step_limit` |
-| `ClockClosed` | `tick()` is called on a closed `Clock` |
-| `Truncated` | `spc700.decode` runs out of bytes partway through an instruction. `disassemble` stops there instead |
+| Error               | Raised when                                                                                         |
+| :------------------ | :-------------------------------------------------------------------------------------------------- |
+| `UnknownModelError` | `Cpu` gets no model name, or one no model goes by. The message lists the names accepted             |
+| `RunLimit`          | `run_until` passes its `limit`, or `steps` reaches `step_limit`                                     |
+| `ClockClosed`       | `tick()` is called on a closed `Clock`                                                              |
+| `Truncated`         | `spc700.decode` runs out of bytes partway through an instruction. `disassemble` stops there instead |
 
 ```python
 import spc700
@@ -166,17 +166,17 @@ spc800 is not a model this package covers; it has spc700
 
 ### Command-line tools
 
-| Command | Arguments | Exit codes |
-|:--|:--|:--|
-| `python3 spc700/doctor.py` | None | 0 when every check passes, 1 otherwise |
-| `python3 -m conformance.fetch` | `[directory] [--latest]`. The directory defaults to `~/.cache/conformance-suites`. `--latest` takes upstream's newest commit over the pin | 0, or 1 when upstream cannot be reached |
-| `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]` | 0 when every case agrees or no suite is there, 1 on a disagreement, 2 with no arguments |
-| `python3 -m conformance.cycles` | Same as `singlestep` | Same as `singlestep` |
-| `python3 -m conformance.documents` | `[--check] [--only SUBSTRING]`. `--check` verifies what is on disk without downloading | 0 when every document verifies, 1 otherwise |
-| `python3 -m conformance.quotes` | None | 0 when every quote is found, or when no document is on the machine; 1 otherwise |
-| `python3 -m conformance.speed` | None | 0 at or above the throughput floor, 1 below it |
-| `python3 -m conformance.links` | None | 0, or 1 when an address in this file answers 404 or 410 |
-| `python3 -m conformance.package` | `<wheel>` | 0 when every module ships and no test does, 1 otherwise, 2 with no arguments |
+| Command                             | Arguments                                                                                                                                 | Exit codes                                                                              |
+| :---------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| `python3 spc700/doctor.py`          | None                                                                                                                                      | 0 when every check passes, 1 otherwise                                                  |
+| `python3 -m conformance.fetch`      | `[directory] [--latest]`. The directory defaults to `~/.cache/conformance-suites`. `--latest` takes upstream's newest commit over the pin | 0, or 1 when upstream cannot be reached                                                 |
+| `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]`                                                                                        | 0 when every case agrees or no suite is there, 1 on a disagreement, 2 with no arguments |
+| `python3 -m conformance.cycles`     | Same as `singlestep`                                                                                                                      | Same as `singlestep`                                                                    |
+| `python3 -m conformance.documents`  | `[--check] [--only SUBSTRING]`. `--check` verifies what is on disk without downloading                                                    | 0 when every document verifies, 1 otherwise                                             |
+| `python3 -m conformance.quotes`     | None                                                                                                                                      | 0 when every quote is found, or when no document is on the machine; 1 otherwise         |
+| `python3 -m conformance.speed`      | None                                                                                                                                      | 0 at or above the throughput floor, 1 below it                                          |
+| `python3 -m conformance.links`      | None                                                                                                                                      | 0, or 1 when an address in this file answers 404 or 410                                 |
+| `python3 -m conformance.package`    | `<wheel>`                                                                                                                                 | 0 when every module ships and no test does, 1 otherwise, 2 with no arguments            |
 
 ## Running it at a real speed
 
@@ -232,12 +232,12 @@ this clock has been closed
 
 `MOV A, #$2A` takes 2 cycles. After the first tick only the opcode has been fetched, and A still holds its power-on value, `$EB`. The second tick ends the instruction, so A holds `$2A` as one `step()` leaves it, whether the clock is then closed or not. The third tick stops on the first cycle of the store.
 
-| Clock call | Effect |
-|:--|:--|
-| `tick()` | Advances one cycle and returns `cycles` |
-| `run_for(cycles)` | Calls `tick()` that many times and returns `cycles` |
-| `cycles` | Ticks since this clock was built |
-| `close()` | Stops the worker thread and gives the part back its previous `on_cycle` |
+| Clock call        | Effect                                                                  |
+| :---------------- | :---------------------------------------------------------------------- |
+| `tick()`          | Advances one cycle and returns `cycles`                                 |
+| `run_for(cycles)` | Calls `tick()` that many times and returns `cycles`                     |
+| `cycles`          | Ticks since this clock was built                                        |
+| `close()`         | Stops the worker thread and gives the part back its previous `on_cycle` |
 
 A `Clock` is an iterator that yields `tick()` until closed, and a context manager that closes on exit. It runs the part on a thread that blocks wherever a cycle is spent, so it is slower than `step()`. A held part keeps spending cycles under a clock.
 
@@ -428,11 +428,11 @@ The corpus is SingleStepTests/ProcessorTests, 1,000 cases per opcode, pinned by 
 
 [`conformance/singlestep.py`](conformance/singlestep.py) builds that machine, steps once, and compares every register, the status word and every named byte. Memory the case does not name is scrambled. [`conformance/cycles.py`](conformance/cycles.py) compares each cycle's address and kind, and its value wherever the case states one.
 
-| When | What runs | On disagreement |
-|:--|:--|:--|
-| Pull request | 100 cases per opcode, both runners, at the pinned commit | The check fails |
-| Push to `main` | Every case, both runners, at the pinned commit | The check fails |
-| Every Monday | Every case at upstream's newest commit | A pull request moving the pin if it passes, an issue naming the opcodes if it does not |
+| When           | What runs                                                | On disagreement                                                                        |
+| :------------- | :------------------------------------------------------- | :------------------------------------------------------------------------------------- |
+| Pull request   | 100 cases per opcode, both runners, at the pinned commit | The check fails                                                                        |
+| Push to `main` | Every case, both runners, at the pinned commit           | The check fails                                                                        |
+| Every Monday   | Every case at upstream's newest commit                   | A pull request moving the pin if it passes, an issue naming the opcodes if it does not |
 
 [`.github/workflows/suite-watch.yml`](.github/workflows/suite-watch.yml) runs the weekly job and never moves the pin on its own.
 
@@ -474,13 +474,13 @@ The read of `$0040` leaves no trace in the final state, so only the cycle compar
 
 ## Working on it
 
-| Need | Where |
-|:--|:--|
-| Every gate and the order to run them | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| The same material for a coding agent | [AGENTS.md](AGENTS.md) |
-| The standard this repository shares with the rest of the family | [FAMILY.md](FAMILY.md) |
-| Bug reports | [GitHub Issues](https://github.com/gufranco/sony-spc700-python/issues) |
-| Security reports | [SECURITY.md](SECURITY.md) |
+| Need                                                            | Where                                                                  |
+| :-------------------------------------------------------------- | :--------------------------------------------------------------------- |
+| Every gate and the order to run them                            | [CONTRIBUTING.md](CONTRIBUTING.md)                                     |
+| The same material for a coding agent                            | [AGENTS.md](AGENTS.md)                                                 |
+| The standard this repository shares with the rest of the family | [FAMILY.md](FAMILY.md)                                                 |
+| Bug reports                                                     | [GitHub Issues](https://github.com/gufranco/sony-spc700-python/issues) |
+| Security reports                                                | [SECURITY.md](SECURITY.md)                                             |
 
 ```bash
 uvx ruff@0.16.3 format --check .
@@ -493,7 +493,7 @@ Each module has a test file beside it named `<module>.test.py`, and each runs on
 
 ## References
 
-- *SNES Development Manual, Book 1*, Nintendo of America Inc., undated. Appendix C, SPC700 Commands. 240 pages, 21,022,582 bytes, SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`. It is not redistributable and is not in this repository. `python3 -m conformance.documents` downloads it into `docs/`, which git ignores, and refuses any file whose digest differs. [`conformance/documents.json`](conformance/documents.json) holds its address. `python3 -m conformance.quotes` finds every sentence [`conformance/hardware.json`](conformance/hardware.json) quotes from it.
+- _SNES Development Manual, Book 1_, Nintendo of America Inc., undated. Appendix C, SPC700 Commands. 240 pages, 21,022,582 bytes, SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`. It is not redistributable and is not in this repository. `python3 -m conformance.documents` downloads it into `docs/`, which git ignores, and refuses any file whose digest differs. [`conformance/documents.json`](conformance/documents.json) holds its address. `python3 -m conformance.quotes` finds every sentence [`conformance/hardware.json`](conformance/hardware.json) quotes from it.
 - SingleStepTests/ProcessorTests, `spc700/v1`, at commit `bb11756436da8fd16cce86aef63dc6725f48836f`, https://github.com/SingleStepTests/ProcessorTests. 1,000 cases for each of the 256 opcodes.
 
 ## Citing this

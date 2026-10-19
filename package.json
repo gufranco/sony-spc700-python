@@ -5,8 +5,8 @@
   "description": "Release tooling only. The package itself is pure Python and carries no build artefact.",
   "license": "MIT",
   "scripts": {
-    "format": "prettier --write \"**/*.json\"",
-    "format:check": "prettier --check \"**/*.json\""
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@semantic-release/exec": "7.1.0",

@@ -151,10 +151,10 @@ the identical program, captured out of the cartridge at the instant the audio
 unit jumps into it and written back out as a file his library loads through its
 own public interface. Both were then run with no console attached at all:
 
-| Running the same program, no console | Result |
-| --- | --- |
+| Running the same program, no console                             | Result        |
+| ---------------------------------------------------------------- | ------------- |
 | This family's processor, sound generator and audio unit composed | `5e 71 f3 c3` |
-| `snes_spc 0.9.0`, by the author of the check | `5e 71 f3 c3` |
+| `snes_spc 0.9.0`, by the author of the check                     | `5e 71 f3 c3` |
 
 **They agree byte for byte**, and the agreement survives every control tried.
 Unchanged across run lengths of one, two and four million instructions on one

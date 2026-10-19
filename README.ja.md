@@ -32,10 +32,10 @@ print(cpu.run_for(10), cpu.cycles, cpu.steps, cpu.held())
 
 ## インストール
 
-| 要件 | バージョン |
-|:--|:--|
-| Python | 3.12以降 |
-| git | 任意 |
+| 要件   | バージョン |
+| :----- | :--------- |
+| Python | 3.12以降   |
+| git    | 任意       |
 
 ```bash
 git clone https://github.com/gufranco/sony-spc700-python.git
@@ -57,22 +57,22 @@ python3 spc700/doctor.py
 
 `spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)`はパーツを1つ構築します。`model`は必須です。`memory`は`read8(address)`と`write8(address, value)`を持つ任意のオブジェクトです。指定しない場合、パーツは`SparseMemory`を受け取り、`fill`を指定した場合はすべてのバイトに`fill`を保持する`Memory`を受け取ります。`seed`はレジスタの電源投入時のパターンを設定します。`bus`は`spc700.Bus`で、省略するとパーツが自分で構築します。コンストラクタはパーツをリセットしません。
 
-| モデル | 別名 | アドレスビット数 | データビット数 |
-|:--|:--|:--|:--|
-| `spc700` | `spc`, `ssmp`, `smp`, `sonyspc700` | 16 | 8 |
+| モデル   | 別名                               | アドレスビット数 | データビット数 |
+| :------- | :--------------------------------- | :--------------- | :------------- |
+| `spc700` | `spc`, `ssmp`, `smp`, `sonyspc700` | 16               | 8              |
 
 名前は小文字に変換し、`-`と`_`を取り除いてから照合されます。そのため`Cpu("S-SMP")`は`spc700`を構築します。
 
 ### 呼び出し
 
-| 呼び出し | 効果 |
-|:--|:--|
-| `step()` | 1命令を実行し、費やしたサイクル数を返します。パーツが停止状態になると0を返します |
-| `run_for(cycles)` | 少なくとも`cycles`サイクルを費やすまでステップを進め、費やした量を返します。停止状態のパーツは残りを1サイクルずつ費やします |
-| `run_until(predicate, limit=None)` | `predicate(cpu)`が偽の間ステップを進め、パーツを返します。`limit`命令を超えた場合、または`steps`が`step_limit`に達した場合は`RunLimit`を送出します |
-| `reset(seed=UNSET_SEED)` | リセットラインです。シードから得たパターンでA、X、Y、SP、PSWを再ロードし、Pをクリアし、`$FFFE`からPCを読み出し、`steps`を0にし、停止状態のパーツを解放します。パーツを返します |
-| `held()` | `SLEEP`または`STOP`の後はTrueです |
-| `held_cycle()` | 停止状態のパーツの1サイクルを費やします。`Clock`と`run_for`がこれを呼び出します |
+| 呼び出し                           | 効果                                                                                                                                                                           |
+| :--------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `step()`                           | 1命令を実行し、費やしたサイクル数を返します。パーツが停止状態になると0を返します                                                                                               |
+| `run_for(cycles)`                  | 少なくとも`cycles`サイクルを費やすまでステップを進め、費やした量を返します。停止状態のパーツは残りを1サイクルずつ費やします                                                    |
+| `run_until(predicate, limit=None)` | `predicate(cpu)`が偽の間ステップを進め、パーツを返します。`limit`命令を超えた場合、または`steps`が`step_limit`に達した場合は`RunLimit`を送出します                             |
+| `reset(seed=UNSET_SEED)`           | リセットラインです。シードから得たパターンでA、X、Y、SP、PSWを再ロードし、Pをクリアし、`$FFFE`からPCを読み出し、`steps`を0にし、停止状態のパーツを解放します。パーツを返します |
+| `held()`                           | `SLEEP`または`STOP`の後はTrueです                                                                                                                                              |
+| `held_cycle()`                     | 停止状態のパーツの1サイクルを費やします。`Clock`と`run_for`がこれを呼び出します                                                                                                |
 
 `Cpu`のその他のメソッド、`fetch8`、`push16`、`op_adc`などは、`step()`がディスパッチする命令の実装です。
 
@@ -99,48 +99,48 @@ gave up after 8 instructions at $0001
 
 ### 状態
 
-| 属性 | 意味 |
-|:--|:--|
-| `a`, `x`, `y`, `sp`, `pc` | レジスタです。`sp`はページ`$01`を指します |
-| `ya` | YとAを1つの16ビット値として読み書きします。Yが上位です |
-| `psw` | ステータスワードを1バイトとして表したものです。書き込むと8つのフラグが設定されます |
-| `n`, `v`, `p`, `b`, `h`, `i`, `z`, `c` | 8つのフラグをブール値で表したものです |
-| `direct_page` | `$0000`または`$0100`で、`p`によって選ばれます |
-| `cycles` | パーツの構築以降のサイクル数で、リセットをまたいで数えます |
-| `steps` | 最後のリセット以降の命令数です |
-| `stopped` | `held()`が読むフラグです |
-| `step_limit` | `run_until`があきらめる命令数です |
-| `model` | 正規のモデル名です |
-| `memory` | パーツが読み書きするストアです |
-| `bus` | サイクルレコーダーです。`bus.cycles`は実行中の命令のコストで、`bus.recording`を設定すると、`bus.log`が各サイクルを`(address, value, kind)`として列挙します。kindは`read`、`write`、`wait`のいずれかです |
-| `on_cycle` | 1サイクルごとに1回、そのサイクルの終わりに処理の後で実行される呼び出し可能オブジェクト、または`None`です。`Clock`は独自のものを設定します |
+| 属性                                   | 意味                                                                                                                                                                                                    |
+| :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `a`, `x`, `y`, `sp`, `pc`              | レジスタです。`sp`はページ`$01`を指します                                                                                                                                                               |
+| `ya`                                   | YとAを1つの16ビット値として読み書きします。Yが上位です                                                                                                                                                  |
+| `psw`                                  | ステータスワードを1バイトとして表したものです。書き込むと8つのフラグが設定されます                                                                                                                      |
+| `n`, `v`, `p`, `b`, `h`, `i`, `z`, `c` | 8つのフラグをブール値で表したものです                                                                                                                                                                   |
+| `direct_page`                          | `$0000`または`$0100`で、`p`によって選ばれます                                                                                                                                                           |
+| `cycles`                               | パーツの構築以降のサイクル数で、リセットをまたいで数えます                                                                                                                                              |
+| `steps`                                | 最後のリセット以降の命令数です                                                                                                                                                                          |
+| `stopped`                              | `held()`が読むフラグです                                                                                                                                                                                |
+| `step_limit`                           | `run_until`があきらめる命令数です                                                                                                                                                                       |
+| `model`                                | 正規のモデル名です                                                                                                                                                                                      |
+| `memory`                               | パーツが読み書きするストアです                                                                                                                                                                          |
+| `bus`                                  | サイクルレコーダーです。`bus.cycles`は実行中の命令のコストで、`bus.recording`を設定すると、`bus.log`が各サイクルを`(address, value, kind)`として列挙します。kindは`read`、`write`、`wait`のいずれかです |
+| `on_cycle`                             | 1サイクルごとに1回、そのサイクルの終わりに処理の後で実行される呼び出し可能オブジェクト、または`None`です。`Clock`は独自のものを設定します                                                               |
 
 ### モジュールの内容
 
-| 名前 | 内容 |
-|:--|:--|
-| `spc700.MODELS` | 名前をキーとする`Model`レコードです。`name`、`summary`、`address_bits`、`data_bits`、`aliases`、`address_mask`を持ちます |
-| `spc700.Memory(size=0x10000, image=None, seed=UNSET_SEED, fill=None)` | `data`に格納されるフラットなストアです。`fill`を指定しない限り`seed`からスクランブルされ、その後`image`がアドレス0からコピーされます |
-| `spc700.SparseMemory(seed=UNSET_SEED)` | 書き込まれたバイトだけを`cells`に保持します。書き込まれていないバイトはアドレスと`seed`から導出されます |
-| `spc700.scramble(size, seed=UNSET_SEED)` | 両方のストアとレジスタの元になるシード付きバイトパターンです |
-| `spc700.UNSET_SEED` | デフォルトのシード`0x5A5A5A5A`です |
-| `spc700.STEP_LIMIT` | `step_limit`のデフォルト値2,000,000です |
-| `spc700.FLAG_N`, `FLAG_V`, `FLAG_P`, `FLAG_B`, `FLAG_H`, `FLAG_I`, `FLAG_Z`, `FLAG_C` | `psw`のビットで、`0x80`、`0x40`、`0x20`、`0x10`、`0x08`、`0x04`、`0x02`、`0x01`です |
-| `spc700.OPCODES` | オペコードバイトでインデックスされた256行の`(mnemonic, mode, size)`です。実行と逆アセンブルの両方がこれを読みます |
-| `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)` | 命令のリストで、各命令は`address`、`size`、`text`、`opcode`、`mnemonic`、`mode`を持ちます |
-| `spc700.decode(data, offset, address, p=0)` | `offset`にある1命令で、同じ属性を持ちます。命令の途中でバイトが尽きると`Truncated`を送出します |
-| `spc700.Bus(recording=False)` | パーツがすべてのサイクルを通すサイクル記録器で、`bus`の項で説明した`cycles`、`recording`、`log`を持ちます |
-| `spc700.Clock(cpu)` | パーツを1サイクルずつ駆動します |
-| `spc700.__version__` | インストールされているバージョンです |
+| 名前                                                                                  | 内容                                                                                                                                 |
+| :------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------- |
+| `spc700.MODELS`                                                                       | 名前をキーとする`Model`レコードです。`name`、`summary`、`address_bits`、`data_bits`、`aliases`、`address_mask`を持ちます             |
+| `spc700.Memory(size=0x10000, image=None, seed=UNSET_SEED, fill=None)`                 | `data`に格納されるフラットなストアです。`fill`を指定しない限り`seed`からスクランブルされ、その後`image`がアドレス0からコピーされます |
+| `spc700.SparseMemory(seed=UNSET_SEED)`                                                | 書き込まれたバイトだけを`cells`に保持します。書き込まれていないバイトはアドレスと`seed`から導出されます                              |
+| `spc700.scramble(size, seed=UNSET_SEED)`                                              | 両方のストアとレジスタの元になるシード付きバイトパターンです                                                                         |
+| `spc700.UNSET_SEED`                                                                   | デフォルトのシード`0x5A5A5A5A`です                                                                                                   |
+| `spc700.STEP_LIMIT`                                                                   | `step_limit`のデフォルト値2,000,000です                                                                                              |
+| `spc700.FLAG_N`, `FLAG_V`, `FLAG_P`, `FLAG_B`, `FLAG_H`, `FLAG_I`, `FLAG_Z`, `FLAG_C` | `psw`のビットで、`0x80`、`0x40`、`0x20`、`0x10`、`0x08`、`0x04`、`0x02`、`0x01`です                                                  |
+| `spc700.OPCODES`                                                                      | オペコードバイトでインデックスされた256行の`(mnemonic, mode, size)`です。実行と逆アセンブルの両方がこれを読みます                    |
+| `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)`    | 命令のリストで、各命令は`address`、`size`、`text`、`opcode`、`mnemonic`、`mode`を持ちます                                            |
+| `spc700.decode(data, offset, address, p=0)`                                           | `offset`にある1命令で、同じ属性を持ちます。命令の途中でバイトが尽きると`Truncated`を送出します                                       |
+| `spc700.Bus(recording=False)`                                                         | パーツがすべてのサイクルを通すサイクル記録器で、`bus`の項で説明した`cycles`、`recording`、`log`を持ちます                            |
+| `spc700.Clock(cpu)`                                                                   | パーツを1サイクルずつ駆動します                                                                                                      |
+| `spc700.__version__`                                                                  | インストールされているバージョンです                                                                                                 |
 
 ### エラー
 
-| エラー | 送出される条件 |
-|:--|:--|
+| エラー              | 送出される条件                                                                                                                    |
+| :------------------ | :-------------------------------------------------------------------------------------------------------------------------------- |
 | `UnknownModelError` | `Cpu`にモデル名が渡されない場合、またはどのモデルにも該当しない名前が渡された場合です。メッセージには受け付ける名前が列挙されます |
-| `RunLimit` | `run_until`が`limit`を超えた場合、または`steps`が`step_limit`に達した場合です |
-| `ClockClosed` | 閉じた`Clock`で`tick()`が呼ばれた場合です |
-| `Truncated` | `spc700.decode`が命令の途中でバイトを使い切った場合です。`disassemble`は代わりにそこで停止します |
+| `RunLimit`          | `run_until`が`limit`を超えた場合、または`steps`が`step_limit`に達した場合です                                                     |
+| `ClockClosed`       | 閉じた`Clock`で`tick()`が呼ばれた場合です                                                                                         |
+| `Truncated`         | `spc700.decode`が命令の途中でバイトを使い切った場合です。`disassemble`は代わりにそこで停止します                                  |
 
 ```python
 import spc700
@@ -166,17 +166,17 @@ spc800 is not a model this package covers; it has spc700
 
 ### コマンドラインツール
 
-| コマンド | 引数 | 終了コード |
-|:--|:--|:--|
-| `python3 spc700/doctor.py` | なし | すべてのチェックに合格すると0、それ以外は1 |
-| `python3 -m conformance.fetch` | `[directory] [--latest]`。ディレクトリのデフォルトは`~/.cache/conformance-suites`です。`--latest`はピンの代わりにアップストリームの最新コミットを使います | 0、またはアップストリームに到達できない場合は1 |
-| `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]` | すべてのケースが一致するかスイートが存在しない場合は0、不一致があると1、引数なしでは2 |
-| `python3 -m conformance.cycles` | `singlestep`と同じ | `singlestep`と同じ |
-| `python3 -m conformance.documents` | `[--check] [--only SUBSTRING]`。`--check`はダウンロードせずにディスク上のものを検証します | すべての文書が検証されると0、それ以外は1 |
-| `python3 -m conformance.quotes` | なし | すべての引用が見つかった場合、またはマシン上に文書がない場合は0、それ以外は1 |
-| `python3 -m conformance.speed` | なし | スループットの下限以上なら0、下回ると1 |
-| `python3 -m conformance.links` | なし | 0、またはこのファイル内のアドレスが404か410を返すと1 |
-| `python3 -m conformance.package` | `<wheel>` | すべてのモジュールが同梱されテストが1つも同梱されていなければ0、それ以外は1、引数なしでは2 |
+| コマンド                            | 引数                                                                                                                                                      | 終了コード                                                                                 |
+| :---------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------- |
+| `python3 spc700/doctor.py`          | なし                                                                                                                                                      | すべてのチェックに合格すると0、それ以外は1                                                 |
+| `python3 -m conformance.fetch`      | `[directory] [--latest]`。ディレクトリのデフォルトは`~/.cache/conformance-suites`です。`--latest`はピンの代わりにアップストリームの最新コミットを使います | 0、またはアップストリームに到達できない場合は1                                             |
+| `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]`                                                                                                        | すべてのケースが一致するかスイートが存在しない場合は0、不一致があると1、引数なしでは2      |
+| `python3 -m conformance.cycles`     | `singlestep`と同じ                                                                                                                                        | `singlestep`と同じ                                                                         |
+| `python3 -m conformance.documents`  | `[--check] [--only SUBSTRING]`。`--check`はダウンロードせずにディスク上のものを検証します                                                                 | すべての文書が検証されると0、それ以外は1                                                   |
+| `python3 -m conformance.quotes`     | なし                                                                                                                                                      | すべての引用が見つかった場合、またはマシン上に文書がない場合は0、それ以外は1               |
+| `python3 -m conformance.speed`      | なし                                                                                                                                                      | スループットの下限以上なら0、下回ると1                                                     |
+| `python3 -m conformance.links`      | なし                                                                                                                                                      | 0、またはこのファイル内のアドレスが404か410を返すと1                                       |
+| `python3 -m conformance.package`    | `<wheel>`                                                                                                                                                 | すべてのモジュールが同梱されテストが1つも同梱されていなければ0、それ以外は1、引数なしでは2 |
 
 ## 実機の速度で動かす
 
@@ -232,12 +232,12 @@ this clock has been closed
 
 `MOV A, #$2A`は2サイクルかかります。1回目のティックの後はオペコードがフェッチされただけで、Aはまだ電源投入時の値`$EB`を保持しています。2回目のティックで命令が終わるため、その後クロックを閉じても閉じなくても、Aは`step()`を1回呼んだときと同じく`$2A`を保持します。3回目のティックはストアの最初のサイクルで停止します。
 
-| Clockの呼び出し | 効果 |
-|:--|:--|
-| `tick()` | 1サイクル進め、`cycles`を返します |
-| `run_for(cycles)` | `tick()`をその回数呼び出し、`cycles`を返します |
-| `cycles` | このクロックの構築以降のティック数です |
-| `close()` | ワーカースレッドを停止し、パーツに以前の`on_cycle`を戻します |
+| Clockの呼び出し   | 効果                                                         |
+| :---------------- | :----------------------------------------------------------- |
+| `tick()`          | 1サイクル進め、`cycles`を返します                            |
+| `run_for(cycles)` | `tick()`をその回数呼び出し、`cycles`を返します               |
+| `cycles`          | このクロックの構築以降のティック数です                       |
+| `close()`         | ワーカースレッドを停止し、パーツに以前の`on_cycle`を戻します |
 
 `Clock`は閉じられるまで`tick()`をyieldするイテレータであり、終了時に閉じるコンテキストマネージャでもあります。サイクルが費やされるたびにブロックするスレッド上でパーツを実行するため、`step()`より低速です。停止状態のパーツは、クロックの下でもサイクルを費やし続けます。
 
@@ -428,11 +428,11 @@ python3 -m conformance.cycles ~/.cache/conformance-suites/spc700/spc700/v1
 
 [`conformance/singlestep.py`](conformance/singlestep.py)はそのマシンを構築し、1回ステップを進め、すべてのレジスタ、ステータスワード、指定されたすべてのバイトを比較します。ケースが指定しないメモリはスクランブルされます。[`conformance/cycles.py`](conformance/cycles.py)は各サイクルのアドレスと種類を比較し、ケースが値を示している場合はその値も比較します。
 
-| タイミング | 実行内容 | 不一致の場合 |
-|:--|:--|:--|
-| プルリクエスト | オペコードごとに100ケース、両方のランナー、固定されたコミット | チェックが失敗します |
-| `main`へのプッシュ | すべてのケース、両方のランナー、固定されたコミット | チェックが失敗します |
-| 毎週月曜日 | アップストリームの最新コミットですべてのケース | 合格すればピンを移動するプルリクエスト、合格しなければオペコードを列挙したissue |
+| タイミング         | 実行内容                                                      | 不一致の場合                                                                    |
+| :----------------- | :------------------------------------------------------------ | :------------------------------------------------------------------------------ |
+| プルリクエスト     | オペコードごとに100ケース、両方のランナー、固定されたコミット | チェックが失敗します                                                            |
+| `main`へのプッシュ | すべてのケース、両方のランナー、固定されたコミット            | チェックが失敗します                                                            |
+| 毎週月曜日         | アップストリームの最新コミットですべてのケース                | 合格すればピンを移動するプルリクエスト、合格しなければオペコードを列挙したissue |
 
 [`.github/workflows/suite-watch.yml`](.github/workflows/suite-watch.yml)が週次ジョブを実行し、ピンを自動で移動することはありません。
 
@@ -474,13 +474,13 @@ write $0041 $12
 
 ## 開発に参加する
 
-| 必要なもの | 場所 |
-|:--|:--|
-| すべてのゲートとその実行順序 | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| コーディングエージェント向けの同じ内容 | [AGENTS.md](AGENTS.md) |
-| このリポジトリがファミリーの他のリポジトリと共有する基準 | [FAMILY.md](FAMILY.md) |
-| バグ報告 | [GitHub Issues](https://github.com/gufranco/sony-spc700-python/issues) |
-| セキュリティ報告 | [SECURITY.md](SECURITY.md) |
+| 必要なもの                                               | 場所                                                                   |
+| :------------------------------------------------------- | :--------------------------------------------------------------------- |
+| すべてのゲートとその実行順序                             | [CONTRIBUTING.md](CONTRIBUTING.md)                                     |
+| コーディングエージェント向けの同じ内容                   | [AGENTS.md](AGENTS.md)                                                 |
+| このリポジトリがファミリーの他のリポジトリと共有する基準 | [FAMILY.md](FAMILY.md)                                                 |
+| バグ報告                                                 | [GitHub Issues](https://github.com/gufranco/sony-spc700-python/issues) |
+| セキュリティ報告                                         | [SECURITY.md](SECURITY.md)                                             |
 
 ```bash
 uvx ruff@0.16.3 format --check .
@@ -493,7 +493,7 @@ python3 spc700/core.test.py
 
 ## 参考文献
 
-- *SNES Development Manual, Book 1*、Nintendo of America Inc.、日付なし。Appendix C、SPC700 Commands。240ページ、21,022,582バイト、SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。再配布はできず、このリポジトリには含まれていません。`python3 -m conformance.documents`がgitで無視される`docs/`にダウンロードし、ダイジェストが異なるファイルは拒否します。[`conformance/documents.json`](conformance/documents.json)にそのアドレスがあります。`python3 -m conformance.quotes`は、[`conformance/hardware.json`](conformance/hardware.json)が引用しているすべての文をこの文書の中から見つけます。
+- _SNES Development Manual, Book 1_、Nintendo of America Inc.、日付なし。Appendix C、SPC700 Commands。240ページ、21,022,582バイト、SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。再配布はできず、このリポジトリには含まれていません。`python3 -m conformance.documents`がgitで無視される`docs/`にダウンロードし、ダイジェストが異なるファイルは拒否します。[`conformance/documents.json`](conformance/documents.json)にそのアドレスがあります。`python3 -m conformance.quotes`は、[`conformance/hardware.json`](conformance/hardware.json)が引用しているすべての文をこの文書の中から見つけます。
 - SingleStepTests/ProcessorTests、`spc700/v1`、コミット`bb11756436da8fd16cce86aef63dc6725f48836f`、https://github.com/SingleStepTests/ProcessorTests 。256個のオペコードそれぞれに1,000ケースです。
 
 ## 引用

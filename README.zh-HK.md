@@ -32,10 +32,10 @@ print(cpu.run_for(10), cpu.cycles, cpu.steps, cpu.held())
 
 ## 安裝
 
-| 需求 | 版本 |
-|:--|:--|
+| 需求   | 版本        |
+| :----- | :---------- |
 | Python | 3.12 或更新 |
-| git | 任何版本 |
+| git    | 任何版本    |
 
 ```bash
 git clone https://github.com/gufranco/sony-spc700-python.git
@@ -57,22 +57,22 @@ python3 spc700/doctor.py
 
 `spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)` 建立一個部件。`model` 為必填。`memory` 可以是任何具備 `read8(address)` 及 `write8(address, value)` 的物件；若未提供，部件會取得一個 `SparseMemory`，或在提供 `fill` 時取得一個每個位元組都是 `fill` 的 `Memory`。`seed` 設定暫存器的開機模式。`bus` 是一個 `spc700.Bus`，若省略，部件會自行建立。建構函式不會重設部件。
 
-| 型號 | 別名 | 位址位元數 | 數據位元數 |
-|:--|:--|:--|:--|
-| `spc700` | `spc`, `ssmp`, `smp`, `sonyspc700` | 16 | 8 |
+| 型號     | 別名                               | 位址位元數 | 數據位元數 |
+| :------- | :--------------------------------- | :--------- | :--------- |
+| `spc700` | `spc`, `ssmp`, `smp`, `sonyspc700` | 16         | 8          |
 
 名稱會先轉為小寫並去掉 `-` 及 `_` 再比對，因此 `Cpu("S-SMP")` 會建立 `spc700`。
 
 ### 呼叫
 
-| 呼叫 | 作用 |
-|:--|:--|
-| `step()` | 執行一條指令並回傳其花費的週期數。部件被停住後回傳 0 |
-| `run_for(cycles)` | 逐步執行直至至少花費 `cycles` 個週期，並回傳實際花費。被停住的部件會逐個週期花掉餘數 |
-| `run_until(predicate, limit=None)` | 在 `predicate(cpu)` 為假時逐步執行，並回傳部件。執行 `limit` 條指令後，或 `steps` 達到 `step_limit` 時，拋出 `RunLimit` |
-| `reset(seed=UNSET_SEED)` | 重設線。從種子模式重新載入 A、X、Y、SP 及 PSW，清除 P，從 `$FFFE` 讀取 PC，把 `steps` 設為 0，並釋放被停住的部件。回傳部件 |
-| `held()` | 在 `SLEEP` 或 `STOP` 之後為真 |
-| `held_cycle()` | 讓被停住的部件花費一個週期。由 `Clock` 及 `run_for` 呼叫 |
+| 呼叫                               | 作用                                                                                                                       |
+| :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------- |
+| `step()`                           | 執行一條指令並回傳其花費的週期數。部件被停住後回傳 0                                                                       |
+| `run_for(cycles)`                  | 逐步執行直至至少花費 `cycles` 個週期，並回傳實際花費。被停住的部件會逐個週期花掉餘數                                       |
+| `run_until(predicate, limit=None)` | 在 `predicate(cpu)` 為假時逐步執行，並回傳部件。執行 `limit` 條指令後，或 `steps` 達到 `step_limit` 時，拋出 `RunLimit`    |
+| `reset(seed=UNSET_SEED)`           | 重設線。從種子模式重新載入 A、X、Y、SP 及 PSW，清除 P，從 `$FFFE` 讀取 PC，把 `steps` 設為 0，並釋放被停住的部件。回傳部件 |
+| `held()`                           | 在 `SLEEP` 或 `STOP` 之後為真                                                                                              |
+| `held_cycle()`                     | 讓被停住的部件花費一個週期。由 `Clock` 及 `run_for` 呼叫                                                                   |
 
 `Cpu` 上的其他方法，例如 `fetch8`、`push16`、`op_adc` 等，是 `step()` 分派到的指令實作。
 
@@ -99,48 +99,48 @@ gave up after 8 instructions at $0001
 
 ### 狀態
 
-| 屬性 | 意義 |
-|:--|:--|
-| `a`, `x`, `y`, `sp`, `pc` | 暫存器。`sp` 定址第 `$01` 頁 |
-| `ya` | 把 Y 及 A 當作一個 16 位元值讀寫，Y 為高位 |
-| `psw` | 以一個位元組表示的狀態字。寫入它會設定八個旗標 |
-| `n`, `v`, `p`, `b`, `h`, `i`, `z`, `c` | 以布林值表示的八個旗標 |
-| `direct_page` | `$0000` 或 `$0100`，由 `p` 選擇 |
-| `cycles` | 部件建立以來的週期數，跨越重設累計 |
-| `steps` | 上次重設以來的指令數 |
-| `stopped` | `held()` 讀取的旗標 |
-| `step_limit` | `run_until` 放棄時的指令數 |
-| `model` | 標準型號名稱 |
-| `memory` | 部件讀寫的儲存區 |
-| `bus` | 週期記錄器。`bus.cycles` 是進行中指令的花費；設定 `bus.recording` 後，`bus.log` 以 `(address, value, kind)` 列出每個週期，kind 為 `read`、`write` 或 `wait` |
-| `on_cycle` | 每個週期執行一次、在該週期結束且其工作完成之後執行的可呼叫物件，或 `None`。`Clock` 會安裝自己的版本 |
+| 屬性                                   | 意義                                                                                                                                                        |
+| :------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `a`, `x`, `y`, `sp`, `pc`              | 暫存器。`sp` 定址第 `$01` 頁                                                                                                                                |
+| `ya`                                   | 把 Y 及 A 當作一個 16 位元值讀寫，Y 為高位                                                                                                                  |
+| `psw`                                  | 以一個位元組表示的狀態字。寫入它會設定八個旗標                                                                                                              |
+| `n`, `v`, `p`, `b`, `h`, `i`, `z`, `c` | 以布林值表示的八個旗標                                                                                                                                      |
+| `direct_page`                          | `$0000` 或 `$0100`，由 `p` 選擇                                                                                                                             |
+| `cycles`                               | 部件建立以來的週期數，跨越重設累計                                                                                                                          |
+| `steps`                                | 上次重設以來的指令數                                                                                                                                        |
+| `stopped`                              | `held()` 讀取的旗標                                                                                                                                         |
+| `step_limit`                           | `run_until` 放棄時的指令數                                                                                                                                  |
+| `model`                                | 標準型號名稱                                                                                                                                                |
+| `memory`                               | 部件讀寫的儲存區                                                                                                                                            |
+| `bus`                                  | 週期記錄器。`bus.cycles` 是進行中指令的花費；設定 `bus.recording` 後，`bus.log` 以 `(address, value, kind)` 列出每個週期，kind 為 `read`、`write` 或 `wait` |
+| `on_cycle`                             | 每個週期執行一次、在該週期結束且其工作完成之後執行的可呼叫物件，或 `None`。`Clock` 會安裝自己的版本                                                         |
 
 ### 模組內容
 
-| 名稱 | 內容 |
-|:--|:--|
-| `spc700.MODELS` | 以名稱為鍵的 `Model` 記錄：`name`、`summary`、`address_bits`、`data_bits`、`aliases`、`address_mask` |
-| `spc700.Memory(size=0x10000, image=None, seed=UNSET_SEED, fill=None)` | 存放於 `data` 的平面儲存區。除非提供 `fill`，否則按 `seed` 打亂，然後把 `image` 複製到位址 0 |
-| `spc700.SparseMemory(seed=UNSET_SEED)` | 只在 `cells` 中保存寫入過的位元組。未寫入的位元組由其位址及 `seed` 推算 |
-| `spc700.scramble(size, seed=UNSET_SEED)` | 兩種儲存區及暫存器背後的種子位元組模式 |
-| `spc700.UNSET_SEED` | 預設種子，`0x5A5A5A5A` |
-| `spc700.STEP_LIMIT` | 預設 `step_limit`，2,000,000 |
-| `spc700.FLAG_N`, `FLAG_V`, `FLAG_P`, `FLAG_B`, `FLAG_H`, `FLAG_I`, `FLAG_Z`, `FLAG_C` | `psw` 的各位元：`0x80`、`0x40`、`0x20`、`0x10`、`0x08`、`0x04`、`0x02`、`0x01` |
-| `spc700.OPCODES` | 以操作碼位元組為索引的 256 行 `(mnemonic, mode, size)`。執行及反組譯都讀取它 |
-| `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)` | 指令清單，每條帶有 `address`、`size`、`text`、`opcode`、`mnemonic` 及 `mode` |
-| `spc700.decode(data, offset, address, p=0)` | `offset` 處的一條指令，帶有相同的屬性。位元組在指令中途用完時拋出 `Truncated` |
-| `spc700.Bus(recording=False)` | 部件每個週期都經過的週期記錄器，帶有 `bus` 一項所述的 `cycles`、`recording` 及 `log` |
-| `spc700.Clock(cpu)` | 逐個週期驅動部件 |
-| `spc700.__version__` | 已安裝的版本 |
+| 名稱                                                                                  | 內容                                                                                                 |
+| :------------------------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------- |
+| `spc700.MODELS`                                                                       | 以名稱為鍵的 `Model` 記錄：`name`、`summary`、`address_bits`、`data_bits`、`aliases`、`address_mask` |
+| `spc700.Memory(size=0x10000, image=None, seed=UNSET_SEED, fill=None)`                 | 存放於 `data` 的平面儲存區。除非提供 `fill`，否則按 `seed` 打亂，然後把 `image` 複製到位址 0         |
+| `spc700.SparseMemory(seed=UNSET_SEED)`                                                | 只在 `cells` 中保存寫入過的位元組。未寫入的位元組由其位址及 `seed` 推算                              |
+| `spc700.scramble(size, seed=UNSET_SEED)`                                              | 兩種儲存區及暫存器背後的種子位元組模式                                                               |
+| `spc700.UNSET_SEED`                                                                   | 預設種子，`0x5A5A5A5A`                                                                               |
+| `spc700.STEP_LIMIT`                                                                   | 預設 `step_limit`，2,000,000                                                                         |
+| `spc700.FLAG_N`, `FLAG_V`, `FLAG_P`, `FLAG_B`, `FLAG_H`, `FLAG_I`, `FLAG_Z`, `FLAG_C` | `psw` 的各位元：`0x80`、`0x40`、`0x20`、`0x10`、`0x08`、`0x04`、`0x02`、`0x01`                       |
+| `spc700.OPCODES`                                                                      | 以操作碼位元組為索引的 256 行 `(mnemonic, mode, size)`。執行及反組譯都讀取它                         |
+| `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)`    | 指令清單，每條帶有 `address`、`size`、`text`、`opcode`、`mnemonic` 及 `mode`                         |
+| `spc700.decode(data, offset, address, p=0)`                                           | `offset` 處的一條指令，帶有相同的屬性。位元組在指令中途用完時拋出 `Truncated`                        |
+| `spc700.Bus(recording=False)`                                                         | 部件每個週期都經過的週期記錄器，帶有 `bus` 一項所述的 `cycles`、`recording` 及 `log`                 |
+| `spc700.Clock(cpu)`                                                                   | 逐個週期驅動部件                                                                                     |
+| `spc700.__version__`                                                                  | 已安裝的版本                                                                                         |
 
 ### 錯誤
 
-| 錯誤 | 拋出時機 |
-|:--|:--|
+| 錯誤                | 拋出時機                                                                   |
+| :------------------ | :------------------------------------------------------------------------- |
 | `UnknownModelError` | `Cpu` 沒有取得型號名稱，或取得的名稱不屬於任何型號。訊息會列出可接受的名稱 |
-| `RunLimit` | `run_until` 超過其 `limit`，或 `steps` 達到 `step_limit` |
-| `ClockClosed` | 在已關閉的 `Clock` 上呼叫 `tick()` |
-| `Truncated` | `spc700.decode` 在指令中途用完位元組。`disassemble` 則會在該處停止 |
+| `RunLimit`          | `run_until` 超過其 `limit`，或 `steps` 達到 `step_limit`                   |
+| `ClockClosed`       | 在已關閉的 `Clock` 上呼叫 `tick()`                                         |
+| `Truncated`         | `spc700.decode` 在指令中途用完位元組。`disassemble` 則會在該處停止         |
 
 ```python
 import spc700
@@ -166,17 +166,17 @@ spc800 is not a model this package covers; it has spc700
 
 ### 命令列工具
 
-| 命令 | 參數 | 結束碼 |
-|:--|:--|:--|
-| `python3 spc700/doctor.py` | 無 | 所有檢查通過時為 0，否則為 1 |
-| `python3 -m conformance.fetch` | `[directory] [--latest]`。目錄預設為 `~/.cache/conformance-suites`。`--latest` 採用上游最新的提交，而非固定版本 | 0；無法連上上游時為 1 |
-| `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]` | 每個案例都一致或沒有測試套件時為 0，出現不一致時為 1，沒有參數時為 2 |
-| `python3 -m conformance.cycles` | 與 `singlestep` 相同 | 與 `singlestep` 相同 |
-| `python3 -m conformance.documents` | `[--check] [--only SUBSTRING]`。`--check` 只驗證磁碟上已有的檔案，不會下載 | 每份文件都通過驗證時為 0，否則為 1 |
-| `python3 -m conformance.quotes` | 無 | 每段引文都找到，或機器上沒有文件時為 0；否則為 1 |
-| `python3 -m conformance.speed` | 無 | 達到或高於吞吐量下限時為 0，低於下限時為 1 |
-| `python3 -m conformance.links` | 無 | 0；本檔案中有位址回應 404 或 410 時為 1 |
-| `python3 -m conformance.package` | `<wheel>` | 每個模組都包含在內且沒有包含任何測試時為 0，否則為 1，沒有參數時為 2 |
+| 命令                                | 參數                                                                                                            | 結束碼                                                               |
+| :---------------------------------- | :-------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------- |
+| `python3 spc700/doctor.py`          | 無                                                                                                              | 所有檢查通過時為 0，否則為 1                                         |
+| `python3 -m conformance.fetch`      | `[directory] [--latest]`。目錄預設為 `~/.cache/conformance-suites`。`--latest` 採用上游最新的提交，而非固定版本 | 0；無法連上上游時為 1                                                |
+| `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]`                                                              | 每個案例都一致或沒有測試套件時為 0，出現不一致時為 1，沒有參數時為 2 |
+| `python3 -m conformance.cycles`     | 與 `singlestep` 相同                                                                                            | 與 `singlestep` 相同                                                 |
+| `python3 -m conformance.documents`  | `[--check] [--only SUBSTRING]`。`--check` 只驗證磁碟上已有的檔案，不會下載                                      | 每份文件都通過驗證時為 0，否則為 1                                   |
+| `python3 -m conformance.quotes`     | 無                                                                                                              | 每段引文都找到，或機器上沒有文件時為 0；否則為 1                     |
+| `python3 -m conformance.speed`      | 無                                                                                                              | 達到或高於吞吐量下限時為 0，低於下限時為 1                           |
+| `python3 -m conformance.links`      | 無                                                                                                              | 0；本檔案中有位址回應 404 或 410 時為 1                              |
+| `python3 -m conformance.package`    | `<wheel>`                                                                                                       | 每個模組都包含在內且沒有包含任何測試時為 0，否則為 1，沒有參數時為 2 |
 
 ## 以真實速度執行
 
@@ -232,12 +232,12 @@ this clock has been closed
 
 `MOV A, #$2A` 需時 2 個週期。第一個節拍之後只取出了操作碼，而 A 仍保留其開機值 `$EB`。第二個節拍結束這條指令，所以無論之後是否關閉時鐘，A 都與呼叫一次 `step()` 後一樣保留 `$2A`。第三個節拍停在存儲指令的第一個週期。
 
-| Clock 呼叫 | 作用 |
-|:--|:--|
-| `tick()` | 前進一個週期並回傳 `cycles` |
-| `run_for(cycles)` | 呼叫 `tick()` 指定次數並回傳 `cycles` |
-| `cycles` | 這個時鐘建立以來的節拍數 |
-| `close()` | 停止工作執行緒，並把部件原先的 `on_cycle` 交還給它 |
+| Clock 呼叫        | 作用                                               |
+| :---------------- | :------------------------------------------------- |
+| `tick()`          | 前進一個週期並回傳 `cycles`                        |
+| `run_for(cycles)` | 呼叫 `tick()` 指定次數並回傳 `cycles`              |
+| `cycles`          | 這個時鐘建立以來的節拍數                           |
+| `close()`         | 停止工作執行緒，並把部件原先的 `on_cycle` 交還給它 |
 
 `Clock` 是一個迭代器，在關閉前不斷產生 `tick()`；它也是一個上下文管理器，離開時自動關閉。它在一條執行緒上執行部件，該執行緒在每個花費週期的地方阻塞，因此比 `step()` 慢。被停住的部件在時鐘下會繼續花費週期。
 
@@ -428,11 +428,11 @@ python3 -m conformance.cycles ~/.cache/conformance-suites/spc700/spc700/v1
 
 [`conformance/singlestep.py`](conformance/singlestep.py) 建立該機器，執行一步，然後比較每個暫存器、狀態字及每個列明的位元組。案例沒有列明的記憶體會被打亂。[`conformance/cycles.py`](conformance/cycles.py) 比較每個週期的位址及類型，並在案例列出值時比較其值。
 
-| 時機 | 執行內容 | 出現不一致時 |
-|:--|:--|:--|
-| Pull request | 每個操作碼 100 個案例，兩個執行器，於固定的提交 | 檢查失敗 |
-| 推送到 `main` | 所有案例，兩個執行器，於固定的提交 | 檢查失敗 |
-| 每個星期一 | 所有案例，於上游最新的提交 | 通過時開一個移動固定版本的 pull request，不通過時開一個列出相關操作碼的 issue |
+| 時機          | 執行內容                                        | 出現不一致時                                                                  |
+| :------------ | :---------------------------------------------- | :---------------------------------------------------------------------------- |
+| Pull request  | 每個操作碼 100 個案例，兩個執行器，於固定的提交 | 檢查失敗                                                                      |
+| 推送到 `main` | 所有案例，兩個執行器，於固定的提交              | 檢查失敗                                                                      |
+| 每個星期一    | 所有案例，於上游最新的提交                      | 通過時開一個移動固定版本的 pull request，不通過時開一個列出相關操作碼的 issue |
 
 [`.github/workflows/suite-watch.yml`](.github/workflows/suite-watch.yml) 執行每週工作，並且永不自行移動固定版本。
 
@@ -474,13 +474,13 @@ write $0041 $12
 
 ## 參與開發
 
-| 需要 | 位置 |
-|:--|:--|
-| 所有關卡檢查及其執行次序 | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| 給編程代理的相同材料 | [AGENTS.md](AGENTS.md) |
-| 本儲存庫與家族其他成員共用的標準 | [FAMILY.md](FAMILY.md) |
-| 錯誤報告 | [GitHub Issues](https://github.com/gufranco/sony-spc700-python/issues) |
-| 安全報告 | [SECURITY.md](SECURITY.md) |
+| 需要                             | 位置                                                                   |
+| :------------------------------- | :--------------------------------------------------------------------- |
+| 所有關卡檢查及其執行次序         | [CONTRIBUTING.md](CONTRIBUTING.md)                                     |
+| 給編程代理的相同材料             | [AGENTS.md](AGENTS.md)                                                 |
+| 本儲存庫與家族其他成員共用的標準 | [FAMILY.md](FAMILY.md)                                                 |
+| 錯誤報告                         | [GitHub Issues](https://github.com/gufranco/sony-spc700-python/issues) |
+| 安全報告                         | [SECURITY.md](SECURITY.md)                                             |
 
 ```bash
 uvx ruff@0.16.3 format --check .
@@ -493,7 +493,7 @@ python3 spc700/core.test.py
 
 ## 參考資料
 
-- *SNES Development Manual, Book 1*，Nintendo of America Inc.，未註明日期。附錄 C，SPC700 Commands。240 頁，21,022,582 位元組，SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。它不可再分發，也不在本儲存庫中。`python3 -m conformance.documents` 會把它下載到 git 忽略的 `docs/`，並拒絕任何摘要不符的檔案。[`conformance/documents.json`](conformance/documents.json) 載有其位址。`python3 -m conformance.quotes` 會找出 [`conformance/hardware.json`](conformance/hardware.json) 從中引用的每一句。
+- _SNES Development Manual, Book 1_，Nintendo of America Inc.，未註明日期。附錄 C，SPC700 Commands。240 頁，21,022,582 位元組，SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。它不可再分發，也不在本儲存庫中。`python3 -m conformance.documents` 會把它下載到 git 忽略的 `docs/`，並拒絕任何摘要不符的檔案。[`conformance/documents.json`](conformance/documents.json) 載有其位址。`python3 -m conformance.quotes` 會找出 [`conformance/hardware.json`](conformance/hardware.json) 從中引用的每一句。
 - SingleStepTests/ProcessorTests，`spc700/v1`，提交 `bb11756436da8fd16cce86aef63dc6725f48836f`，https://github.com/SingleStepTests/ProcessorTests 。256 個操作碼各有 1,000 個案例。
 
 ## 引用本專案

@@ -32,10 +32,10 @@ print(cpu.run_for(10), cpu.cycles, cpu.steps, cpu.held())
 
 ## 安装
 
-| 要求 | 版本 |
-|:--|:--|
+| 要求   | 版本        |
+| :----- | :---------- |
 | Python | 3.12 或更新 |
-| git | 任意 |
+| git    | 任意        |
 
 ```bash
 git clone https://github.com/gufranco/sony-spc700-python.git
@@ -57,22 +57,22 @@ python3 spc700/doctor.py
 
 `spc700.Cpu(model, memory=None, fill=None, step_limit=STEP_LIMIT, seed=UNSET_SEED, bus=None)` 构建一个器件。`model` 是必需的。`memory` 可以是任何具有 `read8(address)` 和 `write8(address, value)` 的对象；不提供时，器件得到一个 `SparseMemory`，若给出了 `fill`，则得到一个每个字节都为 `fill` 的 `Memory`。`seed` 设定寄存器的上电模式。`bus` 是一个 `spc700.Bus`，省略时器件会自行构建一个。构造函数不会复位器件。
 
-| 型号 | 别名 | 地址位数 | 数据位数 |
-|:--|:--|:--|:--|
-| `spc700` | `spc`、`ssmp`、`smp`、`sonyspc700` | 16 | 8 |
+| 型号     | 别名                               | 地址位数 | 数据位数 |
+| :------- | :--------------------------------- | :------- | :------- |
+| `spc700` | `spc`、`ssmp`、`smp`、`sonyspc700` | 16       | 8        |
 
 名称先转为小写并去掉 `-` 和 `_` 再匹配，因此 `Cpu("S-SMP")` 构建的是 `spc700`。
 
 ### 调用
 
-| 调用 | 作用 |
-|:--|:--|
-| `step()` | 执行一条指令并返回其耗费的周期数。器件进入挂起状态后返回 0 |
-| `run_for(cycles)` | 持续单步执行，直到至少花费 `cycles` 个周期，并返回实际花费的周期数。挂起的器件以每次一个周期的方式花掉剩余部分 |
-| `run_until(predicate, limit=None)` | 在 `predicate(cpu)` 为假时持续单步执行，并返回该器件。执行 `limit` 条指令后，或 `steps` 达到 `step_limit` 时，抛出 `RunLimit` |
-| `reset(seed=UNSET_SEED)` | 复位线。从带种子的模式重新载入 A、X、Y、SP 和 PSW，清除 P，从 `$FFFE` 读取 PC，将 `steps` 置为 0，并释放挂起的器件。返回该器件 |
-| `held()` | 执行 `SLEEP` 或 `STOP` 后为 True |
-| `held_cycle()` | 让挂起的器件花费一个周期。`Clock` 和 `run_for` 会调用它 |
+| 调用                               | 作用                                                                                                                           |
+| :--------------------------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| `step()`                           | 执行一条指令并返回其耗费的周期数。器件进入挂起状态后返回 0                                                                     |
+| `run_for(cycles)`                  | 持续单步执行，直到至少花费 `cycles` 个周期，并返回实际花费的周期数。挂起的器件以每次一个周期的方式花掉剩余部分                 |
+| `run_until(predicate, limit=None)` | 在 `predicate(cpu)` 为假时持续单步执行，并返回该器件。执行 `limit` 条指令后，或 `steps` 达到 `step_limit` 时，抛出 `RunLimit`  |
+| `reset(seed=UNSET_SEED)`           | 复位线。从带种子的模式重新载入 A、X、Y、SP 和 PSW，清除 P，从 `$FFFE` 读取 PC，将 `steps` 置为 0，并释放挂起的器件。返回该器件 |
+| `held()`                           | 执行 `SLEEP` 或 `STOP` 后为 True                                                                                               |
+| `held_cycle()`                     | 让挂起的器件花费一个周期。`Clock` 和 `run_for` 会调用它                                                                        |
 
 `Cpu` 上的其他方法，如 `fetch8`、`push16`、`op_adc` 等，是 `step()` 分派到的指令实现。
 
@@ -99,48 +99,48 @@ gave up after 8 instructions at $0001
 
 ### 状态
 
-| 属性 | 含义 |
-|:--|:--|
-| `a`、`x`、`y`、`sp`、`pc` | 寄存器。`sp` 寻址 `$01` 页 |
-| `ya` | 作为一个 16 位值读写的 Y 和 A，Y 为高位 |
-| `psw` | 作为一个字节的状态字。写入它会设置八个标志 |
-| `n`、`v`、`p`、`b`、`h`、`i`、`z`、`c` | 以布尔值表示的八个标志 |
-| `direct_page` | `$0000` 或 `$0100`，由 `p` 选择 |
-| `cycles` | 自器件构建以来的周期数，跨越复位累计 |
-| `steps` | 自上次复位以来的指令数 |
-| `stopped` | `held()` 读取的标志 |
-| `step_limit` | `run_until` 放弃时的指令数 |
-| `model` | 规范的型号名称 |
-| `memory` | 器件读写的存储 |
-| `bus` | 周期记录器。`bus.cycles` 是正在执行的指令的耗费，设置 `bus.recording` 后，`bus.log` 将每个周期列为 `(address, value, kind)`，其中 kind 为 `read`、`write` 或 `wait` |
-| `on_cycle` | 每个周期运行一次、在该周期结束且其工作完成之后运行的可调用对象，或 `None`。`Clock` 会安装自己的 |
+| 属性                                   | 含义                                                                                                                                                                |
+| :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `a`、`x`、`y`、`sp`、`pc`              | 寄存器。`sp` 寻址 `$01` 页                                                                                                                                          |
+| `ya`                                   | 作为一个 16 位值读写的 Y 和 A，Y 为高位                                                                                                                             |
+| `psw`                                  | 作为一个字节的状态字。写入它会设置八个标志                                                                                                                          |
+| `n`、`v`、`p`、`b`、`h`、`i`、`z`、`c` | 以布尔值表示的八个标志                                                                                                                                              |
+| `direct_page`                          | `$0000` 或 `$0100`，由 `p` 选择                                                                                                                                     |
+| `cycles`                               | 自器件构建以来的周期数，跨越复位累计                                                                                                                                |
+| `steps`                                | 自上次复位以来的指令数                                                                                                                                              |
+| `stopped`                              | `held()` 读取的标志                                                                                                                                                 |
+| `step_limit`                           | `run_until` 放弃时的指令数                                                                                                                                          |
+| `model`                                | 规范的型号名称                                                                                                                                                      |
+| `memory`                               | 器件读写的存储                                                                                                                                                      |
+| `bus`                                  | 周期记录器。`bus.cycles` 是正在执行的指令的耗费，设置 `bus.recording` 后，`bus.log` 将每个周期列为 `(address, value, kind)`，其中 kind 为 `read`、`write` 或 `wait` |
+| `on_cycle`                             | 每个周期运行一次、在该周期结束且其工作完成之后运行的可调用对象，或 `None`。`Clock` 会安装自己的                                                                     |
 
 ### 模块内容
 
-| 名称 | 内容 |
-|:--|:--|
-| `spc700.MODELS` | 以名称为键的 `Model` 记录：`name`、`summary`、`address_bits`、`data_bits`、`aliases`、`address_mask` |
-| `spc700.Memory(size=0x10000, image=None, seed=UNSET_SEED, fill=None)` | 位于 `data` 中的平坦存储。除非给出 `fill`，否则按 `seed` 打乱，然后把 `image` 复制到地址 0 处 |
-| `spc700.SparseMemory(seed=UNSET_SEED)` | 只在 `cells` 中保存写入过的字节。未写入的字节由其地址和 `seed` 推导得出 |
-| `spc700.scramble(size, seed=UNSET_SEED)` | 两种存储和寄存器背后的带种子字节模式 |
-| `spc700.UNSET_SEED` | 默认种子，`0x5A5A5A5A` |
-| `spc700.STEP_LIMIT` | 默认的 `step_limit`，2,000,000 |
-| `spc700.FLAG_N`、`FLAG_V`、`FLAG_P`、`FLAG_B`、`FLAG_H`、`FLAG_I`、`FLAG_Z`、`FLAG_C` | `psw` 的各位：`0x80`、`0x40`、`0x20`、`0x10`、`0x08`、`0x04`、`0x02`、`0x01` |
-| `spc700.OPCODES` | 按操作码字节索引的 256 行 `(mnemonic, mode, size)`。执行和反汇编都读取它 |
-| `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)` | 指令列表，每条带有 `address`、`size`、`text`、`opcode`、`mnemonic` 和 `mode` |
-| `spc700.decode(data, offset, address, p=0)` | `offset` 处的一条指令，带有相同的属性。字节在指令中途用完时抛出 `Truncated` |
-| `spc700.Bus(recording=False)` | 器件每个周期都经过的周期记录器，带有 `bus` 一项所述的 `cycles`、`recording` 和 `log` |
-| `spc700.Clock(cpu)` | 以每次一个周期的方式驱动器件 |
-| `spc700.__version__` | 已安装的版本 |
+| 名称                                                                                  | 内容                                                                                                 |
+| :------------------------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------- |
+| `spc700.MODELS`                                                                       | 以名称为键的 `Model` 记录：`name`、`summary`、`address_bits`、`data_bits`、`aliases`、`address_mask` |
+| `spc700.Memory(size=0x10000, image=None, seed=UNSET_SEED, fill=None)`                 | 位于 `data` 中的平坦存储。除非给出 `fill`，否则按 `seed` 打乱，然后把 `image` 复制到地址 0 处        |
+| `spc700.SparseMemory(seed=UNSET_SEED)`                                                | 只在 `cells` 中保存写入过的字节。未写入的字节由其地址和 `seed` 推导得出                              |
+| `spc700.scramble(size, seed=UNSET_SEED)`                                              | 两种存储和寄存器背后的带种子字节模式                                                                 |
+| `spc700.UNSET_SEED`                                                                   | 默认种子，`0x5A5A5A5A`                                                                               |
+| `spc700.STEP_LIMIT`                                                                   | 默认的 `step_limit`，2,000,000                                                                       |
+| `spc700.FLAG_N`、`FLAG_V`、`FLAG_P`、`FLAG_B`、`FLAG_H`、`FLAG_I`、`FLAG_Z`、`FLAG_C` | `psw` 的各位：`0x80`、`0x40`、`0x20`、`0x10`、`0x08`、`0x04`、`0x02`、`0x01`                         |
+| `spc700.OPCODES`                                                                      | 按操作码字节索引的 256 行 `(mnemonic, mode, size)`。执行和反汇编都读取它                             |
+| `spc700.disassemble(data, offset, address, count=None, p=0, stop_at_return=False)`    | 指令列表，每条带有 `address`、`size`、`text`、`opcode`、`mnemonic` 和 `mode`                         |
+| `spc700.decode(data, offset, address, p=0)`                                           | `offset` 处的一条指令，带有相同的属性。字节在指令中途用完时抛出 `Truncated`                          |
+| `spc700.Bus(recording=False)`                                                         | 器件每个周期都经过的周期记录器，带有 `bus` 一项所述的 `cycles`、`recording` 和 `log`                 |
+| `spc700.Clock(cpu)`                                                                   | 以每次一个周期的方式驱动器件                                                                         |
+| `spc700.__version__`                                                                  | 已安装的版本                                                                                         |
 
 ### 错误
 
-| 错误 | 抛出时机 |
-|:--|:--|
+| 错误                | 抛出时机                                                                   |
+| :------------------ | :------------------------------------------------------------------------- |
 | `UnknownModelError` | `Cpu` 没有得到型号名称，或得到的名称不对应任何型号。消息中列出可接受的名称 |
-| `RunLimit` | `run_until` 超过其 `limit`，或 `steps` 达到 `step_limit` |
-| `ClockClosed` | 在已关闭的 `Clock` 上调用 `tick()` |
-| `Truncated` | `spc700.decode` 在一条指令中途用完了字节。`disassemble` 则在该处停止 |
+| `RunLimit`          | `run_until` 超过其 `limit`，或 `steps` 达到 `step_limit`                   |
+| `ClockClosed`       | 在已关闭的 `Clock` 上调用 `tick()`                                         |
+| `Truncated`         | `spc700.decode` 在一条指令中途用完了字节。`disassemble` 则在该处停止       |
 
 ```python
 import spc700
@@ -166,17 +166,17 @@ spc800 is not a model this package covers; it has spc700
 
 ### 命令行工具
 
-| 命令 | 参数 | 退出码 |
-|:--|:--|:--|
-| `python3 spc700/doctor.py` | 无 | 所有检查通过时为 0，否则为 1 |
-| `python3 -m conformance.fetch` | `[directory] [--latest]`。目录默认为 `~/.cache/conformance-suites`。`--latest` 采用上游最新的提交，而非固定的提交 | 0，无法连接上游时为 1 |
-| `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]` | 所有用例一致或没有测试套件时为 0，出现不一致时为 1，无参数时为 2 |
-| `python3 -m conformance.cycles` | 与 `singlestep` 相同 | 与 `singlestep` 相同 |
-| `python3 -m conformance.documents` | `[--check] [--only SUBSTRING]`。`--check` 只校验磁盘上已有的内容，不下载 | 所有文档校验通过时为 0，否则为 1 |
-| `python3 -m conformance.quotes` | 无 | 找到所有引文，或本机上没有文档时为 0；否则为 1 |
-| `python3 -m conformance.speed` | 无 | 达到或超过吞吐量下限时为 0，低于下限时为 1 |
-| `python3 -m conformance.links` | 无 | 0，本文件中的某个地址返回 404 或 410 时为 1 |
-| `python3 -m conformance.package` | `<wheel>` | 每个模块都已打包且没有测试被打包时为 0，否则为 1，无参数时为 2 |
+| 命令                                | 参数                                                                                                              | 退出码                                                           |
+| :---------------------------------- | :---------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| `python3 spc700/doctor.py`          | 无                                                                                                                | 所有检查通过时为 0，否则为 1                                     |
+| `python3 -m conformance.fetch`      | `[directory] [--latest]`。目录默认为 `~/.cache/conformance-suites`。`--latest` 采用上游最新的提交，而非固定的提交 | 0，无法连接上游时为 1                                            |
+| `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]`                                                                | 所有用例一致或没有测试套件时为 0，出现不一致时为 1，无参数时为 2 |
+| `python3 -m conformance.cycles`     | 与 `singlestep` 相同                                                                                              | 与 `singlestep` 相同                                             |
+| `python3 -m conformance.documents`  | `[--check] [--only SUBSTRING]`。`--check` 只校验磁盘上已有的内容，不下载                                          | 所有文档校验通过时为 0，否则为 1                                 |
+| `python3 -m conformance.quotes`     | 无                                                                                                                | 找到所有引文，或本机上没有文档时为 0；否则为 1                   |
+| `python3 -m conformance.speed`      | 无                                                                                                                | 达到或超过吞吐量下限时为 0，低于下限时为 1                       |
+| `python3 -m conformance.links`      | 无                                                                                                                | 0，本文件中的某个地址返回 404 或 410 时为 1                      |
+| `python3 -m conformance.package`    | `<wheel>`                                                                                                         | 每个模块都已打包且没有测试被打包时为 0，否则为 1，无参数时为 2   |
 
 ## 以真实速度运行
 
@@ -232,12 +232,12 @@ this clock has been closed
 
 `MOV A, #$2A` 需要 2 个周期。第一个节拍之后只取出了操作码，A 仍保持其上电值 `$EB`。第二个节拍结束这条指令，所以无论之后是否关闭时钟，A 都与调用一次 `step()` 后一样保持 `$2A`。第三个节拍停在存储指令的第一个周期上。
 
-| Clock 调用 | 作用 |
-|:--|:--|
-| `tick()` | 前进一个周期并返回 `cycles` |
-| `run_for(cycles)` | 调用 `tick()` 相应次数并返回 `cycles` |
-| `cycles` | 自该时钟构建以来的节拍数 |
-| `close()` | 停止工作线程，并把之前的 `on_cycle` 还给器件 |
+| Clock 调用        | 作用                                         |
+| :---------------- | :------------------------------------------- |
+| `tick()`          | 前进一个周期并返回 `cycles`                  |
+| `run_for(cycles)` | 调用 `tick()` 相应次数并返回 `cycles`        |
+| `cycles`          | 自该时钟构建以来的节拍数                     |
+| `close()`         | 停止工作线程，并把之前的 `on_cycle` 还给器件 |
 
 `Clock` 是一个迭代器，在关闭之前不断产出 `tick()`；它也是一个上下文管理器，退出时关闭。它在一个线程上运行器件，该线程在每个花费周期的地方阻塞，因此比 `step()` 慢。挂起的器件在时钟驱动下仍会持续花费周期。
 
@@ -428,11 +428,11 @@ python3 -m conformance.cycles ~/.cache/conformance-suites/spc700/spc700/v1
 
 [`conformance/singlestep.py`](conformance/singlestep.py) 构建该机器，单步执行一次，然后比较每个寄存器、状态字和每个指定的字节。用例未指定的内存会被打乱。[`conformance/cycles.py`](conformance/cycles.py) 比较每个周期的地址和类型，并在用例给出值的地方比较其值。
 
-| 时机 | 运行内容 | 出现不一致时 |
-|:--|:--|:--|
-| 拉取请求 | 每个操作码 100 个用例，两个运行器，使用固定的提交 | 检查失败 |
-| 推送到 `main` | 所有用例，两个运行器，使用固定的提交 | 检查失败 |
-| 每周一 | 所有用例，使用上游最新的提交 | 通过则提交一个移动固定提交的拉取请求，不通过则提交一个列出相关操作码的 issue |
+| 时机          | 运行内容                                          | 出现不一致时                                                                 |
+| :------------ | :------------------------------------------------ | :--------------------------------------------------------------------------- |
+| 拉取请求      | 每个操作码 100 个用例，两个运行器，使用固定的提交 | 检查失败                                                                     |
+| 推送到 `main` | 所有用例，两个运行器，使用固定的提交              | 检查失败                                                                     |
+| 每周一        | 所有用例，使用上游最新的提交                      | 通过则提交一个移动固定提交的拉取请求，不通过则提交一个列出相关操作码的 issue |
 
 [`.github/workflows/suite-watch.yml`](.github/workflows/suite-watch.yml) 运行每周任务，从不自行移动固定的提交。
 
@@ -474,13 +474,13 @@ write $0041 $12
 
 ## 参与开发
 
-| 需求 | 位置 |
-|:--|:--|
-| 所有门禁检查及其运行顺序 | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| 面向编程代理的相同内容 | [AGENTS.md](AGENTS.md) |
-| 本仓库与同系列其他仓库共享的标准 | [FAMILY.md](FAMILY.md) |
-| 缺陷报告 | [GitHub Issues](https://github.com/gufranco/sony-spc700-python/issues) |
-| 安全报告 | [SECURITY.md](SECURITY.md) |
+| 需求                             | 位置                                                                   |
+| :------------------------------- | :--------------------------------------------------------------------- |
+| 所有门禁检查及其运行顺序         | [CONTRIBUTING.md](CONTRIBUTING.md)                                     |
+| 面向编程代理的相同内容           | [AGENTS.md](AGENTS.md)                                                 |
+| 本仓库与同系列其他仓库共享的标准 | [FAMILY.md](FAMILY.md)                                                 |
+| 缺陷报告                         | [GitHub Issues](https://github.com/gufranco/sony-spc700-python/issues) |
+| 安全报告                         | [SECURITY.md](SECURITY.md)                                             |
 
 ```bash
 uvx ruff@0.16.3 format --check .
@@ -493,7 +493,7 @@ python3 spc700/core.test.py
 
 ## 参考资料
 
-- *SNES Development Manual, Book 1*，Nintendo of America Inc.，未注明日期。附录 C，SPC700 Commands。240 页，21,022,582 字节，SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。它不可再分发，也不在本仓库中。`python3 -m conformance.documents` 将它下载到 git 忽略的 `docs/` 中，并拒绝任何摘要不同的文件。[`conformance/documents.json`](conformance/documents.json) 保存它的地址。`python3 -m conformance.quotes` 查找 [`conformance/hardware.json`](conformance/hardware.json) 从中引用的每一句话。
+- _SNES Development Manual, Book 1_，Nintendo of America Inc.，未注明日期。附录 C，SPC700 Commands。240 页，21,022,582 字节，SHA-256 `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791`。它不可再分发，也不在本仓库中。`python3 -m conformance.documents` 将它下载到 git 忽略的 `docs/` 中，并拒绝任何摘要不同的文件。[`conformance/documents.json`](conformance/documents.json) 保存它的地址。`python3 -m conformance.quotes` 查找 [`conformance/hardware.json`](conformance/hardware.json) 从中引用的每一句话。
 - SingleStepTests/ProcessorTests，`spc700/v1`，提交 `bb11756436da8fd16cce86aef63dc6725f48836f`，https://github.com/SingleStepTests/ProcessorTests 。256 个操作码各 1,000 个用例。
 
 ## 引用本项目
