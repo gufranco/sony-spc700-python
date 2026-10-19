@@ -84,6 +84,44 @@ performed and the work done before the next one, and no access moves to another
 cycle. A clock stopped on an instruction's last cycle leaves the part as
 `step()` does.
 
+## Test cartridges
+
+[`conformance/testroms.json`](conformance/testroms.json) lists every test
+cartridge that exercises this processor, each pinned by SHA-256 and none
+carried.
+
+**Ten run, in the member that composes this one.** A cartridge needs the audio
+unit around this processor and a console to upload into it, so it runs in
+[sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python), whose
+`conformance/cartridges.py` drives it from a cut-down console with this member
+pinned as a submodule:
+
+```bash
+cd ../sony-s-smp-python
+SSMP_CARTRIDGE_DIR=/path/to/cartridges python3 -m conformance.cartridges
+```
+
+What those runs showed is recorded here in
+[`conformance/cartridge.json`](conformance/cartridge.json) and replayed by
+[`conformance/cartridge.test.py`](conformance/cartridge.test.py) with no image
+present:
+
+- Shay Green's `spc_smp.sfc`: 18 of 18 verdicts agree with a console.
+- Shay Green's `spc_mem_access_times.sfc`: 2 of 2 agree.
+- gilyon's `spctest.sfc`, every opcode but `SLEEP` and `STOP`: `Success`.
+- Peter Lemon's seven SPC700 cartridges: `FAIL` at the first check of each. The
+  status word they store differs from what they expect in the interrupt flag
+  alone, which a reset leaves set here. That is an open question, under what
+  the part holds when it comes up in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md), and
+  it stays open until a console says what a reset leaves in the flag.
+
+A change to this processor reaches those runs only once sony-s-smp-python moves
+its pin, so run them there before calling a change finished.
+
+**The rest wait on `snes-machine`**, a whole-machine member no plan names yet:
+the burn-in test, the SNES Test Program, the NTF 2.5 test and both 240p Test
+Suite builds, whose sound tests are judged by ear.
+
 ## Every gate, in the order to run them
 
 ```bash
@@ -216,6 +254,8 @@ conformance/
   cycles.py      running it, cycle by cycle
   hardware.json  what Nintendo printed, fact by fact, with the page
   divergences.json where the document and the recording part
+  cartridge.json what test cartridges showed when sony-s-smp-python ran them
+  testroms.json  every test cartridge that exercises this processor
   quotes.py      looks for every quoted sentence in the document it cites
   speed.py       the throughput floor
 ```

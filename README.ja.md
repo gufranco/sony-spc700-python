@@ -8,7 +8,7 @@ SNESオーディオユニットのS-SMPに内蔵されたプロセッサであ�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256**個のオペコード、**256,000**件の適合性ケースと**1,182,940**サイクルを比較して失敗**0**件、**256**個の命令長と**253**個のサイクル数がNintendoの表に一致、テスト**883**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
+**256**個のオペコード、**256,000**件の適合性ケースと**1,182,940**サイクルを比較して失敗**0**件、**256**個の命令長と**253**個のサイクル数がNintendoの表に一致、テスト**887**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
 ```python
 from spc700 import Cpu, Memory
@@ -471,6 +471,8 @@ write $0041 $12
 `$0040`の読み出しは最終状態に痕跡を残さないため、サイクルの比較だけがそれを捉えます。この行は不一致として記録する前に、450 dpiで再度読み取りました。実機がこれを決着させます。Shay Greenの`spc_mem_access_times.sfc`は172個のオペコードそれぞれのどのサイクルがメモリに触れるかを実機で取った値と照合し、組み立てたオーディオユニットはこの命令が5サイクルのときにその値を再現し、4サイクルでは再現しません。
 
 [`conformance/divergences.json`](conformance/divergences.json)は、これと、出典が何も述べていないかモデルが出典から外れている他の6か所を、それぞれの状態と重大度とともに保持しています。[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)は、未解決の各項目について、それを決着させる測定を示しています。オーディオユニットは割り込みラインを外部に出していないため、割り込みはモデル化していません。プロセッサ周辺のタイマー、ポート、DSPはこのパッケージの対象外です。
+
+テストカートリッジは、このプロセッサをオーディオユニットに組み込み、簡略化した本体から動かす[sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python)で実行します。[`conformance/cartridge.json`](conformance/cartridge.json)がその結果を記録しています。Shay Greenの`spc_smp`は18件中18件、`spc_mem_access_times`は2件中2件の判定で実機と一致し、`SLEEP`と`STOP`を除くすべてのオペコードを試すgilyonの`spctest`は`Success`を報告します。Peter LemonのSPC700カートリッジ7本は最初のチェックで`FAIL`を報告します。原因はここでリセット後にセットされたままになる割り込みフラグで、[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)が未解決として扱っています。[`conformance/testroms.json`](conformance/testroms.json)はこのプロセッサ向けのすべてのテストカートリッジを列挙しています。
 
 ## 開発に参加する
 

@@ -99,4 +99,11 @@ def a_running_part() -> Part:
 
 TESTED_DIRECTORIES = ("spc700", "conformance")
 
+LONG_FILES: dict[str, str] = {
+    "spc700/core.py": (
+        "A single calculation engine sharing intermediate state: one Cpu whose 256 opcode"
+        " handlers read and write the same registers, flags and bus"
+    ),
+}
+
 MACHINES: dict[str, tuple[str, ...]] = {}

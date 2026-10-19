@@ -1,0 +1,184 @@
+{
+  "cartridges": [
+    {
+      "id": "blargg-spc-smp",
+      "title": "Shay Green's spc_smp",
+      "sha256": "2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "blargg-spc-6/spc_smp.sfc",
+      "exercises": "the processor's instructions, flags and wrap-around, the boot program, the register reads and writes, and the three timers",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_every_check_spc_smp_reaches_agrees_with_a_console"
+      ]
+    },
+    {
+      "id": "blargg-spc-mem-access-times",
+      "title": "Shay Green's spc_mem_access_times",
+      "sha256": "53dc8005959d54ccfc95b8d4222e1d51d21e3d9f3491058320f105edc1a4454a",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "blargg-spc-6/spc_mem_access_times.sfc",
+      "exercises": "which cycle of each of 172 opcodes touches memory, timed by the unit's timers",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_every_check_spc_mem_access_times_reaches_agrees_with_a_console"
+      ]
+    },
+    {
+      "id": "gilyon-spctest",
+      "title": "gilyon's SPC700 test",
+      "sha256": "ed6aa8fa247007cdf683f243454d1dff31a25e1977c25fc9d7e1a96e3d031e92",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "gilyon/spctest.sfc",
+      "exercises": "every SPC700 opcode but SLEEP and STOP, in every addressing mode, with and without the P flag",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_gilyon_spctest_reports_success_on_its_own_screen"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-adc",
+      "title": "Peter Lemon's SPC700 ADC test",
+      "sha256": "4fa785418a109c0ef052cb9b71f55d37ee56834fca170fe1a0da784ee3df0e2e",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/ADC/SPC700ADC.sfc",
+      "exercises": "the SPC700 ADC instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-and",
+      "title": "Peter Lemon's SPC700 AND test",
+      "sha256": "a4e7a9d6a926f5b575b2c3006b301bf837ed36072c9617776aab527706c3242d",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/AND/SPC700AND.sfc",
+      "exercises": "the SPC700 AND instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-dec",
+      "title": "Peter Lemon's SPC700 DEC test",
+      "sha256": "fe9254720e62b2aa953a42f50827facc12f7549ad8ca3775c89a5b65f4b55fdf",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/DEC/SPC700DEC.sfc",
+      "exercises": "the SPC700 DEC instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-eor",
+      "title": "Peter Lemon's SPC700 EOR test",
+      "sha256": "061572e2ba5599f78c3573be3b538ba2ab67703529f7518eee8e8ce3e41372f1",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/EOR/SPC700EOR.sfc",
+      "exercises": "the SPC700 EOR instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-inc",
+      "title": "Peter Lemon's SPC700 INC test",
+      "sha256": "467376b5ab3cf83197553ec598f91645beef628dadbd43932b6e96d2fa17776b",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/INC/SPC700INC.sfc",
+      "exercises": "the SPC700 INC instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-ora",
+      "title": "Peter Lemon's SPC700 ORA test",
+      "sha256": "aefb416d0f681eed0975cfbee70fd3048f59154cd5502f550e48e80f789a0ab2",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/ORA/SPC700ORA.sfc",
+      "exercises": "the SPC700 ORA instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "peterlemon-spc700-sbc",
+      "title": "Peter Lemon's SPC700 SBC test",
+      "sha256": "fcc6017db0560ce12ae029fa97947eedbd8eaf35dd32200c445281ca94cbae9b",
+      "source": "https://gitlab.com/higan/snes-test-roms at 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "file": "PeterLemon/SNES-CPUTest-SPC700/SBC/SPC700SBC.sfc",
+      "exercises": "the SPC700 SBC instructions, each result and flag word checked by the processor itself",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
+      ]
+    },
+    {
+      "id": "burn-in-rev-d",
+      "title": "Burn-in test cartridge, revision D",
+      "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "Burn-in - Test Cartridge (USA) (Rev D).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "snes-test-program",
+      "title": "SNES Test Program",
+      "sha256": "f732685db2bfc93e995128e015657165fbaaa2dd8723e7655507fda4ddc2a3a9",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "SNES Test Program (U).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "ntf-2-5-rev-a",
+      "title": "NTF 2.5 test cartridge, revision A",
+      "sha256": "3a3ba7500728920093ff48caf5baac0c1ec9b19aacda4fe4dce8afbdd69e859e",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "NTF 2.5 Test Cartridge (USA) (Rev A).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "240p-test-suite-1-061-ntsc",
+      "title": "240p Test Suite 1.061, NTSC",
+      "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    },
+    {
+      "id": "240p-test-suite-1-061-pal",
+      "title": "240p Test Suite 1.061, PAL",
+      "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
+      "outcome": "hosted",
+      "needs": "snes-machine"
+    }
+  ]
+}

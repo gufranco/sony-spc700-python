@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **883** tests, **100%** statement and branch coverage, no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **887** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, Memory
@@ -471,6 +471,8 @@ write $0041 $12
 The read of `$0040` leaves no trace in the final state, so only the cycle comparison sees it. This row was read again at 450 dots per inch before being recorded as a disagreement. A console settles it: Shay Green's `spc_mem_access_times.sfc` checks which cycle of each of 172 opcodes touches memory against a value taken on hardware, and the composed audio unit reproduces that value with this instruction at 5 cycles and misses it at 4.
 
 [`conformance/divergences.json`](conformance/divergences.json) holds this and the 6 other places where a source is silent or the model departs from one, each with its status and severity. [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) gives each open one the measurement that would settle it. Interrupts are not modelled because the audio unit brings out no interrupt line. The timers, ports and DSP around the processor are outside this package.
+
+Test cartridges run in [sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python), which composes this processor into the audio unit and drives it from a cut-down console. [`conformance/cartridge.json`](conformance/cartridge.json) records what they showed: Shay Green's `spc_smp` agrees with a console on 18 of 18 verdicts and his `spc_mem_access_times` on 2 of 2, and gilyon's `spctest`, which tests every opcode but `SLEEP` and `STOP`, reports `Success`. Peter Lemon's seven SPC700 cartridges report `FAIL` at their first check, on the interrupt flag a reset leaves set here, which [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) keeps open. [`conformance/testroms.json`](conformance/testroms.json) lists every test cartridge for this processor.
 
 ## Working on it
 

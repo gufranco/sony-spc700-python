@@ -65,8 +65,19 @@ two of this family's ladder rather than a value copied from an implementation.
 Nothing else in the flag word moves: the rest is still scrambled because the rest
 is still genuinely undefined.
 
+**Peter Lemon's seven SPC700 cartridges lean on two more bits.** Each one checks
+the whole status word after its first instruction and expects the interrupt
+flag clear, though neither his program nor the boot program clears it. This
+part comes out of reset with the flag set, so all seven report `FAIL` at their
+first check when sony-s-smp-python runs them (as of 2026-10-19). `ADC #const`
+stores `$0f` where it expects `$0b`, and `AND #const` and `DEC A` store `$06`
+where they expect `$02`: one bit apart each time, the interrupt flag. The
+screenshots beside his source are not a console's, so they settle nothing.
+
 **What would settle or reopen it.** A measurement of a real audio unit at power
-on, or a Sony document. Neither is needed for the direct-page bit.
+on, or a Sony document. Neither is needed for the direct-page bit. His cartridges
+passing on a console would settle the interrupt flag, and the break flag beside
+it, at reset.
 
 ### What an interrupt does.
 

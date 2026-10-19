@@ -1,0 +1,83 @@
+import json
+import unittest
+from pathlib import Path
+from typing import Any
+
+HERE = Path(__file__).resolve().parent
+
+RECORD = HERE / "cartridge.json"
+
+TEST_ROMS = HERE / "testroms.json"
+
+
+def recorded(name: str) -> dict[str, Any]:
+    held: list[dict[str, Any]] = json.loads(RECORD.read_text())["cartridges"]
+    return next(one for one in held if one["id"] == name)
+
+
+def listed(name: str) -> dict[str, Any]:
+    entries: list[dict[str, Any]] = json.loads(TEST_ROMS.read_text())["cartridges"]
+    return next(one for one in entries if one["id"] == name)
+
+
+def agreed_throughout(name: str) -> tuple[int, int, list[str], bool]:
+    entry = recorded(name)
+    astray = [one["check"] for one in entry["checks"] if one["console"] != one["thisModel"]]
+    same = entry["sha256"] == listed(name)["sha256"]
+    return entry["agreed"], len(entry["checks"]), astray, same
+
+
+class TheRecordedVerdictsTest(unittest.TestCase):
+    def test_every_check_spc_smp_reaches_agrees_with_a_console(self) -> None:
+        # Arrange
+        name = "blargg-spc-smp"
+
+        # Act
+        held = agreed_throughout(name)
+
+        # Assert
+        self.assertEqual(held, (18, 18, [], True))
+
+    def test_every_check_spc_mem_access_times_reaches_agrees_with_a_console(self) -> None:
+        # Arrange
+        name = "blargg-spc-mem-access-times"
+
+        # Act
+        held = agreed_throughout(name)
+
+        # Assert
+        self.assertEqual(held, (2, 2, [], True))
+
+    def test_gilyon_spctest_reports_success_on_its_own_screen(self) -> None:
+        # Arrange
+        entry = recorded("gilyon-spctest")
+
+        # Act
+        screen = entry["screen"]
+
+        # Assert
+        self.assertEqual(screen, " Running tests... Success\n Test number: 0527")
+
+    def test_peter_lemons_cartridges_stop_at_their_first_check(self) -> None:
+        # Arrange
+        names = [
+            "peterlemon-spc700-adc",
+            "peterlemon-spc700-and",
+            "peterlemon-spc700-dec",
+            "peterlemon-spc700-eor",
+            "peterlemon-spc700-inc",
+            "peterlemon-spc700-ora",
+            "peterlemon-spc700-sbc",
+        ]
+
+        # Act
+        endings = [recorded(name)["screen"].split()[-1] for name in names]
+        passes = [recorded(name)["screen"].count("PASS") for name in names]
+
+        # Assert
+        self.assertEqual(endings, ["FAIL"] * 7)
+        self.assertEqual(passes, [0] * 7)
+
+
+if __name__ == "__main__":
+    unittest.main()

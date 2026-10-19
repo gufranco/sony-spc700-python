@@ -8,7 +8,7 @@ Sony SPC700 是 SNES 音频单元中 S-SMP 内部的处理器。本项目用 Pyt
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256** 个操作码，比对了 **256,000** 个一致性用例和 **1,182,940** 个周期，**0** 个失败，**256** 个长度和 **253** 个周期数与 Nintendo 的表格一致，**883** 个测试，**100%** 语句和分支覆盖率，无依赖
+**256** 个操作码，比对了 **256,000** 个一致性用例和 **1,182,940** 个周期，**0** 个失败，**256** 个长度和 **253** 个周期数与 Nintendo 的表格一致，**887** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from spc700 import Cpu, Memory
@@ -471,6 +471,8 @@ write $0041 $12
 对 `$0040` 的读取在最终状态中不留痕迹，因此只有周期比较能发现它。这一行在被记录为不一致之前，又在 450 dpi 下重新读取了一次。实机给出了定论：Shay Green 的 `spc_mem_access_times.sfc` 把 172 个操作码各自在哪个周期访问内存，与在实机上取得的值进行比对；组装后的音频单元在这条指令为 5 个周期时重现该值，为 4 个周期时则不能。
 
 [`conformance/divergences.json`](conformance/divergences.json) 记录了这一处以及另外 6 处来源未作说明或模型与来源不同的地方，每处都附有状态和严重程度。[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 为每个未决问题给出能解决它的测量方法。中断没有建模，因为音频单元没有引出中断线。处理器周围的定时器、端口和 DSP 不在本包范围内。
+
+测试卡带在 [sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python) 中运行，它把这个处理器组成音频单元，并由精简的主机驱动。[`conformance/cartridge.json`](conformance/cartridge.json) 记录了结果：Shay Green 的 `spc_smp` 在 18 个判定中 18 个与主机一致，`spc_mem_access_times` 2 个中 2 个一致；gilyon 的 `spctest` 测试除 `SLEEP` 和 `STOP` 以外的每个操作码，报告 `Success`。Peter Lemon 的七盘 SPC700 卡带在第一个检查报告 `FAIL`，原因是这里复位后保持置位的中断标志，[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 把它保留为未解决。[`conformance/testroms.json`](conformance/testroms.json) 列出这个处理器的每盘测试卡带。
 
 ## 参与开发
 

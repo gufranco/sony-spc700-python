@@ -1,0 +1,263 @@
+{
+  "what": "The test cartridges that exercise this processor, as sony-s-smp-python ran them: what each showed on its own screen when the run stopped and, for Shay Green's, every check that reached a verdict and what it said.",
+  "why": "A cartridge needs the audio unit around this processor and a console to upload into it, so it runs in the member that composes them rather than here. The verdicts are kept here so a change to this processor can be held to them without that member.",
+  "carried": false,
+  "producedBy": "sony-s-smp-python's conformance/cartridges.py, with this member pinned at 0f0caabc8f1dee45f3c4ce988bdf385ad0ae157a: a 65816 from mos65xx-python on a cut-down console, the cartridge decoded as LoROM, $2140-$2143 wired to the unit's four ports, and each of Shay Green's four-byte comparisons against $dc to $df recorded and then emptied so the run carries on.",
+  "cartridges": [
+    {
+      "id": "blargg-spc-smp",
+      "name": "spc_smp.sfc",
+      "sha256": "2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": "CPU Instructions/Full DAA DAS\nCPU Timing/mem access times\nCPU Timing/time all opcodes\nCPU/addw and subw\nCPU/psw is 8 independent bits\nCPU/smp reg read-write behavior\nCPU/tset tclr\nCPU/verify IPL ROM\nCPU/wrap-around mem\nCPU/wrap-around pc\nCPU/wrap-around sp\nTimers/random timer0\nTimers/random timer0 enable\nTimers/random timer2\nTimers/timer read vs write\nTimers/timer0 vs other timers\nPASSED TESTS\nRunning tests:",
+      "verdicts": 18,
+      "agreed": 18,
+      "disagreed": 0,
+      "checks": [
+        {
+          "check": "CPU Instructions/Edge arith",
+          "agreed": true,
+          "console": "ec 84 4c 6b",
+          "thisModel": "ec 84 4c 6b"
+        },
+        {
+          "check": "CPU Instructions/Full BRK",
+          "agreed": true,
+          "console": "3e f7 4f 65",
+          "thisModel": "3e f7 4f 65"
+        },
+        {
+          "check": "CPU Instructions/Full CMP",
+          "agreed": true,
+          "console": "c2 84 1a 6d",
+          "thisModel": "c2 84 1a 6d"
+        },
+        {
+          "check": "CPU Instructions/Full DAA DAS",
+          "agreed": true,
+          "console": "f3 1d f2 72",
+          "thisModel": "f3 1d f2 72"
+        },
+        {
+          "check": "CPU Timing/mem access times",
+          "agreed": true,
+          "console": "8f 77 58 15",
+          "thisModel": "8f 77 58 15"
+        },
+        {
+          "check": "CPU/addw and subw",
+          "agreed": true,
+          "console": "83 71 eb 51",
+          "thisModel": "83 71 eb 51"
+        },
+        {
+          "check": "CPU/psw is 8 independent bits",
+          "agreed": true,
+          "console": "8c 73 fa d6",
+          "thisModel": "8c 73 fa d6"
+        },
+        {
+          "check": "CPU/smp reg read-write behavior",
+          "agreed": true,
+          "console": "af a7 e5 f8",
+          "thisModel": "af a7 e5 f8"
+        },
+        {
+          "check": "CPU/tset tclr",
+          "agreed": true,
+          "console": "cb 91 81 20",
+          "thisModel": "cb 91 81 20"
+        },
+        {
+          "check": "CPU/verify IPL ROM",
+          "agreed": true,
+          "console": "bf c5 44 bb",
+          "thisModel": "bf c5 44 bb"
+        },
+        {
+          "check": "CPU/wrap-around mem",
+          "agreed": true,
+          "console": "fa 50 ea b9",
+          "thisModel": "fa 50 ea b9"
+        },
+        {
+          "check": "CPU/wrap-around pc",
+          "agreed": true,
+          "console": "54 f3 26 6d",
+          "thisModel": "54 f3 26 6d"
+        },
+        {
+          "check": "CPU/wrap-around sp",
+          "agreed": true,
+          "console": "89 c2 80 e4",
+          "thisModel": "89 c2 80 e4"
+        },
+        {
+          "check": "Timers/random timer0",
+          "agreed": true,
+          "console": "31 0f 17 fd",
+          "thisModel": "31 0f 17 fd"
+        },
+        {
+          "check": "Timers/random timer0 enable",
+          "agreed": true,
+          "console": "86 f2 47 9f",
+          "thisModel": "86 f2 47 9f"
+        },
+        {
+          "check": "Timers/random timer2",
+          "agreed": true,
+          "console": "3e d6 7e c1",
+          "thisModel": "3e d6 7e c1"
+        },
+        {
+          "check": "Timers/timer read vs write",
+          "agreed": true,
+          "console": "d0 6c d0 a9",
+          "thisModel": "d0 6c d0 a9"
+        },
+        {
+          "check": "Timers/timer0 vs other timers",
+          "agreed": true,
+          "console": "fe 2f a1 ba",
+          "thisModel": "fe 2f a1 ba"
+        }
+      ]
+    },
+    {
+      "id": "blargg-spc-mem-access-times",
+      "name": "spc_mem_access_times.sfc",
+      "sha256": "53dc8005959d54ccfc95b8d4222e1d51d21e3d9f3491058320f105edc1a4454a",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": "PASSED TESTS\nRunning tests:",
+      "verdicts": 2,
+      "agreed": 2,
+      "disagreed": 0,
+      "checks": [
+        {
+          "check": "",
+          "agreed": true,
+          "console": "8f 77 58 15",
+          "thisModel": "8f 77 58 15"
+        },
+        {
+          "check": "",
+          "agreed": true,
+          "console": "d0 6c d0 a9",
+          "thisModel": "d0 6c d0 a9"
+        }
+      ]
+    },
+    {
+      "id": "gilyon-spctest",
+      "name": "spctest.sfc",
+      "sha256": "ed6aa8fa247007cdf683f243454d1dff31a25e1977c25fc9d7e1a96e3d031e92",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " Running tests... Success\n Test number: 0527",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
+    },
+    {
+      "id": "peterlemon-spc700-adc",
+      "name": "SPC700ADC.sfc",
+      "sha256": "4fa785418a109c0ef052cb9b71f55d37ee56834fca170fe1a0da784ee3df0e2e",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test ADC (Add With Carry):\n ------------------------------\n ADC #const   (Opcode: $88)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00111   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
+    },
+    {
+      "id": "peterlemon-spc700-and",
+      "name": "SPC700AND.sfc",
+      "sha256": "a4e7a9d6a926f5b575b2c3006b301bf837ed36072c9617776aab527706c3242d",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test AND (AND With Memory):\n ------------------------------\n AND #const   (Opcode: $28)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
+    },
+    {
+      "id": "peterlemon-spc700-dec",
+      "name": "SPC700DEC.sfc",
+      "sha256": "fe9254720e62b2aa953a42f50827facc12f7549ad8ca3775c89a5b65f4b55fdf",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test DEC (Decrement):\n ------------------------------\n DEC A        (Opcode: $9C)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
+    },
+    {
+      "id": "peterlemon-spc700-eor",
+      "name": "SPC700EOR.sfc",
+      "sha256": "061572e2ba5599f78c3573be3b538ba2ab67703529f7518eee8e8ce3e41372f1",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test EOR (XOR With Memory):\n ------------------------------\n EOR #const   (Opcode: $48)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
+    },
+    {
+      "id": "peterlemon-spc700-inc",
+      "name": "SPC700INC.sfc",
+      "sha256": "467376b5ab3cf83197553ec598f91645beef628dadbd43932b6e96d2fa17776b",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test INC (Increment):\n ------------------------------\n INC A        (Opcode: $BC)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
+    },
+    {
+      "id": "peterlemon-spc700-ora",
+      "name": "SPC700ORA.sfc",
+      "sha256": "aefb416d0f681eed0975cfbee70fd3048f59154cd5502f550e48e80f789a0ab2",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test ORA (OR With Memory):\n ------------------------------\n ORA #const   (Opcode: $08)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
+    },
+    {
+      "id": "peterlemon-spc700-sbc",
+      "name": "SPC700SBC.sfc",
+      "sha256": "fcc6017db0560ce12ae029fa97947eedbd8eaf35dd32200c445281ca94cbae9b",
+      "from": "https://gitlab.com/higan/snes-test-roms",
+      "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
+      "runOn": "2026-10-19",
+      "screen": " SPC Test SBC (Sub With Borrow):\n ------------------------------\n SBC #const   (Opcode: $A8)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00111   FAIL",
+      "verdicts": 0,
+      "agreed": 0,
+      "disagreed": 0,
+      "checks": []
+    }
+  ],
+  "verified": false,
+  "evidence": "All 20 verdicts Shay Green's spc_smp and spc_mem_access_times reach agree with values taken on a console, and gilyon's spctest, which tests every opcode but SLEEP and STOP, reports Success. Peter Lemon's seven SPC700 cartridges each report FAIL at their first check: the status word they store differs from what they expect in the interrupt flag alone, which this processor leaves set after a reset.",
+  "howToSettleIt": "Settled for what Shay Green's and gilyon's cartridges reach. Peter Lemon's wait on what a reset leaves in the interrupt flag, which OPEN-QUESTIONS.md carries under what the part holds when it comes up."
+}
