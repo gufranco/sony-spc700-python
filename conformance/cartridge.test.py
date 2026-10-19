@@ -27,6 +27,19 @@ def agreed_throughout(name: str) -> tuple[int, int, list[str], bool]:
     return entry["agreed"], len(entry["checks"]), astray, same
 
 
+def self_test(name: str) -> tuple[bool, int, str, list[str]]:
+    images: list[dict[str, Any]] = json.loads(RECORD.read_text())["selfTests"]["images"]
+    run = next(one for one in images if one["id"] == name)["measured"]
+    failing = [one for one, passed in run["subTests"].items() if not passed]
+    return run["handshake"], run["result"] & ~0x04, run["ports"], failing
+
+
+def handshake(name: str) -> dict[str, Any]:
+    images: list[dict[str, Any]] = json.loads(RECORD.read_text())["handshakes"]["images"]
+    measured: dict[str, Any] = next(one for one in images if one["id"] == name)["measured"]
+    return measured
+
+
 class TheRecordedVerdictsTest(unittest.TestCase):
     def test_every_check_spc_smp_reaches_agrees_with_a_console(self) -> None:
         # Arrange
@@ -77,6 +90,66 @@ class TheRecordedVerdictsTest(unittest.TestCase):
         # Assert
         self.assertEqual(endings, ["FAIL"] * 7)
         self.assertEqual(passes, [0] * 7)
+
+    def test_the_burn_in_self_test_passes_every_sub_test_but_the_envelope(self) -> None:
+        # Arrange
+        name = "burn-in-rev-d-apu"
+
+        # Act
+        held = self_test(name)
+
+        # Assert
+        self.assertEqual(held, (True, 0, "00 00", []))
+
+    def test_the_snsp_aging_self_test_passes_every_sub_test(self) -> None:
+        # Arrange
+        name = "snsp-aging-1-02-apu"
+
+        # Act
+        held = self_test(name)
+
+        # Assert
+        self.assertEqual(held, (True, 0, "00 00", []))
+
+    def test_the_control_deck_tester_self_test_passes_every_sub_test(self) -> None:
+        # Arrange
+        name = "control-deck-tester-rev-1-apu"
+
+        # Act
+        held = self_test(name)
+
+        # Assert
+        self.assertEqual(held, (True, 0, "00 00", []))
+
+    def test_the_aging_1_00_self_test_passes_all_six_of_its_sub_tests(self) -> None:
+        # Arrange
+        name = "aging-1-00-apu"
+
+        # Act
+        held = self_test(name)
+
+        # Assert
+        self.assertEqual(held, (True, 0, "00 00", []))
+
+    def test_the_ntsc_240p_suite_upload_is_echoed_byte_for_byte_and_runs(self) -> None:
+        # Arrange
+        name = "240p-test-suite-1-061-ntsc"
+
+        # Act
+        run = handshake(name)
+
+        # Assert
+        self.assertEqual(run, {"echoes": 5562, "of": 5562, "landed": True})
+
+    def test_the_pal_240p_suite_upload_is_echoed_byte_for_byte_and_runs(self) -> None:
+        # Arrange
+        name = "240p-test-suite-1-061-pal"
+
+        # Act
+        run = handshake(name)
+
+        # Assert
+        self.assertEqual(run, {"echoes": 5562, "of": 5562, "landed": True})
 
 
 if __name__ == "__main__":

@@ -118,9 +118,18 @@ present:
 A change to this processor reaches those runs only once sony-s-smp-python moves
 its pin, so run them there before calling a change finished.
 
-**The rest wait on `snes-machine`**, a whole-machine member no plan names yet:
-the burn-in test, the SNES Test Program, the NTF 2.5 test and both 240p Test
-Suite builds, whose sound tests are judged by ear.
+**Six more run there and are recorded here.** Burn-in revision D, SNSP Aging
+1.02, the Control Deck Tester and Aging Program 1.00 upload an SPC700 self-test
+that this processor runs: memory patterns, timer counts and the rest, decided
+by the program itself. All four pass every sub-test in sony-s-smp-python's
+`conformance/selftest.py`. Both builds of the 240p Test Suite upload a driver
+through the boot program this processor runs, and every echo and the jump
+arrive in its `conformance/handshake.py`. The measurements are in
+`conformance/cartridge.json` under `selfTests` and `handshakes`.
+
+The NTF 2.5 test, the Test Program that overdumps it and the controller test
+cassette upload a sound driver and check nothing on the unit, so they are not
+listed.
 
 ## Every gate, in the order to run them
 

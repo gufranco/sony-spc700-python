@@ -259,5 +259,115 @@
   ],
   "verified": false,
   "evidence": "All 20 verdicts Shay Green's spc_smp and spc_mem_access_times reach agree with values taken on a console, and gilyon's spctest, which tests every opcode but SLEEP and STOP, reports Success. Peter Lemon's seven SPC700 cartridges each report FAIL at their first check: the status word they store differs from what they expect in the interrupt flag alone, which this processor leaves set after a reset.",
-  "howToSettleIt": "Settled for what Shay Green's and gilyon's cartridges reach. Peter Lemon's wait on what a reset leaves in the interrupt flag, which OPEN-QUESTIONS.md carries under what the part holds when it comes up."
+  "howToSettleIt": "Settled for what Shay Green's and gilyon's cartridges reach. Peter Lemon's wait on what a reset leaves in the interrupt flag, which OPEN-QUESTIONS.md carries under what the part holds when it comes up.",
+  "selfTests": {
+    "producedBy": "sony-s-smp-python's conformance/selftest.py and conformance/handshake.py, on 2026-10-19, with this member pinned there at 0f0caabc8f1dee45f3c4ce988bdf385ad0ae157a",
+    "images": [
+      {
+        "id": "burn-in-rev-d-apu",
+        "title": "Burn-in test cartridge, revision D",
+        "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
+        "measured": {
+          "handshake": true,
+          "cyclesToHandshake": 60003,
+          "cyclesToResult": 9841247,
+          "result": 0,
+          "ports": "00 00",
+          "subTests": {
+            "aram": true,
+            "echoRegion": true,
+            "envelope": true,
+            "echoTiming": true,
+            "timer1": true,
+            "timer2": true
+          }
+        }
+      },
+      {
+        "id": "snsp-aging-1-02-apu",
+        "title": "SNSP Aging 1.02",
+        "sha256": "6c84f60b7a48b279ca4c1801947f843d79841cd92227c82d8c250edc25be2a9b",
+        "measured": {
+          "handshake": true,
+          "cyclesToHandshake": 60003,
+          "cyclesToResult": 9841243,
+          "result": 0,
+          "ports": "00 00",
+          "subTests": {
+            "aram": true,
+            "echoRegion": true,
+            "envelope": true,
+            "echoTiming": true,
+            "timer1": true,
+            "timer2": true
+          }
+        }
+      },
+      {
+        "id": "control-deck-tester-rev-1-apu",
+        "title": "Super NES Control Deck Tester, revision 1",
+        "sha256": "77c03d014c6e94a378d2acb7c2e92cdb14347d675eac1127e11164b1104fcd83",
+        "measured": {
+          "handshake": true,
+          "cyclesToHandshake": 60003,
+          "cyclesToResult": 9841247,
+          "result": 0,
+          "ports": "00 00",
+          "subTests": {
+            "aram": true,
+            "echoRegion": true,
+            "envelope": true,
+            "echoTiming": true,
+            "timer1": true,
+            "timer2": true
+          }
+        }
+      },
+      {
+        "id": "aging-1-00-apu",
+        "title": "Super Famicom Aging Program 1.00",
+        "sha256": "f58837be3cf307edf550ec971993672d8d00e4fba99a2c5dee58383202d08c54",
+        "measured": {
+          "handshake": true,
+          "cyclesToHandshake": 60003,
+          "cyclesToResult": 9841243,
+          "result": 0,
+          "ports": "00 00",
+          "subTests": {
+            "aram": true,
+            "echoRegion": true,
+            "envelope": true,
+            "echoTiming": true,
+            "timer1": true,
+            "timer2": true
+          }
+        }
+      }
+    ]
+  },
+  "handshakes": {
+    "producedBy": "sony-s-smp-python's conformance/selftest.py and conformance/handshake.py, on 2026-10-19, with this member pinned there at 0f0caabc8f1dee45f3c4ce988bdf385ad0ae157a",
+    "images": [
+      {
+        "id": "240p-test-suite-1-061-ntsc",
+        "title": "240p Test Suite 1.061, NTSC",
+        "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
+        "measured": {
+          "echoes": 5562,
+          "of": 5562,
+          "landed": true
+        }
+      },
+      {
+        "id": "240p-test-suite-1-061-pal",
+        "title": "240p Test Suite 1.061, PAL",
+        "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
+        "measured": {
+          "echoes": 5562,
+          "of": 5562,
+          "landed": true
+        }
+      }
+    ]
+  }
 }

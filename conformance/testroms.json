@@ -1,6 +1,84 @@
 {
   "cartridges": [
     {
+      "id": "burn-in-rev-d-apu",
+      "title": "Burn-in test cartridge, revision D",
+      "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "Burn-in - Test Cartridge (USA) (Rev D).sfc",
+      "exercises": "this processor running the program's memory patterns and timer counts, and taking its upload through the boot program",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_the_burn_in_self_test_passes_every_sub_test_but_the_envelope"
+      ]
+    },
+    {
+      "id": "snsp-aging-1-02-apu",
+      "title": "SNSP Aging 1.02",
+      "sha256": "6c84f60b7a48b279ca4c1801947f843d79841cd92227c82d8c250edc25be2a9b",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "SNSP Aging Ver 1.02 (Japan) (En).sfc",
+      "exercises": "this processor running the program's memory patterns and timer counts, and taking its upload through the boot program",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_the_snsp_aging_self_test_passes_every_sub_test"
+      ]
+    },
+    {
+      "id": "control-deck-tester-rev-1-apu",
+      "title": "Super NES Control Deck Tester, revision 1",
+      "sha256": "77c03d014c6e94a378d2acb7c2e92cdb14347d675eac1127e11164b1104fcd83",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "Super NES Control Deck Tester (Japan) (En) (Rev 1).sfc",
+      "exercises": "this processor running the program's memory patterns and timer counts, and taking its upload through the boot program",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_the_control_deck_tester_self_test_passes_every_sub_test"
+      ]
+    },
+    {
+      "id": "aging-1-00-apu",
+      "title": "Super Famicom Aging Program 1.00",
+      "sha256": "f58837be3cf307edf550ec971993672d8d00e4fba99a2c5dee58383202d08c54",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "Super Famicom Aging Program Ver. 1.00 (Japan) (En).sfc",
+      "exercises": "this processor running the program's memory patterns and timer counts, and taking its upload through the boot program",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_the_aging_1_00_self_test_passes_all_six_of_its_sub_tests"
+      ]
+    },
+    {
+      "id": "240p-test-suite-1-061-ntsc",
+      "title": "240p Test Suite 1.061, NTSC",
+      "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "the boot program this processor runs taking the upload, and the jump into it",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_the_ntsc_240p_suite_upload_is_echoed_byte_for_byte_and_runs"
+      ]
+    },
+    {
+      "id": "240p-test-suite-1-061-pal",
+      "title": "240p Test Suite 1.061, PAL",
+      "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
+      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
+      "file": "240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "the boot program this processor runs taking the upload, and the jump into it",
+      "outcome": "run",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
+      "heldBy": [
+        "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_the_pal_240p_suite_upload_is_echoed_byte_for_byte_and_runs"
+      ]
+    },
+    {
       "id": "blargg-spc-smp",
       "title": "Shay Green's spc_smp",
       "sha256": "2ed302c5b989675d4ab6b40001fd5166ac4c6e0188a6b1b6df878e4608999c03",
@@ -8,7 +86,7 @@
       "file": "blargg-spc-6/spc_smp.sfc",
       "exercises": "the processor's instructions, flags and wrap-around, the boot program, the register reads and writes, and the three timers",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_every_check_spc_smp_reaches_agrees_with_a_console"
       ]
@@ -21,7 +99,7 @@
       "file": "blargg-spc-6/spc_mem_access_times.sfc",
       "exercises": "which cycle of each of 172 opcodes touches memory, timed by the unit's timers",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_every_check_spc_mem_access_times_reaches_agrees_with_a_console"
       ]
@@ -34,7 +112,7 @@
       "file": "gilyon/spctest.sfc",
       "exercises": "every SPC700 opcode but SLEEP and STOP, in every addressing mode, with and without the P flag",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_gilyon_spctest_reports_success_on_its_own_screen"
       ]
@@ -47,7 +125,7 @@
       "file": "PeterLemon/SNES-CPUTest-SPC700/ADC/SPC700ADC.sfc",
       "exercises": "the SPC700 ADC instructions, each result and flag word checked by the processor itself",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
       ]
@@ -60,7 +138,7 @@
       "file": "PeterLemon/SNES-CPUTest-SPC700/AND/SPC700AND.sfc",
       "exercises": "the SPC700 AND instructions, each result and flag word checked by the processor itself",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
       ]
@@ -73,7 +151,7 @@
       "file": "PeterLemon/SNES-CPUTest-SPC700/DEC/SPC700DEC.sfc",
       "exercises": "the SPC700 DEC instructions, each result and flag word checked by the processor itself",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
       ]
@@ -86,7 +164,7 @@
       "file": "PeterLemon/SNES-CPUTest-SPC700/EOR/SPC700EOR.sfc",
       "exercises": "the SPC700 EOR instructions, each result and flag word checked by the processor itself",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
       ]
@@ -99,7 +177,7 @@
       "file": "PeterLemon/SNES-CPUTest-SPC700/INC/SPC700INC.sfc",
       "exercises": "the SPC700 INC instructions, each result and flag word checked by the processor itself",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
       ]
@@ -112,7 +190,7 @@
       "file": "PeterLemon/SNES-CPUTest-SPC700/ORA/SPC700ORA.sfc",
       "exercises": "the SPC700 ORA instructions, each result and flag word checked by the processor itself",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
       ]
@@ -125,60 +203,10 @@
       "file": "PeterLemon/SNES-CPUTest-SPC700/SBC/SPC700SBC.sfc",
       "exercises": "the SPC700 SBC instructions, each result and flag word checked by the processor itself",
       "outcome": "run",
-      "runs": "run by sony-s-smp-python, which composes this member, through its conformance/cartridges.py on a cut-down console; the verdicts are recorded here",
+      "runs": "run by sony-s-smp-python, which composes this member; the measurements are kept here",
       "heldBy": [
         "conformance/cartridge.test.py::TheRecordedVerdictsTest.test_peter_lemons_cartridges_stop_at_their_first_check"
       ]
-    },
-    {
-      "id": "burn-in-rev-d",
-      "title": "Burn-in test cartridge, revision D",
-      "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "Burn-in - Test Cartridge (USA) (Rev D).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
-    },
-    {
-      "id": "snes-test-program",
-      "title": "SNES Test Program",
-      "sha256": "f732685db2bfc93e995128e015657165fbaaa2dd8723e7655507fda4ddc2a3a9",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "SNES Test Program (U).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
-    },
-    {
-      "id": "ntf-2-5-rev-a",
-      "title": "NTF 2.5 test cartridge, revision A",
-      "sha256": "3a3ba7500728920093ff48caf5baac0c1ec9b19aacda4fe4dce8afbdd69e859e",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "NTF 2.5 Test Cartridge (USA) (Rev A).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
-    },
-    {
-      "id": "240p-test-suite-1-061-ntsc",
-      "title": "240p Test Suite 1.061, NTSC",
-      "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
-    },
-    {
-      "id": "240p-test-suite-1-061-pal",
-      "title": "240p Test Suite 1.061, PAL",
-      "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
-      "source": "the local library of test images, snes-roms/5 Tools & Service Test Carts/",
-      "file": "240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl).sfc",
-      "exercises": "a test whose text names a sound test, played through the whole audio unit, with its verdict on a screen",
-      "outcome": "hosted",
-      "needs": "snes-machine"
     }
   ]
 }
