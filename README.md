@@ -468,7 +468,7 @@ write $0040 $34
 write $0041 $12
 ```
 
-The read of `$0040` leaves no trace in the final state, so only the cycle comparison sees it. This row was read again at 450 dots per inch before being recorded as a disagreement.
+The read of `$0040` leaves no trace in the final state, so only the cycle comparison sees it. This row was read again at 450 dots per inch before being recorded as a disagreement. A console settles it: Shay Green's `spc_mem_access_times.sfc` checks which cycle of each of 172 opcodes touches memory against a value taken on hardware, and the composed audio unit reproduces that value with this instruction at 5 cycles and misses it at 4.
 
 [`conformance/divergences.json`](conformance/divergences.json) holds this and the 6 other places where a source is silent or the model departs from one, each with its status and severity. [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) gives each open one the measurement that would settle it. Interrupts are not modelled because the audio unit brings out no interrupt line. The timers, ports and DSP around the processor are outside this package.
 

@@ -11,8 +11,10 @@ holds when it comes up.
 That leaves an unusually sharp split. Everything the corpus reaches is settled to
 a degree few members reach: 256,000 cases across every opcode, each comparing
 every register and every byte of memory before and after, and 1,182,940 cycles
-compared access by access with the cycle each access fell on. Everything the
-corpus does not reach is open, and the list below is that.
+compared access by access with the cycle each access fell on. One console
+measurement now stands behind part of it: Shay Green's check of which cycle of
+each of 172 opcodes touches memory reproduces the value he took on hardware.
+Everything neither reaches is open, and the list below is that.
 
 Every entry is also in
 [`conformance/divergences.json`](conformance/divergences.json) with its status
@@ -32,25 +34,6 @@ exist.
 
 A logic analyser on the audio unit's bus while a real cartridge plays, which is
 outside what this project can do, or a data sheet nobody has published.
-
-## Where the document and the recording disagree
-
-### `MOVW dp, YA` costs four cycles or five.
-
-**The document says.** Table C-11 gives the instruction as two bytes and four
-cycles, read off the rendered page at 450 dots per inch rather than from the scan
-text layer, which interleaves the columns.
-
-**What this project follows.** Five, which is what the corpus records.
-
-**Why.** The manual contradicts itself here: the same instruction's read-modify
-counterpart is given a count that only makes sense if this one is five, and every
-implementation that has been compared records five. The manual keeps the higher
-rung and this is the one place the corpus is followed over it, which is why it is
-written down rather than quietly resolved.
-
-**What would settle or reopen it.** A second printing of the table, or a
-measurement of the real part.
 
 ## Where no document exists at all
 
@@ -98,8 +81,17 @@ none out.
 requires a clocked part to publish one method per interrupt line it has, and this
 part is the reason that list is declared per member rather than assumed.
 
-**What would settle or reopen it.** A schematic of the audio unit showing an
-interrupt reaching the processor, or a document naming the pin.
+**What was looked at.** The SNESdev wiki's APU pinout page, edited on
+2026-10-04, lists all 64 pins of the S-SMP and all 24 of the sound module's
+connector. It names no interrupt input on either: the console reaches the module
+through the data bus, two address lines, two chip selects, the read and write
+strobes and the reset line. That page is a community reading of a board rather
+than a document pinned by digest, so it narrows the question and does not close
+it. Two pins it names, `T0` and `T1`, are not explained there.
+
+**What would settle or reopen it.** A schematic of the audio unit pinned by
+digest, showing what `T0`, `T1` and the two general ports connect to, or a
+document naming the pins.
 
 ### What happens inside a cycle.
 
@@ -108,81 +100,46 @@ interrupt reaching the processor, or a document naming the pin.
 **What this project follows.** The corpus, which records an address and a kind
 for every cycle, and the model is held to all 1,182,940 of them.
 
-**Why.** It is the only source that says anything at all. That makes the cycle
-shape rest on a recording alone, which is a rung lower than anything else here
-and is recorded as such rather than presented as settled.
+**Why.** It is the only source that names every cycle. A console measurement now
+holds part of it: `spc_mem_access_times.sfc` checks which cycle of each of 172
+opcodes reads or writes memory against a value taken on hardware, and this model
+reproduces that value. What the measurement does not reach is the other 84
+opcodes, the addresses an idle cycle drives, and anything a checksum of access
+timing cannot tell apart. Those still rest on the recording alone.
 
-**What would settle or reopen it.** A bus capture, or a Sony document.
+**What would settle or reopen it.** A bus capture, or a Sony document. Shay
+Green's reference table would name the 172 opcodes one by one rather than as a
+checksum.
 
-### Whether a second independent source agrees.
+## What was open and is now closed
 
-**The document says.** Not applicable.
+**`MOVW dp, YA` costs five cycles, and a console says so.** Table C-11 prints
+four. The corpus records five, in the shape read opcode, read operand, read the
+low destination byte and discard it, write the low half, write the high half.
+Shay Green's `spc_mem_access_times.sfc` settles it against hardware: it walks 172
+opcodes, records which cycle of each touches memory and how, and checks the whole
+table against `8f 77 58 15`, a value he took on a console. Driven through the
+audio unit in [sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python)
+with its timers corrected (as of 2026-10-19), this processor produces
+`8f 77 58 15`. The same run with `MOVW dp, YA` cut to four cycles, the discarded
+read removed, produces `2e a2 c2 0f`. The check reaches this instruction, and
+only five matches the console. The manual's four is a misprint, and the record
+keeps it as a disagreement with the manual rather than deleting it.
 
-**What this project follows.** One corpus.
-
-**Why.** Every other clocked member in this family is compared against a corpus
-and a second thing: a die simulation, a second implementation, or a manufacturer
-figure. This one has the corpus and Nintendo's tables, and the tables do not
-reach the cycle level.
-
-**What is now known.** A second source exists and it disagrees, but it does not
-judge this part alone, and an earlier version of this entry said it did. Shay
-Green's `spc_mem_access_times.sfc` walks the instruction set, records which cycle
-of each instruction touches memory and how, and checks the whole table against a
-value he took on a console. His expected value is `8f 77 58 15`, read out of his
-own uploaded program rather than off a screen. Driven at this model through the
-audio unit in [sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python),
-the accumulator ends at `08 42 1c 30`, read out of the unit's memory.
-
-The serialisation is settled rather than guessed: every byte fed to the checksum
-was captured at the one instruction that feeds it, and plain CRC-32 begun at all
-ones reproduces the unit's own accumulator exactly. The table is 172 opcodes of
-ASCII, one row each, from a seven symbol alphabet.
-
-**The disagreement is broad, not a few rows.** CRC-32 is affine, so a sparse
-difference can be located rather than searched for. No single change, no pair and
-no triple of descriptor substitutions produces the console's value, and neither
-does any class-level remapping of one descriptor into another, nor dropping
-trailing idle cycles everywhere.
-
-**It is not a verdict on this part, and the check has now been run against the
-author's own implementation.** `snes_spc 0.9.0` was built from source and handed
-the identical program, captured out of the cartridge at the instant the audio
-unit jumps into it and written back out as a file his library loads through its
-own public interface. Both were then run with no console attached at all:
-
-| Running the same program, no console                             | Result        |
-| ---------------------------------------------------------------- | ------------- |
-| This family's processor, sound generator and audio unit composed | `5e 71 f3 c3` |
-| `snes_spc 0.9.0`, by the author of the check                     | `5e 71 f3 c3` |
-
-**They agree byte for byte**, and the agreement survives every control tried.
-Unchanged across run lengths of one, two and four million instructions on one
-side and one hundred, two hundred and four hundred thousand samples on the
-other, and unchanged across call sizes of one, two, two hundred and fifty six
-and four thousand samples per call into his library. That last control matters
-because the sibling check on the sound generator is sensitive to call size and
-this one is not, so the agreement here is a property of the check rather than of
-a lucky way of driving it.
-
-So the check does not separate this model from the author's own, and the
-`08 42 1c 30` this model produced while running the whole cartridge is a property
-of the cut-down console it was driven from rather than of the processor. That
-console has no picture unit and answers most of its addresses with zero, which is
-enough to hand a program over and not enough to be a console.
-
-The timer coupling is real and is recorded in the audio unit's own questions: the
-table checksums to `08 42 1c 30` at 128 and 16 processor cycles per tick and to
-`92 33 b8 c9` at 256 and 32. It is not what produced this disagreement.
-
-**What is not known.** What a real console does that the harness does not. The
-gap is now bounded on both sides: two independent implementations agree with each
-other and neither agrees with hardware.
-
-**What would settle or reopen it.** Driving the same cartridge through a console
-faithful enough to be one, or running the cartridge on hardware. His reference
-table would still name the opcodes, and getting it now means instrumenting his
-implementation rather than decoding a checksum.
+**A second independent source now agrees.** The same console value holds the
+access timing of all 172 opcodes in that table, which is a measurement rather
+than a second recording. Two earlier versions of this entry located the
+disagreement first in this processor and then in the cut-down console the
+cartridge was driven from. It was neither. The audio unit's timers restarted
+their prescaler whenever a timer was switched on and wrapped a lowered divider
+at once, where Nintendo's Book I draws one free-running prescaler for all three
+timers and says switching a timer on clears only that timer's two counters,
+with its divider matched by equality. With those two corrected in the unit,
+the same cut-down console and the same processor give the console's value. The
+cartridge is `spc_mem_access_times.sfc`, SHA-256
+`53dc8005959d54ccfc95b8d4222e1d51d21e3d9f3491058320f105edc1a4454a`, from
+`https://gitlab.com/higan/snes-test-roms` at commit
+`26e8aa91e0d3b90b901e7e693bc4a8244b391d7b`, and it is not carried here.
 
 ## What is not in question
 
@@ -198,7 +155,8 @@ So the boundary is visible rather than implied:
   one place, so a caller driving the clock gets control back between two cycles
   of one instruction rather than after it.
 - **Every cycle count Nintendo printed.** All 256 rows are pinned with the page
-  each was read from, and the one disagreement is above.
+  each was read from. The one that disagrees, `MOVW dp, YA`, is settled above by
+  a console.
 
 ## What is deliberately not modelled
 

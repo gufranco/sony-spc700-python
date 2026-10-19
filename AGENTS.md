@@ -52,15 +52,17 @@ than promoting the rung below it.
 
 ## What is settled and what is not
 
-**Not settled: 5 things**, each in
+**Not settled: 3 things**, each in
 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with the measurement that would close it.
-The sharp one is that the cycle shape rests on a recording alone: no document
-describes what happens inside a cycle, so 1,182,940 cycles of agreement are
-agreement between two implementations rather than a measurement of silicon.
+The sharp one is that most of the cycle shape rests on a recording alone: no
+document describes what happens inside a cycle, and the one console measurement,
+Shay Green's `spc_mem_access_times.sfc`, holds the memory access timing of 172
+opcodes and nothing finer.
 
 Settled: every instruction's effect, every instruction's cycle count and access
 order, and every figure the manual prints. One row of the manual disagrees with
-the corpus and the disagreement is recorded rather than averaged away.
+the corpus, a console measurement sides with the corpus, and the disagreement is
+recorded rather than averaged away.
 
 ## Power on scrambles, reset defines
 

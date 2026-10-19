@@ -9,12 +9,12 @@
       "id": "movw-dp-ya-costs-five",
       "parts": ["spc700"],
       "severity": "high",
-      "status": "open",
+      "status": "closed",
       "documentSays": "Table C-11 gives MOVW dp, YA, code DA, as 2 bytes and 4 cycles. Read off the rendered page at 450 dots per inch to rule out a misread digit.",
       "referenceDoes": "All 1000 cases take 5 cycles, in the shape read opcode, read the operand byte, read the low destination byte and discard it, write the low half, write the high half.",
       "packageFollows": "recording",
-      "reasoning": "The discarded read is a store's read cycle, which every other store on this part also pays: MOV dp, A reads dp before writing it, and the recording shows the same shape there. A count with no breakdown cannot describe that cycle, so the document is not in a position to deny it. The document is also internally uneven here, giving the reading form MOVW YA, dp 5 cycles for two reads and the writing form 4 for two writes plus the same addressing work.",
-      "wouldSettleIt": "A logic analyser on a real S-SMP running MOVW dp, YA, counting cycles between two known instructions. Failing that, a second manufacturer document giving the same instruction a figure."
+      "reasoning": "The discarded read is a store's read cycle, which every other store on this part also pays: MOV dp, A reads dp before writing it, and the recording shows the same shape there. A count with no breakdown cannot describe that cycle, so the document is not in a position to deny it. The document is also internally uneven here, giving the reading form MOVW YA, dp 5 cycles for two reads and the writing form 4 for two writes plus the same addressing work. A console now settles it. Shay Green's spc_mem_access_times.sfc checks which cycle of each of 172 opcodes touches memory against 8f 77 58 15, a value he took on hardware. Driven through the audio unit in sony-s-smp-python with its timers corrected, this processor produces 8f 77 58 15. The same run with MOVW dp, YA cut to four cycles, the discarded read removed, produces 2e a2 c2 0f. The check reaches this instruction and only five matches the console, so the manual's four is a misprint.",
+      "wouldSettleIt": "Settled by a measurement taken on a console: spc_mem_access_times.sfc, SHA-256 53dc8005959d54ccfc95b8d4222e1d51d21e3d9f3491058320f105edc1a4454a, from https://gitlab.com/higan/snes-test-roms at commit 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b, run on 2026-10-19. A second printing of Table C-11 would correct the document and would not change the answer."
     },
     {
       "id": "sleep-and-stop-have-no-cycle-count",
@@ -31,23 +31,23 @@
       "id": "the-cycle-shape-rests-on-the-recording-alone",
       "parts": ["spc700"],
       "severity": "high",
-      "status": "acknowledged",
+      "status": "narrowed",
       "documentSays": "Nothing. Appendix C gives a cycle count per instruction and no breakdown of what happens inside one.",
       "referenceDoes": "Names an address and a kind for every cycle of every case.",
       "packageFollows": "recording",
-      "reasoning": "Every placement in this core, which cycle drives which address, where the internal cycles fall, which reads are discarded, comes from the recording and from nothing else. The document can confirm a total and can never confirm a shape. Two cores agreeing with the document on all 256 totals can still disagree with each other on most cycles, which is why the total is the weaker claim of the two.",
-      "wouldSettleIt": "A Sony datasheet for the SPC700, or the S-SMP schematic. Neither is known to have been published."
+      "reasoning": "Every placement in this core, which cycle drives which address, where the internal cycles fall, which reads are discarded, comes from the recording and from nothing else. The document can confirm a total and can never confirm a shape. Two cores agreeing with the document on all 256 totals can still disagree with each other on most cycles, which is why the total is the weaker claim of the two. Part of it is now held to hardware: spc_mem_access_times.sfc checks which cycle of each of 172 opcodes reads or writes memory against a value taken on a console, and this model reproduces that value. The other 84 opcodes, the addresses idle cycles drive, and anything a checksum of access timing cannot separate still rest on the recording alone.",
+      "wouldSettleIt": "A Sony datasheet for the SPC700, the S-SMP schematic, or a bus capture. Shay Green's reference table would name the 172 opcodes one by one rather than as a checksum."
     },
     {
       "id": "the-authors-own-implementation-agrees-with-this-one",
       "parts": ["spc700"],
       "severity": "low",
-      "status": "notADisagreement",
+      "status": "closed",
       "documentSays": "Nintendo documents the instruction set as a licensee-facing appendix. It is not a Sony datasheet and does not describe the silicon.",
       "referenceDoes": "Shay Green's spc_mem_access_times.sfc walks the instruction set on a console and checksums which cycle of each instruction touches memory.",
       "packageFollows": "document",
-      "reasoning": "Two earlier versions of this entry said a hardware-derived source disagrees with this model. It disagrees with the harness. snes_spc 0.9.0 was built and handed the identical program, captured out of the cartridge and written back out as a file his library loads through its own interface. Run with no console, this family's composed model and his own implementation both give 5e 71 f3 c3, stable across three run lengths each. A console gives 8f 77 58 15. So the check does not separate this model from his, and the 08 42 1c 30 seen while running the whole cartridge belongs to the cut-down console it was driven from, which has no picture unit and answers most addresses with zero.",
-      "wouldSettleIt": "A console faithful enough to be one, or the cartridge run on hardware. Two independent implementations now agree with each other and neither agrees with hardware, which bounds the gap on both sides."
+      "reasoning": "The disagreement was in neither this model nor the cut-down console the cartridge was driven from. snes_spc 0.9.0 and this family's composed model, handed the identical captured program with no console, both give 5e 71 f3 c3, which says only that they agree. With the whole cartridge driven through the audio unit, this model gave 08 42 1c 30 while the unit's timers restarted their prescaler on every enable and wrapped a lowered divider at once. Nintendo's Book I draws one prescaler feeding all three timers and says enabling a timer clears only its own two counters, with the divider matched by equality. With the unit's timers made to do that, the same cut-down console and this same processor give 8f 77 58 15, the console's value.",
+      "wouldSettleIt": "Settled. The console's value is reproduced, and the run that cut MOVW dp, YA to four cycles shows the check is sensitive to this processor's cycle shape."
     },
     {
       "id": "interrupts-are-not-modelled",
@@ -57,8 +57,8 @@
       "documentSays": "Table C-16 gives BRK and RETI. Table C-19 gives EI and DI. No figure is given for accepting an interrupt.",
       "referenceDoes": "Never raises one. Every case runs one instruction from a state it declares.",
       "packageFollows": "neither",
-      "reasoning": "This core has no pin to raise an interrupt on, so there is nothing to model and nothing to check a model against. BRK, RETI, EI and DI are implemented because they are instructions; accepting an interrupt is not.",
-      "wouldSettleIt": "A recording of the part with the interrupt line asserted, or a manufacturer figure for the acknowledge sequence."
+      "reasoning": "This core has no pin to raise an interrupt on, so there is nothing to model and nothing to check a model against. BRK, RETI, EI and DI are implemented because they are instructions; accepting an interrupt is not. The SNESdev wiki's APU pinout page, edited on 2026-10-04, lists all 64 pins of the S-SMP and the 24 of the sound module's connector and names no interrupt input on either. It is a community reading of a board rather than a document pinned by digest, so it narrows this and does not close it. Two S-SMP pins it names, T0 and T1, are not explained there.",
+      "wouldSettleIt": "A schematic of the audio unit pinned by digest, showing what T0, T1 and the two general ports connect to, a recording of the part with an interrupt line asserted, or a manufacturer figure for the acknowledge sequence."
     },
     {
       "id": "reset-state-is-invented-rather-than-documented",
@@ -83,5 +83,5 @@
       "wouldSettleIt": "n/a. This is a scope boundary rather than an unknown."
     }
   ],
-  "readOn": "2026-08-26"
+  "readOn": "2026-10-19"
 }
