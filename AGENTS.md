@@ -109,11 +109,13 @@ present:
 - Shay Green's `spc_smp.sfc`: 18 of 18 verdicts agree with a console.
 - Shay Green's `spc_mem_access_times.sfc`: 2 of 2 agree.
 - gilyon's `spctest.sfc`, every opcode but `SLEEP` and `STOP`: `Success`.
-- Peter Lemon's seven SPC700 cartridges: `FAIL` at the first check of each. The
-  status word they store differs from what they expect in the interrupt flag
-  alone, which a reset leaves set here. That is an open question, under what
-  the part holds when it comes up in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md), and
-  it stays open until a console says what a reset leaves in the flag.
+- Peter Lemon's seven SPC700 cartridges: every PASS their source prints, with
+  the interrupt flag excused. The status word they store differs from what they
+  expect in that flag alone, which a reset leaves set here, and his expected
+  values carry no stated hardware provenance, so the reset stays an open
+  question under what the part holds when it comes up in
+  [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) and `conformance/divergences.json`
+  records why.
 
 A change to this processor reaches those runs only once sony-s-smp-python moves
 its pin, so run them there before calling a change finished.

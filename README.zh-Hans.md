@@ -472,7 +472,7 @@ write $0041 $12
 
 [`conformance/divergences.json`](conformance/divergences.json) 记录了这一处以及另外 6 处来源未作说明或模型与来源不同的地方，每处都附有状态和严重程度。[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 为每个未决问题给出能解决它的测量方法。中断没有建模，因为音频单元没有引出中断线。处理器周围的定时器、端口和 DSP 不在本包范围内。
 
-测试卡带在 [sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python) 中运行，它把这个处理器组成音频单元，并由精简的主机驱动。[`conformance/cartridge.json`](conformance/cartridge.json) 记录了结果：Shay Green 的 `spc_smp` 在 18 个判定中 18 个与主机一致，`spc_mem_access_times` 2 个中 2 个一致；gilyon 的 `spctest` 测试除 `SLEEP` 和 `STOP` 以外的每个操作码，报告 `Success`。Peter Lemon 的七盘 SPC700 卡带在第一个检查报告 `FAIL`，原因是这里复位后保持置位的中断标志，[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 把它保留为未解决。[`conformance/testroms.json`](conformance/testroms.json) 列出这个处理器的每盘测试卡带。四盘工厂与维修卡带，Burn-in Rev D、SNSP Aging 1.02、Control Deck Tester 和 Aging Program 1.00，上传一个由这个处理器运行的自检程序，四盘全部通过每个子测试；240p Test Suite 的两个版本经由它运行的引导程序上传驱动程序，每次回应都到达。
+测试卡带在 [sony-s-smp-python](https://github.com/gufranco/sony-s-smp-python) 中运行，它把这个处理器组成音频单元，并由精简的主机驱动。[`conformance/cartridge.json`](conformance/cartridge.json) 记录了结果：Shay Green 的 `spc_smp` 在 18 个判定中 18 个与主机一致，`spc_mem_access_times` 2 个中 2 个一致；gilyon 的 `spctest` 测试除 `SLEEP` 和 `STOP` 以外的每个操作码，报告 `Success`。Peter Lemon 的七盘 SPC700 卡带在豁免一个字段后显示每一个 PASS，那就是这里复位后保持置位的中断标志：他的期望值没有注明取自实机，因此 [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 把复位保留为未解决。[`conformance/testroms.json`](conformance/testroms.json) 列出这个处理器的每盘测试卡带。四盘工厂与维修卡带，Burn-in Rev D、SNSP Aging 1.02、Control Deck Tester 和 Aging Program 1.00，上传一个由这个处理器运行的自检程序，四盘全部通过每个子测试；240p Test Suite 的两个版本经由它运行的引导程序上传驱动程序，每次回应都到达。
 
 ## 参与开发
 

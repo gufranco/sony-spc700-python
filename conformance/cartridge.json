@@ -172,11 +172,172 @@
       "from": "https://gitlab.com/higan/snes-test-roms",
       "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "runOn": "2026-10-19",
-      "screen": " SPC Test ADC (Add With Carry):\n ------------------------------\n ADC #const   (Opcode: $88)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00111   FAIL",
+      "screen": " SPC Test ADC (Add With Carry):\n ------------------------------\n ADW dp       (Opcode: $7A)\n        Result | NVHZC | Test |\n ------------------------------\n        $0000    00111   PASS\n        $FFFE    11100   PASS",
       "verdicts": 0,
       "agreed": 0,
       "disagreed": 0,
-      "checks": []
+      "checks": [],
+      "excuse": "04",
+      "passes": 26,
+      "passesFrom": "PrintText(Pass occurrences in SPC700ADC.asm at the same commit",
+      "excused": [
+        {
+          "at": "0331",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "0369",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "03a3",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "03dd",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "0416",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "044f",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "048b",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "04c7",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "0503",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "053f",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "057a",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "05b5",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "05f6",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "0637",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "0678",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "06b9",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "06f3",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "072d",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "076c",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "07ab",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "07e5",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "081f",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "085c",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "0899",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "08df",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "0927",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        }
+      ]
     },
     {
       "id": "peterlemon-spc700-and",
@@ -185,11 +346,184 @@
       "from": "https://gitlab.com/higan/snes-test-roms",
       "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "runOn": "2026-10-19",
-      "screen": " SPC Test AND (AND With Memory):\n ------------------------------\n AND #const   (Opcode: $28)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "screen": " SPC Test AND (AND With Memory):\n ------------------------------\n AND !addr:bit(Opcode: $6A)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   PASS\n        $FF      10001   PASS",
       "verdicts": 0,
       "agreed": 0,
       "disagreed": 0,
-      "checks": []
+      "checks": [],
+      "excuse": "04",
+      "passes": 28,
+      "passesFrom": "PrintText(Pass occurrences in SPC700AND.asm at the same commit",
+      "excused": [
+        {
+          "at": "0332",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "036a",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "03a5",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "03df",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0419",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0452",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "048f",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "04cb",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0508",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0544",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0580",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "05bb",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "05fd",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "063e",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0680",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "06c1",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "06fc",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0736",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0776",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "07b5",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "07f0",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "082a",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0868",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "08a5",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "08e0",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "091a",
+          "expected": "81",
+          "thisModel": "85",
+          "excused": true
+        },
+        {
+          "at": "0955",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "098f",
+          "expected": "81",
+          "thisModel": "85",
+          "excused": true
+        }
+      ]
     },
     {
       "id": "peterlemon-spc700-dec",
@@ -198,11 +532,94 @@
       "from": "https://gitlab.com/higan/snes-test-roms",
       "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "runOn": "2026-10-19",
-      "screen": " SPC Test DEC (Decrement):\n ------------------------------\n DEC A        (Opcode: $9C)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "screen": " SPC Test DEC (Decrement):\n ------------------------------\n DEW dp       (Opcode: $1A)\n        Result | NVHZC | Test |\n ------------------------------\n        $0000    00010   PASS\n        $8000    10000   PASS",
       "verdicts": 0,
       "agreed": 0,
       "disagreed": 0,
-      "checks": []
+      "checks": [],
+      "excuse": "04",
+      "passes": 14,
+      "passesFrom": "PrintText(Pass occurrences in SPC700DEC.asm at the same commit",
+      "excused": [
+        {
+          "at": "0331",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0368",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "03a3",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "03de",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0418",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0452",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "048e",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "04ca",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0502",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "053a",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0572",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "05eb",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "062c",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        }
+      ]
     },
     {
       "id": "peterlemon-spc700-eor",
@@ -211,11 +628,172 @@
       "from": "https://gitlab.com/higan/snes-test-roms",
       "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "runOn": "2026-10-19",
-      "screen": " SPC Test EOR (XOR With Memory):\n ------------------------------\n EOR #const   (Opcode: $48)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "screen": " SPC Test EOR (XOR With Memory):\n ------------------------------\n EOR addr:bit (Opcode: $8A)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00011   PASS\n        $FF      10000   PASS",
       "verdicts": 0,
       "agreed": 0,
       "disagreed": 0,
-      "checks": []
+      "checks": [],
+      "excuse": "04",
+      "passes": 26,
+      "passesFrom": "PrintText(Pass occurrences in SPC700EOR.asm at the same commit",
+      "excused": [
+        {
+          "at": "0332",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "036a",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "03a5",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "03df",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0419",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0452",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "048f",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "04cb",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0508",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0544",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0580",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "05bb",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "05fd",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "063e",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0680",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "06c1",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "06fc",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0736",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0776",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "07b5",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "07f0",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "082a",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0868",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "08a5",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "08e0",
+          "expected": "03",
+          "thisModel": "07",
+          "excused": true
+        },
+        {
+          "at": "091a",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        }
+      ]
     },
     {
       "id": "peterlemon-spc700-inc",
@@ -224,11 +802,100 @@
       "from": "https://gitlab.com/higan/snes-test-roms",
       "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "runOn": "2026-10-19",
-      "screen": " SPC Test INC (Increment):\n ------------------------------\n INC A        (Opcode: $BC)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "screen": " SPC Test INC (Increment):\n ------------------------------\n INW dp       (Opcode: $3A)\n        Result | NVHZC | Test |\n ------------------------------\n        $0000    00010   PASS\n        $8000    10000   PASS",
       "verdicts": 0,
       "agreed": 0,
       "disagreed": 0,
-      "checks": []
+      "checks": [],
+      "excuse": "04",
+      "passes": 14,
+      "passesFrom": "PrintText(Pass occurrences in SPC700INC.asm at the same commit",
+      "excused": [
+        {
+          "at": "0331",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0368",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "03a3",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "03de",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0418",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0452",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "048e",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "04ca",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0502",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "053a",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0572",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "05aa",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "05eb",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "062c",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        }
+      ]
     },
     {
       "id": "peterlemon-spc700-ora",
@@ -237,11 +904,184 @@
       "from": "https://gitlab.com/higan/snes-test-roms",
       "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "runOn": "2026-10-19",
-      "screen": " SPC Test ORA (OR With Memory):\n ------------------------------\n ORA #const   (Opcode: $08)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   FAIL",
+      "screen": " SPC Test ORA (OR With Memory):\n ------------------------------\n ORC !addr:bit(Opcode: $2A)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00010   PASS\n        $FF      10001   PASS",
       "verdicts": 0,
       "agreed": 0,
       "disagreed": 0,
-      "checks": []
+      "checks": [],
+      "excuse": "04",
+      "passes": 28,
+      "passesFrom": "PrintText(Pass occurrences in SPC700ORA.asm at the same commit",
+      "excused": [
+        {
+          "at": "0332",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "036a",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "03a5",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "03df",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0419",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0452",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "048f",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "04cb",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0508",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0544",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0580",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "05bb",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "05fd",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "063e",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0680",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "06c1",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "06fc",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "0736",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0776",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "07b5",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "07f0",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "082a",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "0868",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "08a5",
+          "expected": "80",
+          "thisModel": "84",
+          "excused": true
+        },
+        {
+          "at": "08e0",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "091a",
+          "expected": "81",
+          "thisModel": "85",
+          "excused": true
+        },
+        {
+          "at": "0955",
+          "expected": "02",
+          "thisModel": "06",
+          "excused": true
+        },
+        {
+          "at": "098f",
+          "expected": "81",
+          "thisModel": "85",
+          "excused": true
+        }
+      ]
     },
     {
       "id": "peterlemon-spc700-sbc",
@@ -250,16 +1090,177 @@
       "from": "https://gitlab.com/higan/snes-test-roms",
       "atCommit": "26e8aa91e0d3b90b901e7e693bc4a8244b391d7b",
       "runOn": "2026-10-19",
-      "screen": " SPC Test SBC (Sub With Borrow):\n ------------------------------\n SBC #const   (Opcode: $A8)\n        Result | NVHZC | Test |\n ------------------------------\n        $00      00111   FAIL",
+      "screen": " SPC Test SBC (Sub With Borrow):\n ------------------------------\n SBW dp       (Opcode: $9A)\n        Result | NVHZC | Test |\n ------------------------------\n        $0000    00111   PASS\n        $FFFF    11100   PASS",
       "verdicts": 0,
       "agreed": 0,
       "disagreed": 0,
-      "checks": []
+      "checks": [],
+      "excuse": "04",
+      "passes": 26,
+      "passesFrom": "PrintText(Pass occurrences in SPC700SBC.asm at the same commit",
+      "excused": [
+        {
+          "at": "0331",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "0369",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "03a3",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "03dd",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "0416",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "044f",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "048b",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "04c7",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "0503",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "053f",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "057a",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "05b5",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "05f6",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "0637",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "0678",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "06b9",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "06f3",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "072d",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "076c",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "07ab",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "07e5",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "081f",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "085c",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "0899",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        },
+        {
+          "at": "08df",
+          "expected": "0b",
+          "thisModel": "0f",
+          "excused": true
+        },
+        {
+          "at": "0925",
+          "expected": "c8",
+          "thisModel": "cc",
+          "excused": true
+        }
+      ]
     }
   ],
-  "verified": false,
-  "evidence": "All 20 verdicts Shay Green's spc_smp and spc_mem_access_times reach agree with values taken on a console, and gilyon's spctest, which tests every opcode but SLEEP and STOP, reports Success. Peter Lemon's seven SPC700 cartridges each report FAIL at their first check: the status word they store differs from what they expect in the interrupt flag alone, which this processor leaves set after a reset.",
-  "howToSettleIt": "Settled for what Shay Green's and gilyon's cartridges reach. Peter Lemon's wait on what a reset leaves in the interrupt flag, which OPEN-QUESTIONS.md carries under what the part holds when it comes up.",
+  "verified": true,
+  "evidence": "All 20 verdicts Shay Green's spc_smp and spc_mem_access_times reach agree with values taken on a console, and gilyon's spctest, which tests every opcode but SLEEP and STOP, reports Success. Peter Lemon's seven SPC700 cartridges print every PASS their source prints with one field excused: the status words they compare differ from their expectations in the interrupt flag alone, which this processor leaves set after a reset.",
+  "howToSettleIt": "Settled for what Shay Green's and gilyon's cartridges reach. Peter Lemon's expected values carry no stated hardware provenance, so they leave what a reset puts in the interrupt flag open; divergences.json records it, and OPEN-QUESTIONS.md carries it under what the part holds when it comes up.",
   "selfTests": {
     "producedBy": "sony-s-smp-python's conformance/selftest.py and conformance/handshake.py, on 2026-10-19, with this member pinned there at 0f0caabc8f1dee45f3c4ce988bdf385ad0ae157a",
     "images": [

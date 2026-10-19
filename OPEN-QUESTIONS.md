@@ -68,11 +68,15 @@ is still genuinely undefined.
 **Peter Lemon's seven SPC700 cartridges lean on two more bits.** Each one checks
 the whole status word after its first instruction and expects the interrupt
 flag clear, though neither his program nor the boot program clears it. This
-part comes out of reset with the flag set, so all seven report `FAIL` at their
-first check when sony-s-smp-python runs them (as of 2026-10-19). `ADC #const`
-stores `$0f` where it expects `$0b`, and `AND #const` and `DEC A` store `$06`
-where they expect `$02`: one bit apart each time, the interrupt flag. The
-screenshots beside his source are not a console's, so they settle nothing.
+part comes out of reset with the flag set, so every status word his checks
+compare is one bit apart from what they expect, the interrupt flag: `ADC #const`
+stores `$0f` where it expects `$0b`, `AND #const` and `DEC A` store `$06` where
+they expect `$02`. His mirror and his source make no claim that the expected
+values were taken on a console, and the screenshots beside them are not a
+console's, so they settle nothing and the reset is left as it is.
+sony-s-smp-python runs them with that flag alone excused and every other field
+compared, and all seven print every PASS (as of 2026-10-19).
+`conformance/divergences.json` records it.
 
 **What would settle or reopen it.** A measurement of a real audio unit at power
 on, or a Sony document. Neither is needed for the direct-page bit. His cartridges

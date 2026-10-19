@@ -71,7 +71,7 @@ class TheRecordedVerdictsTest(unittest.TestCase):
         # Assert
         self.assertEqual(screen, " Running tests... Success\n Test number: 0527")
 
-    def test_peter_lemons_cartridges_stop_at_their_first_check(self) -> None:
+    def test_peter_lemons_cartridges_pass_with_only_the_interrupt_flag_excused(self) -> None:
         # Arrange
         names = [
             "peterlemon-spc700-adc",
@@ -85,11 +85,14 @@ class TheRecordedVerdictsTest(unittest.TestCase):
 
         # Act
         endings = [recorded(name)["screen"].split()[-1] for name in names]
-        passes = [recorded(name)["screen"].count("PASS") for name in names]
+        apart = {
+            int(one["expected"], 16) ^ int(one["thisModel"], 16)
+            for name in names
+            for one in recorded(name)["excused"]
+        }
 
         # Assert
-        self.assertEqual(endings, ["FAIL"] * 7)
-        self.assertEqual(passes, [0] * 7)
+        self.assertEqual((endings, apart), (["PASS"] * 7, {0x04}))
 
     def test_the_burn_in_self_test_passes_every_sub_test_but_the_envelope(self) -> None:
         # Arrange

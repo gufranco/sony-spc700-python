@@ -81,6 +81,17 @@
       "packageFollows": "recording",
       "reasoning": "This package is the processor. The registers at 00F0 to 00FF, the timers, and the IPL ROM belong to the S-SMP around it, and modelling them here would put two parts in one package and make the conformance comparison meaningless, because the suite reads and writes those addresses as ordinary memory.",
       "wouldSettleIt": "n/a. This is a scope boundary rather than an unknown."
+    },
+    {
+      "id": "peter-lemons-cartridges-expect-the-interrupt-flag-clear-after-reset",
+      "parts": ["spc700"],
+      "severity": "low",
+      "status": "acknowledged",
+      "documentSays": "Nothing. Appendix C gives no value for the status word after a reset.",
+      "referenceDoes": "Peter Lemon's seven SPC700 cartridges, SPC700ADC, AND, DEC, EOR, INC, ORA and SBC from https://gitlab.com/higan/snes-test-roms at commit 26e8aa91e0d3b90b901e7e693bc4a8244b391d7b, compare the whole status word after each instruction and expect the interrupt flag clear, though neither his program nor the boot program clears it. The mirror and his source make no claim that the expected values were taken on a console, so they carry no stated hardware provenance.",
+      "packageFollows": "neither",
+      "reasoning": "This processor comes out of reset with the interrupt flag set from its scramble, which is not a claim about the hardware either, so a program that depends on the flag fails visibly here. A program whose expected values have no stated hardware source cannot settle the reset state, so the reset is left as it is. sony-s-smp-python's conformance/cartridges.py runs his cartridges with only that flag excused: where the status word his program compares differs from its expectation in the interrupt flag alone, the check is let through and recorded; any other difference fails.",
+      "wouldSettleIt": "A console reading the status word right after a reset, before anything sets or clears a flag, or a Sony document giving it."
     }
   ],
   "readOn": "2026-10-19"
