@@ -21,8 +21,8 @@ evidence that they did.
 Both runners, and both outputs pasted:
 
 ```bash
-python3 conformance/singlestep.py ~/.cache/conformance-suites/spc700/spc700/v1
-python3 conformance/cycles.py     ~/.cache/conformance-suites/spc700/spc700/v1
+python3 conformance/singlestep.py external/conformance-suites/spc700/spc700/v1
+python3 conformance/cycles.py     external/conformance-suites/spc700/spc700/v1
 ```
 
 A core can pass either one while failing the other. Every store on this part

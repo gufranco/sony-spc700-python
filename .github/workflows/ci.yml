@@ -165,12 +165,12 @@ jobs:
         id: cache
         uses: actions/cache@v6
         with:
-          path: ~/.cache/conformance-suites
+          path: external/conformance-suites
           key: suites-${{ steps.pin.outputs.commit }}
 
       - name: Fetch the suite
         if: steps.cache.outputs.cache-hit != 'true'
-        run: python -m conformance.fetch ~/.cache/conformance-suites
+        run: python -m conformance.fetch external/conformance-suites
 
       - name: Run the suite through both runners, a tenth of each file on a pull request
         run: |
@@ -180,9 +180,9 @@ jobs:
             limit=0
           fi
           python -m conformance.singlestep \
-            ~/.cache/conformance-suites/spc700/spc700/v1 "${limit}"
+            external/conformance-suites/spc700/spc700/v1 "${limit}"
           python -m conformance.cycles \
-            ~/.cache/conformance-suites/spc700/spc700/v1 "${limit}"
+            external/conformance-suites/spc700/spc700/v1 "${limit}"
         shell: bash
 
   package:

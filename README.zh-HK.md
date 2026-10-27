@@ -8,7 +8,7 @@ Sony SPC700 是 SNES 音效單元中 S-SMP 內的處理器。本專案以 Python
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-比對了 **256** 個操作碼、**256,000** 個一致性案例及 **1,182,940** 個週期，**0** 個失敗；**256** 個長度及 **253** 個週期數與 Nintendo 的表格相符；**918** 個測試；**100%** 語句及分支覆蓋率；無任何依賴
+比對了 **256** 個操作碼、**256,000** 個一致性案例及 **1,182,940** 個週期，**0** 個失敗；**256** 個長度及 **253** 個週期數與 Nintendo 的表格相符；**969** 個測試；**100%** 語句及分支覆蓋率；無任何依賴
 
 ```python
 from spc700 import Cpu, Memory
@@ -45,7 +45,7 @@ python3 spc700/doctor.py
 
 本套件只匯入標準程式庫。`pip install git+https://github.com/gufranco/sony-spc700-python.git` 可把它安裝到另一個專案。
 
-診斷腳本會檢查機器、建立並重設這個部件，並在 `~/.cache/conformance-suites` 尋找一致性測試套件。它以一行結束。提交錯誤報告時請貼上其全部輸出。
+診斷腳本會檢查機器、建立並重設這個部件，並在 `external/conformance-suites` 尋找一致性測試套件。它以一行結束。提交錯誤報告時請貼上其全部輸出。
 
 ```
   6 checks, nothing to report
@@ -169,7 +169,7 @@ spc800 is not a model this package covers; it has spc700
 | 命令                                | 參數                                                                                                            | 結束碼                                                               |
 | :---------------------------------- | :-------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------- |
 | `python3 spc700/doctor.py`          | 無                                                                                                              | 所有檢查通過時為 0，否則為 1                                         |
-| `python3 -m conformance.fetch`      | `[directory] [--latest]`。目錄預設為 `~/.cache/conformance-suites`。`--latest` 採用上游最新的提交，而非固定版本 | 0；無法連上上游時為 1                                                |
+| `python3 -m conformance.fetch`      | `[directory] [--latest]`。目錄預設為 `external/conformance-suites`。`--latest` 採用上游最新的提交，而非固定版本 | 0；無法連上上游時為 1                                                |
 | `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]`                                                              | 每個案例都一致或沒有測試套件時為 0，出現不一致時為 1，沒有參數時為 2 |
 | `python3 -m conformance.cycles`     | 與 `singlestep` 相同                                                                                            | 與 `singlestep` 相同                                                 |
 | `python3 -m conformance.documents`  | `[--check] [--only SUBSTRING]`。`--check` 只驗證磁碟上已有的檔案，不會下載                                      | 每份文件都通過驗證時為 0，否則為 1                                   |
@@ -417,9 +417,9 @@ for page in (False, True):
 ## 它是否正確
 
 ```bash
-python3 -m conformance.fetch ~/.cache/conformance-suites
-python3 -m conformance.singlestep ~/.cache/conformance-suites/spc700/spc700/v1
-python3 -m conformance.cycles ~/.cache/conformance-suites/spc700/spc700/v1
+python3 -m conformance.fetch external/conformance-suites
+python3 -m conformance.singlestep external/conformance-suites/spc700/spc700/v1
+python3 -m conformance.cycles external/conformance-suites/spc700/spc700/v1
 ```
 
 `singlestep` 以 `256000 agreed, 0 did not` 結束，`cycles` 則以 `256000 agreed, 0 did not, over 1182940 cycles` 結束。任何一項出現不一致都會以 1 結束。

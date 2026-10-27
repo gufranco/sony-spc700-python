@@ -8,7 +8,7 @@ SNESオーディオユニットのS-SMPに内蔵されたプロセッサであ�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256**個のオペコード、**256,000**件の適合性ケースと**1,182,940**サイクルを比較して失敗**0**件、**256**個の命令長と**253**個のサイクル数がNintendoの表に一致、テスト**918**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
+**256**個のオペコード、**256,000**件の適合性ケースと**1,182,940**サイクルを比較して失敗**0**件、**256**個の命令長と**253**個のサイクル数がNintendoの表に一致、テスト**969**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
 ```python
 from spc700 import Cpu, Memory
@@ -45,7 +45,7 @@ python3 spc700/doctor.py
 
 このパッケージは標準ライブラリ以外を何もインポートしません。`pip install git+https://github.com/gufranco/sony-spc700-python.git`で別のプロジェクトにインストールできます。
 
-ドクターはマシンを確認し、パーツを構築してリセットし、`~/.cache/conformance-suites`にある適合性スイートを探します。出力は1行で終わります。バグ報告にはその出力全体を貼り付けてください。
+ドクターはマシンを確認し、パーツを構築してリセットし、`external/conformance-suites`にある適合性スイートを探します。出力は1行で終わります。バグ報告にはその出力全体を貼り付けてください。
 
 ```
   6 checks, nothing to report
@@ -169,7 +169,7 @@ spc800 is not a model this package covers; it has spc700
 | コマンド                            | 引数                                                                                                                                                      | 終了コード                                                                                 |
 | :---------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------- |
 | `python3 spc700/doctor.py`          | なし                                                                                                                                                      | すべてのチェックに合格すると0、それ以外は1                                                 |
-| `python3 -m conformance.fetch`      | `[directory] [--latest]`。ディレクトリのデフォルトは`~/.cache/conformance-suites`です。`--latest`はピンの代わりにアップストリームの最新コミットを使います | 0、またはアップストリームに到達できない場合は1                                             |
+| `python3 -m conformance.fetch`      | `[directory] [--latest]`。ディレクトリのデフォルトは`external/conformance-suites`です。`--latest`はピンの代わりにアップストリームの最新コミットを使います | 0、またはアップストリームに到達できない場合は1                                             |
 | `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]`                                                                                                        | すべてのケースが一致するかスイートが存在しない場合は0、不一致があると1、引数なしでは2      |
 | `python3 -m conformance.cycles`     | `singlestep`と同じ                                                                                                                                        | `singlestep`と同じ                                                                         |
 | `python3 -m conformance.documents`  | `[--check] [--only SUBSTRING]`。`--check`はダウンロードせずにディスク上のものを検証します                                                                 | すべての文書が検証されると0、それ以外は1                                                   |
@@ -417,9 +417,9 @@ for page in (False, True):
 ## 正しいか
 
 ```bash
-python3 -m conformance.fetch ~/.cache/conformance-suites
-python3 -m conformance.singlestep ~/.cache/conformance-suites/spc700/spc700/v1
-python3 -m conformance.cycles ~/.cache/conformance-suites/spc700/spc700/v1
+python3 -m conformance.fetch external/conformance-suites
+python3 -m conformance.singlestep external/conformance-suites/spc700/spc700/v1
+python3 -m conformance.cycles external/conformance-suites/spc700/spc700/v1
 ```
 
 `singlestep`は`256000 agreed, 0 did not`で、`cycles`は`256000 agreed, 0 did not, over 1182940 cycles`で終わります。どちらも不一致が1つでもあれば1で終了します。

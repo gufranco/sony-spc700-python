@@ -1,0 +1,15 @@
+{
+  "externalNote": "Every file this repository reads and may not ship, or fetches rather than carries. Each lives under external/, which git and Dropbox both ignore. python3 -m conformance.external reports which are here, which are missing and which are not the file named; HEAD decides a checkout.",
+  "external": {
+    "singlesteptests-spc700": {
+      "kind": "checkout",
+      "required": false,
+      "purpose": "The SingleStepTests corpus for the SPC700, which the singlestep and cycles runners hold the model to.",
+      "usedBy": ["conformance/fetch.py", "conformance/singlestep.py", "conformance/cycles.py"],
+      "path": "conformance-suites/spc700",
+      "repository": "https://github.com/SingleStepTests/ProcessorTests.git",
+      "commit": "bb11756436da8fd16cce86aef63dc6725f48836f",
+      "fetchedBy": "python3 -m conformance.fetch"
+    }
+  }
+}

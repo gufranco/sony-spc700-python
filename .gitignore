@@ -20,3 +20,4 @@ specs/
 *.bin
 *.sfc
 *.smc
+external/

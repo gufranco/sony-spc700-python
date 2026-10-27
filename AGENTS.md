@@ -98,7 +98,7 @@ pinned as a submodule:
 
 ```bash
 cd ../sony-s-smp-python
-SSMP_CARTRIDGE_DIR=/path/to/cartridges python3 -m conformance.cartridges
+SSMP_CARTRIDGE_DIR=external/cartridges python3 -m conformance.cartridges
 ```
 
 What those runs showed is recorded here in
@@ -133,6 +133,29 @@ The NTF 2.5 test, the Test Program that overdumps it and the controller test
 cassette upload a sound driver and check nothing on the unit, so they are not
 listed.
 
+## Files kept in `external/`
+
+Everything this member reads and may not ship sits in `external/`, which git
+ignores and Dropbox is told to leave alone, per FAMILY.md's "Where the files a
+member reads are kept". [`artifacts.manifest.json`](artifacts.manifest.json)
+names it by size, CRC32, MD5, SHA-1 and SHA-256:
+
+- `external/conformance-suites/spc700`, the SingleStepTests checkout at the
+  commit [`conformance/suites.json`](conformance/suites.json) pins, fetched by
+  `python3 -m conformance.fetch`. A test holds its commit to that record.
+
+The test cartridges are not read here. They sit in `sony-s-smp-python`'s
+`external/cartridges/`, where the member that runs them keeps them.
+
+```bash
+python3 -m conformance.external
+python3 -m conformance.external --describe external/<file>
+```
+
+The first says which are here, verified, missing or wrong. The second prints
+the manifest entry for a file being added, which gets its entry in the same
+change.
+
 ## Every gate, in the order to run them
 
 ```bash
@@ -159,9 +182,9 @@ python3 -m conformance.speed
 The conformance walk needs the corpus, which is fetched rather than vendored:
 
 ```bash
-python3 -m conformance.fetch ~/.cache/conformance-suites
-python3 -m conformance.singlestep ~/.cache/conformance-suites/spc700/spc700/v1
-python3 -m conformance.cycles ~/.cache/conformance-suites/spc700/spc700/v1
+python3 -m conformance.fetch external/conformance-suites
+python3 -m conformance.singlestep external/conformance-suites/spc700/spc700/v1
+python3 -m conformance.cycles external/conformance-suites/spc700/spc700/v1
 ```
 
 And the runs that report what they could not check rather than passing quietly:
@@ -259,6 +282,7 @@ conformance/
   family_*.test.py the family standard, held to this repository, one topic a file
   family_member.py what this member answers to them
   family_shared.py what more than one of them reads
+  external.py       which files in external/ are here, verified, missing or wrong
   suites.json    which corpus, at which commit
   fetch.py       fetching it into a cache
   singlestep.py  running it, state by state
@@ -269,6 +293,8 @@ conformance/
   testroms.json  every test cartridge that exercises this processor
   quotes.py      looks for every quoted sentence in the document it cites
   speed.py       the throughput floor
+external/           the SingleStepTests checkout, never committed
+artifacts.manifest.json  every file in external/, by size and every digest
 ```
 
 ## Things that will bite you

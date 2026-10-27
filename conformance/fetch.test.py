@@ -26,6 +26,22 @@ A_SUITE = {
 
 
 class DefinitionTest(unittest.TestCase):
+    def test_the_manifest_pins_each_suite_at_the_commit_the_definition_names(self) -> None:
+        # Arrange
+        manifest = json.loads((ROOT / "artifacts.manifest.json").read_text())["external"]
+
+        # Act
+        pinned = {
+            one["repository"]: one["commit"]
+            for one in manifest.values()
+            if one.get("kind") == "checkout"
+        }
+
+        # Assert
+        self.assertEqual(
+            pinned, {suite["repository"]: suite["commit"] for suite in fetch.definitions()}
+        )
+
     def test_the_repository_declares_at_least_one_suite(self) -> None:
         self.assertTrue(fetch.definitions())
 
@@ -222,7 +238,7 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("cannot reach", output)
 
-    def test_no_directory_falls_back_to_a_cache_below_the_home_directory(self) -> None:
+    def test_no_directory_falls_back_to_the_external_folder_of_this_repository(self) -> None:
         # Arrange
         chosen: dict[str, Any] = {}
 
@@ -237,7 +253,9 @@ class MainTest(unittest.TestCase):
 
         # Assert
         self.assertEqual(code, 0)
-        self.assertIn(".cache", str(chosen["directory"]))
+        self.assertEqual(
+            Path(str(chosen["directory"])).parent, ROOT / "external" / "conformance-suites"
+        )
 
 
 if __name__ == "__main__":

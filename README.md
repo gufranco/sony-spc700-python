@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **918** tests, **100%** statement and branch coverage, no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **969** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, Memory
@@ -45,7 +45,7 @@ python3 spc700/doctor.py
 
 The package imports nothing outside the standard library. `pip install git+https://github.com/gufranco/sony-spc700-python.git` installs it into another project.
 
-The doctor checks the machine, builds and resets the part, and looks for the conformance suite in `~/.cache/conformance-suites`. It ends with one line. Paste its whole output into any bug report.
+The doctor checks the machine, builds and resets the part, and looks for the conformance suite in `external/conformance-suites`. It ends with one line. Paste its whole output into any bug report.
 
 ```
   6 checks, nothing to report
@@ -169,7 +169,7 @@ spc800 is not a model this package covers; it has spc700
 | Command                             | Arguments                                                                                                                                 | Exit codes                                                                              |
 | :---------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
 | `python3 spc700/doctor.py`          | None                                                                                                                                      | 0 when every check passes, 1 otherwise                                                  |
-| `python3 -m conformance.fetch`      | `[directory] [--latest]`. The directory defaults to `~/.cache/conformance-suites`. `--latest` takes upstream's newest commit over the pin | 0, or 1 when upstream cannot be reached                                                 |
+| `python3 -m conformance.fetch`      | `[directory] [--latest]`. The directory defaults to `external/conformance-suites`. `--latest` takes upstream's newest commit over the pin | 0, or 1 when upstream cannot be reached                                                 |
 | `python3 -m conformance.singlestep` | `<suite directory> [cases per file] [name filter]`                                                                                        | 0 when every case agrees or no suite is there, 1 on a disagreement, 2 with no arguments |
 | `python3 -m conformance.cycles`     | Same as `singlestep`                                                                                                                      | Same as `singlestep`                                                                    |
 | `python3 -m conformance.documents`  | `[--check] [--only SUBSTRING]`. `--check` verifies what is on disk without downloading                                                    | 0 when every document verifies, 1 otherwise                                             |
@@ -417,9 +417,9 @@ The same `MOV A, $10` reads `$0010` with P clear and `$0110` with P set. A 16-bi
 ## Is it right
 
 ```bash
-python3 -m conformance.fetch ~/.cache/conformance-suites
-python3 -m conformance.singlestep ~/.cache/conformance-suites/spc700/spc700/v1
-python3 -m conformance.cycles ~/.cache/conformance-suites/spc700/spc700/v1
+python3 -m conformance.fetch external/conformance-suites
+python3 -m conformance.singlestep external/conformance-suites/spc700/spc700/v1
+python3 -m conformance.cycles external/conformance-suites/spc700/spc700/v1
 ```
 
 `singlestep` ends with `256000 agreed, 0 did not`, and `cycles` with `256000 agreed, 0 did not, over 1182940 cycles`. Each exits 1 on any disagreement.
