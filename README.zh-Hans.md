@@ -4,9 +4,11 @@ Sony SPC700 是 SNES 音频单元中 S-SMP 内部的处理器。本项目用 Pyt
 
 [English](README.md) | [日本語](README.ja.md) | 简体中文 | [繁體中文（香港）](README.zh-HK.md)
 
-[![CI](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![ci](https://img.shields.io/github/actions/workflow/status/gufranco/sony-spc700-python/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python?style=flat-square&label=release)](https://github.com/gufranco/sony-spc700-python/releases/latest)
+[![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
+[![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/sony-spc700-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/sony-spc700-python)
+[![license](https://img.shields.io/github/license/gufranco/sony-spc700-python?style=flat-square&label=license)](LICENSE)
 
 **256** 个操作码，比对了 **256,000** 个一致性用例和 **1,182,940** 个周期，**0** 个失败，**256** 个长度和 **253** 个周期数与 Nintendo 的表格一致，**971** 个测试，**100%** 语句和分支覆盖率，无依赖
 

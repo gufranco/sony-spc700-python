@@ -4,9 +4,11 @@ SNESオーディオユニットのS-SMPに内蔵されたプロセッサであ�
 
 [English](README.md) | 日本語 | [简体中文](README.zh-Hans.md) | [繁體中文（香港）](README.zh-HK.md)
 
-[![CI](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python)](https://github.com/gufranco/sony-spc700-python/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![ci](https://img.shields.io/github/actions/workflow/status/gufranco/sony-spc700-python/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/gufranco/sony-spc700-python?style=flat-square&label=release)](https://github.com/gufranco/sony-spc700-python/releases/latest)
+[![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)](https://github.com/gufranco/sony-spc700-python/actions/workflows/ci.yml)
+[![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/sony-spc700-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/sony-spc700-python)
+[![license](https://img.shields.io/github/license/gufranco/sony-spc700-python?style=flat-square&label=license)](LICENSE)
 
 **256**個のオペコード、**256,000**件の適合性ケースと**1,182,940**サイクルを比較して失敗**0**件、**256**個の命令長と**253**個のサイクル数がNintendoの表に一致、テスト**971**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
