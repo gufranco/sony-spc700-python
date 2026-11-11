@@ -10,7 +10,7 @@ Sony SPC700 是 SNES 音效單元中 S-SMP 內的處理器。本專案以 Python
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/sony-spc700-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/sony-spc700-python)
 [![license](https://img.shields.io/github/license/gufranco/sony-spc700-python?style=flat-square&label=license)](LICENSE)
 
-比對了 **256** 個操作碼、**256,000** 個一致性案例及 **1,182,940** 個週期，**0** 個失敗；**256** 個長度及 **253** 個週期數與 Nintendo 的表格相符；**971** 個測試；**100%** 語句及分支覆蓋率；無任何依賴
+比對了 **256** 個操作碼、**256,000** 個一致性案例及 **1,182,940** 個週期，**0** 個失敗；**256** 個長度及 **253** 個週期數與 Nintendo 的表格相符；**972** 個測試；**100%** 語句及分支覆蓋率；無任何依賴
 
 ```python
 from spc700 import Cpu, Memory

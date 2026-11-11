@@ -10,7 +10,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/sony-spc700-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/sony-spc700-python)
 [![license](https://img.shields.io/github/license/gufranco/sony-spc700-python?style=flat-square&label=license)](LICENSE)
 
-**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **971** tests, **100%** statement and branch coverage, no dependencies
+**256** opcodes, **256,000** conformance cases and **1,182,940** cycles compared, **0** failures, **256** lengths and **253** cycle counts held to Nintendo's tables, **972** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from spc700 import Cpu, Memory
