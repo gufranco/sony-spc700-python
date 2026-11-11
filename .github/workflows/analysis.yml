@@ -27,7 +27,7 @@ jobs:
       actions: read
       security-events: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Set up CodeQL with the extended queries the default set leaves out
         uses: github/codeql-action/init@v4
@@ -50,7 +50,7 @@ jobs:
       security-events: write
       id-token: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
